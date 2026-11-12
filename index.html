@@ -330,22 +330,28 @@ table.stats{border-collapse:collapse;width:100%;font-size:14px;min-width:420px}
 .skin[aria-pressed="true"] b{color:var(--copper-hi)}
 /* ---------- Animations de la cible ---------- */
 .fxc{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4}
-.board.fx-spin{animation:fxspin 1.2s cubic-bezier(.3,.1,.2,1)}
-.board.fx-shake{animation:fxshake .75s linear}
-.board.fx-bounce{animation:fxbounce .7s ease-out}
-.board.fx-flex{animation:fxflex 1.1s ease-out}
-.board.fx-nod{animation:fxnod .9s ease-in-out}
-.board.fx-droop{animation:fxdroop 2.4s ease-in-out}
-.board.fx-yawn{animation:fxyawn 1.8s ease-in-out}
-.board.fx-pulse{animation:fxpulse 1.6s ease-in-out}
-@keyframes fxspin{40%{transform:rotate(200deg) scale(1.08)}100%{transform:rotate(360deg)}}
-@keyframes fxshake{10%,50%,90%{transform:translate(-8px,3px) rotate(-3deg)}30%,70%{transform:translate(8px,-3px) rotate(3deg)}100%{transform:none}}
-@keyframes fxbounce{30%{transform:scale(1.07,.94)}55%{transform:scale(.96,1.05) translateY(-10px)}80%{transform:scale(1.01,.99)}}
-@keyframes fxflex{25%{transform:scale(1.12);filter:drop-shadow(0 0 28px rgba(243,222,194,.75))}60%{transform:scale(1.05)}}
-@keyframes fxnod{25%{transform:rotate(-5deg)}60%{transform:rotate(4deg)}}
-@keyframes fxdroop{25%,70%{transform:rotate(9deg) translateY(14px) scale(.96);filter:brightness(.65) saturate(.5)}}
-@keyframes fxyawn{30%,60%{transform:scale(1.06,.86) translateY(10px);filter:brightness(.8)}80%{transform:scale(.98,1.03)}}
-@keyframes fxpulse{20%,60%{transform:scale(1.06);filter:drop-shadow(0 0 26px rgba(255,211,107,.7))}40%,80%{transform:scale(1)}}
+.stage{perspective:1100px}
+.decor-layer{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;border-radius:16px}
+.board{z-index:1;transform-style:preserve-3d}
+.stage .pad{z-index:2}
+.board.fx-spin{animation:fx3spin 1.4s cubic-bezier(.35,.05,.25,1)}
+.board.fx-flip{animation:fx3flip 1.9s cubic-bezier(.3,.1,.2,1)}
+.board.fx-lean{animation:fx3lean 1.3s cubic-bezier(.3,.1,.2,1)}
+.board.fx-tilt{animation:fx3tilt 1.1s cubic-bezier(.3,.1,.2,1)}
+.board.fx-sway{animation:fx3sway 1.2s ease-in-out}
+.board.fx-back{animation:fx3back 2.5s cubic-bezier(.4,0,.2,1)}
+.board.fx-shrug{animation:fx3shrug 1.5s ease-in-out}
+.board.fx-shake{animation:fx3shake .9s linear}
+@keyframes fx3spin{0%{transform:rotateY(0)}45%{transform:rotateY(200deg) scale(.9)}100%{transform:rotateY(360deg)}}
+@keyframes fx3flip{0%{transform:none}30%{transform:rotateX(18deg) rotateY(-28deg) scale(1.06);filter:drop-shadow(0 0 30px rgba(255,214,150,.55))}65%{transform:rotateX(-6deg) rotateY(14deg) scale(1.03)}100%{transform:none}}
+@keyframes fx3lean{30%{transform:rotateX(18deg) translateZ(40px);filter:drop-shadow(0 0 26px rgba(243,222,194,.55))}70%{transform:rotateX(4deg) translateZ(10px)}}
+@keyframes fx3tilt{35%{transform:rotateY(-16deg) rotateX(7deg) translateZ(20px)}}
+@keyframes fx3sway{30%{transform:rotateY(9deg)}65%{transform:rotateY(-6deg)}}
+@keyframes fx3back{22%,72%{transform:rotateX(32deg) translateY(16px) scale(.94);filter:brightness(.7) saturate(.7)}}
+@keyframes fx3shrug{18%{transform:rotateY(-20deg) rotateZ(-3deg)}42%{transform:rotateY(18deg) rotateZ(3deg)}66%{transform:rotateY(-8deg)}}
+@keyframes fx3shake{10%,50%,90%{transform:translateX(-7px) rotateY(-10deg) rotateZ(-2deg);filter:drop-shadow(0 0 22px rgba(233,96,86,.6))}30%,70%{transform:translateX(7px) rotateY(10deg) rotateZ(2deg)}100%{transform:none}}
+.skin.decor canvas{width:100%;max-width:150px;height:auto;aspect-ratio:3/2;border-radius:10px;box-shadow:none}
+.dk.out{opacity:.9}
 /* ---------- Personnages vocaux ---------- */
 .chars{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .char{position:relative;display:flex;flex-direction:column;gap:2px;padding:12px 44px 12px 12px;border-radius:var(--r-md);border:1px solid var(--line-2);background:rgba(255,255,255,.02);cursor:pointer;min-width:0}
@@ -414,6 +420,71 @@ table.stats{border-collapse:collapse;width:100%;font-size:14px;min-width:420px}
 .bm span{padding:6px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bm span+span{border-top:1px solid var(--line)}
 .bm.done{border-color:rgba(217,164,126,.45)}
+/* ---------- Parties en ligne ---------- */
+.icon-btn.net{position:relative;width:auto;min-width:36px;padding:0 8px;gap:4px;display:inline-flex;align-items:center}
+.icon-btn.net.on{border-color:rgba(147,214,176,.5);color:var(--ok)}
+.icon-btn.net span{font-size:12px;font-weight:800}
+.icon-btn.net i{position:absolute;top:3px;right:3px;width:7px;height:7px;border-radius:50%;background:var(--ok)}
+.icon-btn.net i.off{background:var(--danger)}
+.room-code{font-family:var(--ff-num);font-size:44px;font-weight:500;letter-spacing:.24em;text-align:center;color:var(--copper-hi);padding:6px 0}
+.linkbox{font-size:13px;color:var(--silver-2);background:var(--bg-deep);border:1px solid var(--line);border-radius:12px;padding:10px 12px;overflow-wrap:anywhere;user-select:all}
+.members{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.members li{display:flex;align-items:center;gap:8px;font-size:14px}
+.members li span:last-child{color:var(--muted);font-size:12.5px}
+.mdot{width:9px;height:9px;border-radius:50%;background:var(--muted);flex:none}
+.mdot.on{background:var(--ok)}
+.code-in{font-family:var(--ff-num);font-size:26px;letter-spacing:.3em;text-transform:uppercase;text-align:center}
+.code-in.sm{font-size:18px;letter-spacing:.2em;height:50px}
+.code-in::placeholder{letter-spacing:.04em;font-size:14px;font-family:var(--ff-ui)}
+.mycode .mc-head{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.mycode .mc-head b{display:block;font-family:var(--ff-mark);font-weight:500;font-size:20px}
+.mycode .room-code{margin-bottom:6px}
+.pend{color:var(--copper-hi)}
+/* ---------- Autres jeux (pétanque, Mölkky…) ---------- */
+.mteams{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.mteam{border-radius:var(--r-lg);border:1px solid var(--line-2);background:linear-gradient(160deg,var(--surface-2),var(--surface));padding:14px 12px;display:flex;flex-direction:column;gap:6px;align-items:stretch;text-align:center;min-width:0}
+.mteam.win{border-color:var(--copper);box-shadow:0 0 0 1px var(--copper),0 10px 30px -12px rgba(217,164,126,.6)}
+.mt-name{font-family:var(--ff-mark);font-weight:500;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mt-mem{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mt-score{font-family:var(--ff-num);font-weight:500;font-size:clamp(56px,16vw,88px);line-height:1;color:#fff;font-variant-numeric:tabular-nums}
+.mt-bar{display:block;height:5px;border-radius:3px;background:var(--bg-deep);overflow:hidden}
+.mt-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--copper-lo),var(--copper-hi));border-radius:3px;transition:width .4s ease}
+.mt-pts{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}
+.mt-pts button{min-height:48px;border-radius:12px;background:var(--bg-deep);border:1px solid rgba(217,164,126,.45);font-family:var(--ff-num);font-size:22px;color:var(--copper-hi)}
+.mt-pts button:active{background:var(--copper);color:var(--on-copper)}
+.mteam.pop,.mkp.pop{animation:mpop .7s cubic-bezier(.3,.1,.2,1)}
+@keyframes mpop{30%{transform:perspective(600px) rotateX(10deg) scale(1.04);box-shadow:0 0 0 1px var(--copper),0 0 30px rgba(243,222,194,.45)}}
+.ch-row{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:13px;text-align:left;flex-wrap:wrap}
+.ch-row small{display:block;color:var(--muted);font-size:11px}
+.ch-row .stepper button{width:34px;height:34px}
+.ch-row .stepper output{min-width:26px;font-size:20px}
+.mk-players{display:flex;flex-direction:column;gap:6px}
+.mkp{display:grid;grid-template-columns:1fr auto auto;grid-template-rows:auto auto;gap:4px 10px;align-items:center;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.02)}
+.mkp.on{border-color:var(--copper);background:rgba(217,164,126,.1)}
+.mkp.out{opacity:.45}
+.mkp.win{border-color:var(--copper);box-shadow:0 0 0 1px var(--copper)}
+.mkp .mt-bar{grid-column:1/-1}
+.mkp-name{font-weight:800;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mkp-sc{font-family:var(--ff-num);font-size:28px;font-weight:500;font-variant-numeric:tabular-nums}
+.mkp-miss{display:flex;gap:3px}
+.mkp-miss i{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--muted)}
+.mkp-miss i.x{background:var(--danger);border-color:var(--danger)}
+.mk-turn{text-align:center;margin:0;color:var(--silver-2)}
+.mk-pins{display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px 0}
+.mk-row{display:flex;gap:8px}
+.pin{width:clamp(52px,15vw,64px);height:clamp(52px,15vw,64px);border-radius:50%;font-family:var(--ff-num);font-size:22px;font-weight:500;color:#3a2412;
+  background:radial-gradient(circle at 40% 35%,#f6e2c2 0%,#d9b788 55%,#a9824f 100%);box-shadow:inset 0 -4px 8px rgba(0,0,0,.25),0 4px 10px rgba(0,0,0,.4);transition:transform .12s}
+.pin[aria-pressed="true"]{transform:translateY(4px) rotate(-14deg) scale(.92);background:radial-gradient(circle at 40% 35%,#ffd7a8 0%,#d39a73 55%,#8f5638 100%);color:#fff;box-shadow:0 0 0 3px var(--copper-hi),0 2px 6px rgba(0,0,0,.4)}
+.ow h1{font-size:clamp(28px,8vw,40px)}
+.center{text-align:center}
+.team-card{padding:12px}
+.seqpick{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.seqpick button{position:relative;min-height:40px;border-radius:10px;border:1px solid var(--line-2);background:var(--bg-deep);font-family:var(--ff-num);font-size:16px}
+.seqpick button[aria-pressed="true"]{border-color:var(--copper);color:var(--copper-hi);background:rgba(217,164,126,.14)}
+.seqpick i{position:absolute;top:-6px;right:-4px;min-width:17px;height:17px;border-radius:9px;background:var(--copper);color:var(--on-copper);font-style:normal;font-size:10px;font-weight:800;display:grid;place-items:center;font-family:var(--ff-ui);padding:0 3px}
+.free-in{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;color:var(--silver-2)}
+.free-in input{width:110px;height:42px;border-radius:10px;border:1px solid var(--line-2);background:var(--bg-deep);padding:0 10px;font-family:var(--ff-num);font-size:18px;text-align:center}
+.team-lbl{margin:8px 0 2px;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--copper-hi)}
 /* ---------- Tablette / ordinateur ---------- */
 @media (min-width:860px) and (min-aspect-ratio:1/1){
   .g{grid-template-columns:minmax(0,1fr) minmax(340px,400px);grid-template-rows:minmax(0,1fr) auto;grid-template-areas:"stage side" "ctrl side";column-gap:22px}
@@ -463,14 +534,7 @@ const AV_COLORS=['#a86a55','#6b7a8c','#3e5f86','#8c4f5e','#3f6e5a','#9a7a3a','#5
 
 /* Logo ARROW vectoriel (net à toutes les tailles). anim=true : les fléchettes arrivent et se plantent. */
 function logoSVG(k, anim){
-  const dart = `<path d="M0 0L23 -1.5L23 1.5Z" fill="#d5dade"/><path d="M2 0H22" stroke="#fff" stroke-opacity=".6" stroke-width=".5"/>
-    <rect x="22" y="-4.3" width="44" height="8.6" rx="3.2" fill="url(#br${k})"/>
-    <path d="M27 -4.1V4.1M30.5 -4.3V4.3M34 -4.3V4.3M37.5 -4.3V4.3M41 -4.3V4.3M50 -4.3V4.3M53.5 -4.3V4.3M57 -4.3V4.3M60.5 -4.3V4.3" stroke="#3a424c" stroke-opacity=".55" stroke-width="1.3"/>
-    <rect x="22" y="-4.3" width="44" height="2.2" rx="1" fill="#fff" fill-opacity=".45"/>
-    <rect x="65" y="-2.1" width="36" height="4.2" rx="1.6" fill="url(#sh${k})"/>
-    <path d="M97 0L113 -15C121 -17 133 -17 141 -15L133 0L141 15C133 17 121 17 113 15Z" fill="url(#fl${k})"/>
-    <path d="M97 0L113 -15C121 -17 133 -17 141 -15L136 -6Z" fill="#fff" fill-opacity=".18"/>
-    <path d="M99 0H135" stroke="#5b331f" stroke-width="1.6"/>`;
+  const dart=dartMarkup(k);
   return `<svg class="logo-svg${anim?' anim':''}" viewBox="0 0 300 270" role="img" aria-label="Logo ARROW">
   <defs>
     <linearGradient id="ag${k}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".42" stop-color="#d3d9e0"/><stop offset="1" stop-color="#7f8996"/></linearGradient>
@@ -500,58 +564,79 @@ function logoSVG(k, anim){
   </svg>`;
 }
 
+/* Fléchette du logo, réutilisable (cible, animations) — pointe en (0,0), corps vers +x */
+function dartMarkup(k){return `<path d="M0 0L23 -1.5L23 1.5Z" fill="#d5dade"/><path d="M2 0H22" stroke="#fff" stroke-opacity=".6" stroke-width=".5"/>
+    <rect x="22" y="-4.3" width="44" height="8.6" rx="3.2" fill="url(#br${k})"/>
+    <path d="M27 -4.1V4.1M30.5 -4.3V4.3M34 -4.3V4.3M37.5 -4.3V4.3M41 -4.3V4.3M50 -4.3V4.3M53.5 -4.3V4.3M57 -4.3V4.3M60.5 -4.3V4.3" stroke="#3a424c" stroke-opacity=".55" stroke-width="1.3"/>
+    <rect x="22" y="-4.3" width="44" height="2.2" rx="1" fill="#fff" fill-opacity=".45"/>
+    <rect x="65" y="-2.1" width="36" height="4.2" rx="1.6" fill="url(#sh${k})"/>
+    <path d="M97 0L113 -15C121 -17 133 -17 141 -15L133 0L141 15C133 17 121 17 113 15Z" fill="url(#fl${k})"/>
+    <path d="M97 0L113 -15C121 -17 133 -17 141 -15L136 -6Z" fill="#fff" fill-opacity=".18"/>
+    <path d="M99 0H135" stroke="#5b331f" stroke-width="1.6"/>`}
+function dartDefs(k){return `<linearGradient id="br${k}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3f5f7"/><stop offset=".55" stop-color="#9ba4ae"/><stop offset="1" stop-color="#565e68"/></linearGradient>
+  <linearGradient id="sh${k}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9aa2ab"/><stop offset="1" stop-color="#3f464f"/></linearGradient>
+  <linearGradient id="fl${k}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3cdb0"/><stop offset=".5" stop-color="#c88a66"/><stop offset="1" stop-color="#7a4529"/></linearGradient>`}
+/* Image de la fléchette pour les animations sur canvas */
+const DART_IMG=(()=>{const im=new Image();im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -20 146 40" width="584" height="160"><defs>${dartDefs('i')}</defs>${dartMarkup('i')}</svg>`);return im})();
+
 /* =========================================================
    Ambiances : phrases de réaction (fichier « Répliques Fléchettes Master »)
-   Les 5 premières phrases de chaque catégorie sont enregistrables (fichier amb_cat_N.mp3) ;
-   les suivantes contiennent {n} (prénom) ou {r} (score restant) et sont lues par la voix du téléphone.
+   Les 3 premières phrases de chaque catégorie sont enregistrées (voix/amb_cat_N.mp3).
+   Le texte entre crochets [ ] est l'intonation pour ElevenLabs v3 : l'application ne l'affiche pas.
+   Les suivantes contiennent {n} (prénom) ou {r} (score restant) et sont lues par la voix du téléphone.
    ========================================================= */
 const AMBIANCES={
-  standard:{name:"Standard",tone:"Sportif, positif et bienveillant",ex:["« Boum ! Dans le mille ou presque ! »", "« Allez, la cible n'allait pas s'enfuir ! »"],pitch:1,rate:1,
-    c180:["Cent quatre-vingts ! Le patron est dans la place !", "Trois triples vingt, la volée parfaite !", "Trois fléchettes, trois fléaux, parfait !", "On dirait du grand art, quelle volée !", "Le maximum absolu ! Un vrai travail de pro !", "Cent quatre-vingts, chapeau bas {n} !"],
-    checkout:["Partie remportée, félicitations !", "Finition chirurgicale !", "C'est plié, mission accomplie avec brio !", "Rideau, c'est du propre !", "Superbe coup de grâce, bien joué !", "Et c'est plié ! Bien joué {n} !"],
-    huge:["Boum ! Dans le mille ou presque !", "Magnifique volée, quelle précision !", "Très gros score, ça ne rigole plus !", "Quelle précision, c'est carrément insolent !", "Une série digne des plus grands !", "Énorme performance, {n} !"],
-    big:["Belle volée, ça envoie du lourd !", "Ça, c'est du très solide !", "Très joli, continue comme ça !", "Bon rythme, la machine est lancée !", "Ça enchaîne super bien, bravo !", "Bien joué {n}, ça rigole pas !"],
-    mid:["Propre, on prend et on avance.", "Pas mal du tout, ça bosse bien.", "Une volée tout à fait honorable.", "Ça avance, doucement mais sûrement.", "Une bonne base pour la suite !", "Reste bien concentré, {n}."],
-    low:["Allez, la cible n'allait pas s'enfuir !", "Respire un coup, redresse le viseur.", "Pas grave, la prochaine sera la bonne.", "C'est le geste qui compte, n'est-ce pas ?", "Ça va bien finir par rentrer !", "On se reprend, {n}, la cible t'attend !"],
-    zero:["Oups, le vent a soufflé ? On repart !", "Zéro pointé, ça fait de la place sur le tableau.", "Volée fantôme, on se reconcentre !", "Une discrétion absolue sur cette volée !", "Aucune touche, mais l'intention était là !", "Aïe, aucune touche {n}, on repart du bon pied !"],
-    bust:["Trop gourmand, c'est le bust !", "Oulah, attention au calcul !", "Dommage, un peu trop d'enthousiasme.", "Trop de points, on fait marche arrière !", "Bust ! On recalcule la stratégie !", "Oups, bust ! Le score redescend à {r}."],
-    winner:["Victoire éclatante, chapeau l'artiste !", "Une victoire maîtrisée de bout en bout !", "Partie pliée, félicitations au vainqueur !", "Et c'est la victoire ! Bravo pour cette démonstration.", "Le titre de la partie revient au grand gagnant !", "{n} remporte la partie, félicitations !", "Et le grand vainqueur est… {n} !"],
-    tie:["Égalité parfaite, impossible de vous départager !", "Personne ne cède un pouce : égalité !", "Match nul, la revanche s'impose !", "Coude-à-coude jusqu'au bout, égalité !", "Deux vainqueurs pour le prix d'un, bravo à vous deux !"]},
-  chambreur:{name:"Chambreur",tone:"Taquin et provocateur, toujours bon enfant",ex:["« Dis donc, tu as mis tes lunettes aujourd'hui ? »", "« Ah ouais, carrément. C'est audacieux ! »"],pitch:0.95,rate:1.02,
-    c180:["Cent quatre-vingts ? Avoue, tu as soudoyé la cible.", "Pur coup de chance, ne t'habitue pas !", "Même toi, tu te demandes comment tu as fait.", "Quelqu'un a déplacé la cible pendant que je clignais des yeux ?", "Appelez les urgences, il a réussi un truc improbable !", "{n} a mangé du lion ce matin, ou c'est un bug ?"],
-    checkout:["Gagné… les autres ont dû avoir pitié de toi.", "Bon, il fallait bien un vainqueur par défaut.", "Victoire ! Pose la fléchette avant qu'elle ne tombe.", "On parlera de ta chance insolente plus tard.", "C'est fini ! Les cartes étaient truquées ou quoi ?"],
-    huge:["Dis donc, tu as mis tes lunettes aujourd'hui ?", "C'est un bug dans la matrice ce score.", "Pas mal… pour un coup de bol intersidéral !", "Attends, on a changé de joueur dans ton dos ?", "Ne me dis pas que tu as fait exprès ?", "Ne prends pas la grosse tête trop vite, {n}."],
-    big:["Tiens, tu te rappelles soudainement comment on vise.", "Ça arrive même aux débutants… preuve en est !", "Pas trop mal pour un dimanche de flemme.", "Oh, un éclair de lucidité !", "Tu vas finir par y croire, c'est dangereux."],
-    mid:["Du grand art… ou pas du tout.", "Ça ne casse pas trois pattes à un canard.", "Une volée digne d'un fonctionnaire fatigué.", "C'est… mou. Disons ça.", "Le public bâille aux corneilles.", "{n}, la définition vivante de la moyenne syndicale."],
-    low:["Ah ouais, carrément. C'est audacieux !", "Tu visais le mur du salon ou le voisin ?", "Même un manchot astigmate aurait fait mieux.", "Tu joues les yeux bandés pour pimenter le jeu ?", "On dirait des fléchettes en kit sans mode d'emploi.", "{n}, rappelle-toi que la cible est en face de toi, pas au plafond."],
-    zero:["Zéro pointé ! Le mur te remercie pour le massage.", "Rien du tout. Nada. Le vide intersidéral.", "Zéro ! Même le blanc de la cible t'a esquivé.", "Le tableau d'affichage vient d'entrer en dépression.", "Trois lancers, aucun blessé, c'est déjà ça.", "Il paraît que viser aide un minimum, {n}."],
-    bust:["Bust ! Les mathématiques de base, ce n'est pas ton fort.", "Trop fort, beaucoup trop fort… surtout trop loin.", "Bust ! On recompte en utilisant tes dix doigts ?", "Quand on ne sait pas compter, on prend une calculatrice.", "Bravo le veau, retour à la case départ !", "Raté ! Retour case départ à {r}, champion de pacotille."],
-    winner:["Victoire… même une horloge cassée a raison deux fois par jour !", "Et le trophée de la chance revient à… toi !", "Bravo ! On attend toujours les tests antidopage.", "Il a gagné ! Profite, l'alignement des planètes ne durera pas.", "Victoire décrochée par raccroc, mais victoire quand même !", "{n} gagne… les autres ont dû avoir pitié.", "Victoire de {n}. On exige un contrôle antidopage immédiat.", "{n} l'emporte ! Profite, ça ne se reproduira plus jamais.", "{n} gagne… même une horloge cassée donne l'heure deux fois par jour."],
-    tie:["Égalité : le sommet de la médiocrité partagée !", "Match nul, vous êtes aussi nuls l'un que l'autre.", "Égalité… synchronisés dans la faillite !", "Personne n'a voulu gagner pour ne pas vexer l'autre ?", "Égalité ! Deux champions de la demi-mesure."]},
-  superchambreur:{name:"Super Chambreur",tone:"Piquant et incisif : chambrage maximal",ex:["« Avoue, tu as mis un aimant télécommandé derrière le secteur ? »", "« Même le mur a eu plus de respect pour les fléchettes que toi. »"],pitch:0.92,rate:1.04,
-    c180:["Cent quatre-vingts ? Je porte plainte pour usurpation de talent !", "Quelqu'un a modifié les secteurs de la cible, c'est obligé.", "Même la cible a l'air choquée de ce qui vient de se passer.", "Cent quatre-vingts ! Profite, tu ne le reverras pas avant 2050.", "Vite, achetez un ticket de loto avant que le miracle ne s'estompe !", "{n} a fait 180 ! Allez vérifier ses fléchettes immédiatement !"],
-    checkout:["Finition réussie… le hasard fait vraiment de très belles choses.", "Fini ! On ne saura jamais si c'était du génie ou un coup de bol.", "Bravo, la chance t'a tenu la main du début à la fin.", "C'est fini ! Les lois de la statistique viennent de s'effondrer.", "Finition réussie ! Le public reste sous le choc de l'injustice."],
-    huge:["Avoue, tu as mis un aimant télécommandé derrière le secteur ?", "Tu as payé combien le fabricant pour ce score ?", "On inspecte les fléchettes, il y a forcément de la sorcellerie.", "Gros score ! Le hasard a fait des heures supplémentaires.", "Ne t'emballe pas trop, c'est sûrement une erreur informatique.", "{n}, range ton arc, Robin des Bois de supermarché."],
-    big:["Pas mal… pour quelqu'un qui visait la moquette.", "Tiens, un score potable. Note la date dans ton calendrier.", "Même un pigeon bourré finit par trouver une miette.", "Belle volée ! Profite, ça ne durera pas dix minutes.", "On applaudit, mais sans enthousiasme, hein."],
-    mid:["Une volée tiède comme un café oublié sur le radiateur.", "Ni chaud, ni froid : l'incarnation du néant dynamique.", "Le public est tombé dans un coma profond.", "Volée moyenne pour ambition sous le niveau de la mer.", "J'ai vu des bulletins météo plus palpitants."],
-    low:["Même le mur a eu plus de respect pour les fléchettes que toi.", "On a retrouvé une de tes fléchettes dans le pot de fleurs du voisin.", "Ce score est en solde : tout doit disparaître, surtout la honte.", "La gravité a l'air particulièrement lourde dans ta zone.", "La cible envisage de porter plainte pour maltraitance.", "{n}, tu veux qu'on rapproche la cible de trois bons mètres ?"],
-    zero:["Zéro ! Même pas une pauvre erreur d'aiguillage.", "Le vide sidéral. Le néant absolu. Toi, quoi.", "Zéro pointé : le mur te remercie pour cette caresse inutile.", "Trois fléchettes jetées, zéro point : un véritable don artistique.", "Les fléchettes ont demandé à changer de propriétaire en urgence.", "Zéro pointé ! {n} relance l'économie des perdants."],
-    bust:["Bust ! Trop d'ambition, zéro calcul mental.", "Bust ! Les additions et toi, c'est une histoire de haine.", "Boom ! Retour à l'école primaire et bon courage pour la thérapie.", "Bust ! On va te prêter un boulier pour la prochaine manche.", "Trop puissant pour ton propre bien, quel fiasco !", "Explosé en vol ! Retour à {r}, et direction révisions de maths."],
-    winner:["Victoire ! Profite bien, la revanche va faire très mal.", "Victoire… On va quand même recompter deux fois pour être sûrs.", "Victoire : les adversaires exigent un remboursement immédiat.", "Il l'emporte… le hasard a vraiment choisi le pire camp.", "Gagné ! Les perdants peuvent aller pleurer doucement sous la douche.", "{n} gagne ? Attendez, on recompte avec les pieds ou quoi ?", "Victoire de {n} : les adversaires demandent un remboursement de l'inscription.", "{n} l'emporte… le hasard a vraiment choisi la pire cible.", "{n} remporte le match… Les perdants pleurent doucement sous la douche.", "Victoire de {n}. Le hold-up du siècle vient d'avoir lieu !"],
-    tie:["Égalité : le festival de la médiocrité unanime !", "Match nul. Littéralement le néant d'un point de vue sportif.", "Égalité ! Franchement, aucun de vous ne méritait de gagner.", "Deux perdants qui partagent la même coupe, bravo.", "Égalité ! Le niveau zéro du suspense a été atteint."]},
-  superstar:{name:"Superstar",tone:"Arrogant et th\u00e9\u00e2tral : flatterie maximale",ex:["« Mais quel monstre sacré ! »", "« Les plus grands ont leurs jours de repos artistique. »"],pitch:1.12,rate:1.05,
-    c180:["Cent quatre-vingts ! Tremblez, la légende est en marche !", "Historique ! C'est gravé dans le marbre de l'immortalité !", "Le maître absolu a parlé, silence dans la salle !", "Une volée divine, pliez le genou devant la star !", "Le contrat de la réalité vient d'être brisé en mille morceaux !", "Mesdames et messieurs, inclinez-vous : {n} !"],
-    checkout:["Quelle insolence dans la finition !", "Une conclusion digne des plus grands dieux du stade !", "Déroulez le tapis rouge, le travail est accompli !", "Le titre est verrouillé avec la plus grande élégance.", "Victoire majestueuse, écrivez les livres d'histoire !", "Légendaire ! {n} entre à jamais dans l'histoire !", "Le trône et le titre reviennent de droit à {n} !"],
-    huge:["Mais quel monstre sacré !", "La perfection en trois fléchettes !", "Le public est en larmes, c'est trop beau !", "Stratosphérique, on frôle l'indécence !", "Ce joueur n'appartient pas à la même dimension !", "{n}, c'est de l'art contemporain de haut vol !"],
-    big:["Magistral, tout simplement magistral !", "La classe à l'état pur !", "Debout tout le monde, on applaudit le maestro !", "Star un jour, légende pour l'éternité !", "Un lancer d'une fluidité légendaire.", "Quelle insolente précision, {n} !"],
-    mid:["Même la médiocrité a du style quand c'est toi qui la fais.", "Tranquille, la star gère son capital énergie.", "Le génie s'accorde une petite pause syndicale.", "Un champion reste un champion, même au ralenti.", "Le calme avant la tempête de génie.", "{n} gère son art et prépare un truc monumental."],
-    low:["Les plus grands ont leurs jours de repos artistique.", "Une feinte tactique subtile, évidemment.", "Le génie prend de l'élan, vous allez voir !", "C'est juste pour redonner un peu d'espoir aux autres.", "Le grand retour du champion ne fait que commencer.", "Ne pleure pas {n}, les plus grandes étoiles connaissent des éclipses."],
-    zero:["Même les divinités laissent une chance aux mortels !", "Un zéro de star, exécuté avec une élégance folle.", "Pause café et caviar pour le champion.", "Une performance abstraite que le public n'a pas comprise.", "Le silence de la salle est un hommage à ton humilité."],
-    bust:["Trop de talent accumulé, ça déborde de l'écran !", "Bust ! Beaucoup trop puissant pour un si petit score.", "La star en voulait trop, le système a fondu !", "On ne peut pas porter le poids de la perfection sans trébucher.", "Une explosion de talent court-circuitée par le score.", "Petite secousse sismique, la légende redescend à {r}."],
-    winner:["Une victoire en or massif pour l'unique et seule star !", "Inclinez-vous devant votre nouveau roi !", "Il entre définitivement dans la légende des fléchettes !", "Champion ! Il soulève le trophée sous une pluie de confettis !", "Applaudissements nourris pour cette démonstration stellaire !", "{n} entre définitivement dans la légende !", "Standing ovation ! {n} soulève le trophée suprême !"],
-    tie:["Deux légendes se rencontrent, un seul trophée : égalité royale !", "Les colosses se neutralisent, c'est historique !", "Match au sommet, le monde retient son souffle : égalité parfaite !", "Deux titans sur le même trône, une égalité mythique !", "Le destin n'a pas réussi à trancher entre deux immortels !"]}
+  standard:{name:"Standard",tone:"Sportif, positif et bienveillant",ex:["« Boum ! Dans le mille ou presque ! »","« Allez, la cible n'allait pas s'enfuir ! »"],pitch:1,rate:1,
+    start:["[enthusiastic] Que la partie commence, bonne chance à tous !","[warmly] Fléchettes en main, c'est parti !","[excited] Place au jeu, et que le meilleur gagne !","{n}, à toi l'honneur, bonne partie !"],
+    c180:["[shouting] Cent quatre-vingts ! Le patron est dans la place !","[impressed] Le maximum absolu, un vrai travail de pro !","[excited] Trois triples vingt, la volée parfaite !","Cent quatre-vingts, chapeau bas {n} !"],
+    checkout:["[cheerful] Finition chirurgicale !","[satisfied] Rideau, c'est du propre !","[excited] Superbe coup de grâce, bien joué !","Et c'est plié ! Bien joué {n} !"],
+    huge:["[excited] Boum ! Dans le mille, ou presque !","[amazed] Quelle précision, c'est carrément insolent !","[impressed] Une série digne des plus grands !","Énorme performance, {n} !"],
+    big:["[cheerful] Belle volée, ça envoie du lourd !","[approving] Bon rythme, la machine est lancée !","[warmly] Très joli, continue comme ça !","Bien joué {n}, ça rigole pas !"],
+    mid:["[calm] Propre, on prend et on avance.","[calm] Ça avance, doucement mais sûrement.","[encouraging] Une bonne base pour la suite !","Reste bien concentré, {n}."],
+    low:["[encouraging] Respire un coup, redresse le viseur.","[reassuring] Pas grave, la prochaine sera la bonne.","[playful] Allez, la cible n'allait pas s'enfuir !","On se reprend, {n}, la cible t'attend !"],
+    zero:["[playful] Oups, le vent a soufflé ? On repart !","[encouraging] Volée fantôme, on se reconcentre !","[amused] Aucune touche, mais l'intention était là !","Aïe, aucune touche {n}, on repart du bon pied !"],
+    bust:["[surprised] Oulah, trop gourmand, c'est le bust !","[sighs] Dommage, un peu trop d'enthousiasme.","[playful] Bust ! On recalcule la stratégie !","Oups, bust ! Le score redescend à {r}."],
+    winner:["[triumphant] Victoire éclatante, chapeau l'artiste !","[warmly] Une victoire maîtrisée de bout en bout !","[excited] Et c'est la victoire ! Bravo !","{n} remporte la partie, félicitations !","Et le grand vainqueur est… {n} !"],
+    tie:["[surprised] Égalité parfaite, impossible de vous départager !","[excited] Match nul, la revanche s'impose !","[warmly] Coude-à-coude jusqu'au bout, égalité !"]},
+  chambreur:{name:"Chambreur",tone:"Taquin et provocateur, toujours bon enfant",ex:["« Dis donc, tu as mis tes lunettes aujourd'hui ? »","« Ah ouais, carrément. C'est audacieux ! »"],pitch:0.95,rate:1.02,
+    start:["[mischievously] C'est parti ! J'ai déjà préparé mes vannes.","[teasing] Bonne chance… vous allez en avoir besoin !","[chuckles] Que la partie commence, et que le moins nul gagne !","{n} commence… ça promet d'être drôle !"],
+    c180:["[suspicious] Cent quatre-vingts ? Avoue, tu as soudoyé la cible.","[laughs] Pur coup de chance, ne t'habitue pas !","[amazed] Même toi, tu te demandes comment tu as fait.","{n} a mangé du lion ce matin, ou c'est un bug ?"],
+    checkout:["[sarcastic] Gagné… les autres ont dû avoir pitié de toi.","[teasing] Victoire ! Pose la fléchette avant qu'elle ne tombe.","[sarcastic] On parlera de ta chance insolente plus tard."],
+    huge:["[surprised] Dis donc, tu as mis tes lunettes aujourd'hui ?","[suspicious] Attends, on a changé de joueur dans ton dos ?","[laughs] Pas mal… pour un coup de bol intersidéral !","Ne prends pas la grosse tête trop vite, {n}."],
+    big:["[sarcastic] Tiens, tu te rappelles comment on vise.","[mock surprise] Oh, un éclair de lucidité !","[teasing] Tu vas finir par y croire, c'est dangereux."],
+    mid:["[unimpressed] Du grand art… ou pas du tout.","[deadpan] C'est… mou. Disons ça.","[sighs] Ça ne casse pas trois pattes à un canard.","{n}, la définition vivante de la moyenne syndicale."],
+    low:["[sarcastic] Ah ouais, carrément. C'est audacieux !","[laughs] Tu visais le mur du salon ou le voisin ?","[teasing] Tu joues les yeux bandés pour pimenter ?","{n}, rappelle-toi que la cible est en face de toi, pas au plafond."],
+    zero:["[laughs] Zéro pointé ! Le mur te remercie pour le massage.","[deadpan] Rien du tout. Nada. Le vide intersidéral.","[amused] Trois lancers, aucun blessé, c'est déjà ça.","Il paraît que viser aide un minimum, {n}."],
+    bust:["[sarcastic] Bust ! Le calcul mental, ce n'est pas ton fort.","[teasing] Bust ! On recompte sur tes dix doigts ?","[laughs] Trop fort, beaucoup trop fort… surtout trop loin.","Raté ! Retour case départ à {r}, champion de pacotille."],
+    winner:["[sarcastic] Victoire… même une horloge cassée a raison deux fois par jour !","[mischievously] Et le trophée de la chance revient à… toi !","[teasing] Bravo ! On attend toujours les tests antidopage.","{n} gagne… les autres ont dû avoir pitié.","Victoire de {n}. On exige un contrôle antidopage immédiat.","{n} l'emporte ! Profite, ça ne se reproduira plus jamais.","{n} gagne… même une horloge cassée donne l'heure deux fois par jour."],
+    tie:["[laughs] Égalité : la médiocrité partagée !","[sarcastic] Égalité… synchronisés dans la faillite !","[teasing] Personne n'a osé gagner ?"]},
+  superchambreur:{name:"Super Chambreur",tone:"Piquant et incisif : chambrage maximal",ex:["« Avoue, tu as mis un aimant derrière la cible ? »","« La cible envisage de porter plainte pour maltraitance. »"],pitch:0.92,rate:1.04,
+    start:["[dramatic] Mesdames et messieurs, le massacre peut commencer !","[mischievously] Rangez vos ego, je vais être sans pitié.","[laughs] Une nouvelle partie ? La cible tremble déjà… de rire.","{n} ouvre le bal. Courage à la cible !"],
+    c180:["[outraged] Cent quatre-vingts ? Je porte plainte pour usurpation de talent !","[shocked] Même la cible est choquée de ce qui vient de se passer.","[shouting] Vite, un ticket de loto avant que le miracle ne s'envole !","{n} a fait 180 ! Allez vérifier ses fléchettes immédiatement !"],
+    checkout:["[sarcastic] Finition réussie… le hasard fait de très belles choses.","[dramatic] Fini ! Les lois de la statistique s'effondrent.","[mock outrage] Le public reste sous le choc de l'injustice."],
+    huge:["[suspicious] Avoue, tu as mis un aimant derrière la cible ?","[whispers] Tu as payé combien le fabricant pour ce score ?","[sarcastic] Le hasard fait des heures sup' !","{n}, range ton arc, Robin des Bois de supermarché."],
+    big:["[sarcastic] Pas mal… pour quelqu'un qui visait la moquette.","[mocking] Un score potable ! Note la date dans ton calendrier.","[unenthusiastic] On applaudit, mais sans enthousiasme, hein."],
+    mid:["[bored] Une volée tiède comme un vieux café.","[yawns] Le public est tombé dans un coma profond.","[deadpan] J'ai vu des bulletins météo plus palpitants."],
+    low:["[laughs] Ta fléchette a fini dans les fleurs du voisin.","[dramatic] La cible envisage de porter plainte pour maltraitance.","[sarcastic] La gravité a l'air très lourde dans ta zone.","{n}, tu veux qu'on rapproche la cible de trois bons mètres ?"],
+    zero:["[laughs hard] Zéro ! Même pas une petite erreur d'aiguillage.","[deadpan] Trois fléchettes, zéro point : quel talent.","[dramatic] Les fléchettes demandent à changer de propriétaire !","Zéro pointé ! {n} relance l'économie des perdants."],
+    bust:["[laughs] Bust ! Trop d'ambition, zéro calcul mental.","[sarcastic] Bust ! On va te prêter un boulier pour la prochaine.","[mock pity] Bust ! Les additions et toi, ça fait deux.","Explosé en vol ! Retour à {r}, et direction révisions de maths."],
+    winner:["[menacing] Victoire ! Profite bien, la revanche va faire très mal.","[suspicious] Victoire… on va quand même recompter deux fois.","[sarcastic] Les adversaires exigent un remboursement immédiat !","{n} gagne ? Attendez, on recompte avec les pieds ou quoi ?","Victoire de {n} : les adversaires demandent un remboursement de l'inscription.","{n} l'emporte… le hasard a vraiment choisi la pire cible.","{n} remporte le match… Les perdants pleurent doucement sous la douche.","Victoire de {n}. Le hold-up du siècle vient d'avoir lieu !"],
+    tie:["[sarcastic] Égalité : le festival de la médiocrité unanime !","[laughs] Deux perdants qui partagent la même coupe, bravo.","[deadpan] Égalité ! Le niveau zéro du suspense est atteint."]},
+  superstar:{name:"Superstar",tone:"Arrogant et théâtral : flatterie maximale",ex:["« Mais quel monstre sacré ! »","« Les plus grands ont leurs jours de repos artistique. »"],pitch:1.12,rate:1.05,
+    start:["[announcer] Mesdames et messieurs, voici les stars de la soirée !","[dramatic] Les projecteurs s'allument, le spectacle commence !","[excited] Que la légende s'écrive ce soir !","Place à {n}, la star ouvre le spectacle !"],
+    c180:["[shouting] Cent quatre-vingts ! Tremblez, la légende est en marche !","[awestruck] Historique ! C'est gravé dans le marbre !","[dramatic] Le maître absolu a parlé, silence dans la salle !","Mesdames et messieurs, inclinez-vous : {n} !"],
+    checkout:["[impressed] Quelle insolence dans la finition !","[triumphant] Déroulez le tapis rouge, le travail est accompli !","[epic] Une conclusion digne des dieux du stade !","Légendaire ! {n} entre à jamais dans l'histoire !","Le trône et le titre reviennent de droit à {n} !"],
+    huge:["[shouting] Mais quel monstre sacré !","[awestruck] Stratosphérique, on frôle l'indécence !","[emotional] Le public est en larmes, c'est trop beau !","{n}, c'est de l'art contemporain de haut vol !"],
+    big:["[admiring] Magistral, tout simplement magistral !","[excited] Debout tout le monde, on applaudit le maestro !","[admiring] La classe à l'état pur !","Quelle insolente précision, {n} !"],
+    mid:["[relaxed] Tranquille, la star gère son énergie.","[knowingly] Un champion reste un champion, même au ralenti.","[whispers] Le calme avant la tempête de génie.","{n} gère son art et prépare un truc monumental."],
+    low:["[knowingly] Une feinte tactique subtile, évidemment.","[confident] Le génie prend de l'élan, vous allez voir !","[generous] C'est pour redonner un peu d'espoir aux autres.","Ne pleure pas {n}, les plus grandes étoiles connaissent des éclipses."],
+    zero:["[generous] Même les divinités laissent une chance aux mortels !","[admiring] Un zéro de star, exécuté avec une élégance folle.","[relaxed] Pause café et caviar pour le champion."],
+    bust:["[dramatic] Trop de talent accumulé, ça déborde !","[amused] La star en voulait trop, le système a fondu !","[sighs] Le poids de la perfection fait parfois trébucher.","Petite secousse sismique, la légende redescend à {r}."],
+    winner:["[triumphant] Inclinez-vous devant la nouvelle légende !","[epic] Une victoire en or massif pour la seule et unique star !","[cheering] Quel champion ! Pluie de confettis !","{n} entre définitivement dans la légende !","Standing ovation ! {n} soulève le trophée suprême !"],
+    tie:["[awestruck] Deux titans sur le même trône, égalité mythique !","[dramatic] Les colosses se neutralisent, c'est historique !","[epic] Le destin refuse de départager deux immortels !"]}
 };
-const CAT_NAMES={c180:'180',checkout:'Volée gagnante',huge:'Très gros score',big:'Gros score',mid:'Score moyen',low:'Petit score',zero:'Zéro',bust:'Bust (dépassement)',winner:'Annonce du gagnant',tie:'Égalité (plusieurs gagnants)'};
+const CAT_NAMES={start:'Début de partie',c180:'180',checkout:'Volée gagnante',huge:'Très gros score',big:'Gros score',mid:'Score moyen',low:'Petit score',zero:'Zéro',bust:'Bust (dépassement)',winner:'Annonce du gagnant',tie:'Égalité (plusieurs gagnants)'};
+const untag=s=>String(s).replace(/\[[^\]]*\]\s*/g,'');
 
 /* =========================================================
    Géométrie réglementaire de la cible (millimètres, norme WDF)
@@ -561,7 +646,7 @@ const G={db:6.35,b:15.9,ti:99,to:107,di:162,do:170,num:196,rim:225};
 
 function hitTest(x,y){
   const r=Math.hypot(x,y);
-  if(r>G.rim) return null;                 // en dehors de la cible : annuler
+  if(r>G.rim) return {seg:0,mult:0};       // dans le carré, hors de la cible : raté
   if(r<=G.db) return {seg:25,mult:2};
   if(r<=G.b)  return {seg:25,mult:1};
   if(r>G.do)  return {seg:0,mult:0};       // anneau des numéros : raté
@@ -584,7 +669,7 @@ function dLabel(d){
   return (d.mult===3?'T':d.mult===2?'D':'')+d.seg;
 }
 function dLong(d){
-  if(!d) return 'Annuler';
+  if(!d) return 'Annuler (relâcher ici)';
   if(!d.seg) return 'Hors zone · 0';
   if(d.seg===25) return d.mult===2?'Bull (centre) · 50':'Bull extérieur · 25';
   const n=['','Simple','Double','Triple'][d.mult];
@@ -807,8 +892,8 @@ function segPick(o,v){return o.vals.map(([val,lab])=>({val,lab,on:v===val}))}
 const GAMES={
 /* ---------------- X01 : 301 / 501 / 701 / 901 ---------------- */
 x01:{id:'x01',name:'301 · 501 · 701 · 901',short:'X01',group:'Classiques',sub:'Descendre à zéro, finir au double',
-  rules:g=>RULES[g.start||501],
-  opts:[{k:'start',label:'Départ',vals:[[301,'301'],[501,'501'],[701,'701'],[901,'901']],def:501},
+  rules:g=>RULES[g.start||501]||`Même principe que le 501, avec un départ à ${g.start} points. Le premier à tomber exactement à zéro gagne.`,
+  opts:[{k:'start',label:'Départ',vals:[[301,'301'],[501,'501'],[701,'701'],[901,'901']],def:501,free:{min:21,max:2001,label:'Autre départ (ex. 170, 1001)'}},
         {k:'outRule',label:'Règle de sortie',vals:[['double','Double'],['single','Simple'],['master','Master']],def:'double',help:v=>OUT_LONG[v]+' Si on dépasse zéro'+(v!=='single'?', qu\'on tombe à 1 ou qu\'on finit sans la bonne zone':'')+', la volée est annulée (« bust »).'},
         {k:'inRule',label:'Règle d\'entrée',vals:[['straight','Directe'],['double','Double In']],def:'straight',help:v=>v==='double'?'Les points ne comptent qu\'à partir du premier double touché.':'Toutes les fléchettes comptent dès la première.'}],
   title:g=>`${g.start}<small>${OUT_LABEL[g.outRule]}${g.inRule==='double'?' · Double In':''}</small>`,
@@ -958,7 +1043,7 @@ function markIcon(m){
   if(m===1)return '<svg viewBox="0 0 20 20" aria-label="1 marque"><path d="M6 15L14 5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
   return '<svg viewBox="0 0 20 20" aria-label="aucune marque"></svg>';
 }
-const SOON_GAMES=['Jeux par équipes','Jeux personnalisés'];
+const SOON_GAMES=[];
 
 /* =========================================================
    Jeux supplémentaires
@@ -1116,14 +1201,55 @@ GAMES.rcheck={id:'rcheck',name:'Finitions au hasard',short:'Finitions',group:'En
   statNote:'Taux = finitions réussies ÷ finitions tentées.',endLine:()=>'Le plus de finitions réussies l\'emporte.'};
 
 /* =========================================================
-   Animations humoristiques sur la cible (sans texte)
-   La cible elle-même bouge (tourne, tremble, sautille, s'affaisse…)
-   et des éléments dessinés apparaissent par-dessus.
+   Jeux personnalisés
    ========================================================= */
+GAMES.race={id:'race',name:'Course aux points',short:'Course',group:'Personnalisés',sub:'Le premier à N points',
+  rules:g=>`Chaque fléchette ajoute ses points. Le premier joueur à atteindre ${g.opts.target} points gagne, même au milieu de sa volée. Un score à choisir librement pour des parties courtes ou longues.`,
+  opts:[{k:'target',label:'Objectif',vals:[[100,'100'],[200,'200'],[300,'300'],[500,'500'],[1000,'1000']],def:300,free:{min:20,max:5000,label:'Autre objectif'}}],
+  title:g=>`Course<small>${g.opts.target} points</small>`,
+  run(g){const T=g.opts.target;return runTurns(g,{
+    init:g=>({tot:g.players.map(()=>0)}),
+    dart(S,p,d,cur){const pts=dScore(d);S.tot[p]+=pts;if(S.tot[p]>=T){S.over=true;S.winner=p;cur.win=true;S.ranking=[p,...g.players.map((_,i)=>i).filter(i=>i!==p).sort((a,b)=>S.tot[b]-S.tot[a])]}return {pts}},
+    endTurn(S,p,t){t.total=sumPts(t)}})},
+  big:(S,p)=>S.tot[p],chip:(S,i)=>S.tot[i],chipSub:(S,i,g)=>`reste ${Math.max(0,g.opts.target-S.tot[i])}`,
+  hint:(S,p,g)=>`Encore <b>${Math.max(0,g.opts.target-S.tot[p])}</b> points pour gagner`,
+  curTotal:cd=>cd.reduce((a,d)=>a+d.pts,0),fmt:t=>String(t.total),
+  cat:(t,S)=>pointsCat(t,S),say:t=>t.total===180||t.win?'':(t.total===0?'Zéro. ':t.total+' ! '),resume:(S,p)=>`score ${S.tot[p]}`,
+  statCols:['Total','Meilleure','Fléch.'],
+  statRows(S,g){return g.players.map((_,i)=>{const ts=S.turns.filter(t=>t.p===i);return [S.tot[i],ts.reduce((a,t)=>Math.max(a,t.total),0),ts.reduce((a,t)=>a+t.darts.length,0)]})},
+  statNote:'Total = somme de toutes les fléchettes.',endLine:(S,g)=>`Premier à ${g.opts.target} points.`};
+
+const ZONE_L={any:'n\'importe quelle zone',double:'le double',triple:'le triple'};
+const segLabel=n=>n===25?'Bull':String(n);
+GAMES.custom={id:'custom',name:'Parcours personnalisé',short:'Parcours',group:'Personnalisés',sub:'Vos numéros, dans votre ordre',
+  rules:g=>`Touchez les cibles de votre parcours dans l'ordre : ${g.opts.seq.map(segLabel).join(' → ')}. Il faut toucher ${ZONE_L[g.opts.zone]} de chaque numéro${g.opts.zone==='triple'?' (le Bull se valide au centre)':''}. Le premier à finir le parcours gagne.`,
+  opts:[{k:'seq',label:'Parcours (touchez les numéros dans l\'ordre voulu)',type:'seq',def:[20,19,18,17,16,15,25]},
+        {k:'zone',label:'Zone à toucher',vals:[['any','Toutes'],['double','Doubles'],['triple','Triples']],def:'any'}],
+  title:g=>`Parcours<small>${g.opts.seq.length} cibles</small>`,
+  run(g){const seq=g.opts.seq.length?g.opts.seq:[20],L=seq.length,z=g.opts.zone;return runTurns(g,{
+    init:g=>({pos:g.players.map(()=>0),seq}),
+    dart(S,p,d,cur){const tg=seq[S.pos[p]];let ok=d.seg===tg&&d.mult>0;
+      if(ok&&z==='double')ok=d.mult===2;if(ok&&z==='triple')ok=tg===25?d.mult===2:d.mult===3;
+      if(ok){S.pos[p]++;if(S.pos[p]>=L){S.over=true;S.winner=p;cur.win=true;S.ranking=[p,...g.players.map((_,i)=>i).filter(i=>i!==p).sort((a,b)=>S.pos[b]-S.pos[a])]}}return {hit:ok?1:0}},
+    endTurn(S,p,t){t.total=t.darts.reduce((a,x)=>a+x.hit,0)}})},
+  big:(S,p)=>S.pos[p]>=S.seq.length?'✓':segLabel(S.seq[S.pos[p]]),chip:(S,i)=>`${S.pos[i]}/${S.seq.length}`,chipSub:(S,i)=>S.pos[i]>=S.seq.length?'terminé':`vise ${segLabel(S.seq[S.pos[i]])}`,
+  target:(S,p)=>S.over||S.pos[p]>=S.seq.length?null:S.seq[S.pos[p]],
+  hint:(S,p,g)=>S.pos[p]>=S.seq.length?'Terminé !':`Visez : <b>${g.opts.zone==='double'?'D':g.opts.zone==='triple'&&S.seq[S.pos[p]]!==25?'T':''}${segLabel(S.seq[S.pos[p]])}</b> · cible ${S.pos[p]+1}/${S.seq.length}`,
+  curTotal:cd=>cd.reduce((a,d)=>a+d.hit,0),fmt:t=>plural(t.total,'touche'),
+  cat:t=>t.win?'checkout':t.total===3?'huge':t.total===2?'big':t.total===1?'mid':'zero',say:()=>'',resume:(S,p)=>`${S.pos[p]}/${S.seq.length}`,
+  statCols:['Avancée','Touches','Réussite','Fléch.'],
+  statRows(S,g){return g.players.map((_,i)=>{const ts=S.turns.filter(t=>t.p===i),d=ts.reduce((a,t)=>a+t.darts.length,0),h=ts.reduce((a,t)=>a+t.total,0);return [`${S.pos[i]}/${S.seq.length}`,h,d?Math.round(h/d*100)+' %':'–',d]})},
+  statNote:'Réussite = touches utiles ÷ fléchettes lancées.',endLine:()=>'Premier à finir le parcours.'};
+
+/* =========================================================
+   Animations de fin de volée — élégantes, en 3D
+   La cible pivote en perspective ; les fléchettes du logo volent,
+   se plantent, rebondissent ou tombent ; reflets et étincelles dorées.
+   ========================================================= */
+const LOGO_IMG=(()=>{const im=new Image();im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(logoSVG('L',false).replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" width="600" height="540" '));return im})();
 const Fx={
   parts:[],raf:0,cv:null,ctx:null,host:null,
   enabled(){return prefs.fx&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches},
-  /* Prépare le calque de dessin sur la scène (ou plein écran) */
   layer(host){
     if(this.host!==host||!this.cv||!this.cv.isConnected){
       this.cv=document.createElement('canvas');this.cv.className='fxc';this.ctx=this.cv.getContext('2d');
@@ -1132,79 +1258,155 @@ const Fx={
     this.cv.width=Math.round(r.width*dpr);this.cv.height=Math.round(r.height*dpr);this.ctx.setTransform(dpr,0,0,dpr,0,0);
     this.W=r.width;this.H=r.height;return r;
   },
-  /* Centre et rayon de la cible dans le calque */
   geo(){const b=document.getElementById('board'),hr=this.host.getBoundingClientRect();
     if(b&&!b.hidden){const r=b.getBoundingClientRect();return {x:r.left-hr.left+r.width/2,y:r.top-hr.top+r.height/2,R:r.width/2}}
     return {x:this.W/2,y:this.H/2,R:Math.min(this.W,this.H)/2.4}},
+  /* point de la cible (mm) → pixels du calque */
+  pt(g,mx,my){const k=g.R/225;return {x:g.x+mx*k,y:g.y+my*k}},
   board(cls){const b=document.getElementById('board');if(!b||b.hidden)return;
-    b.classList.remove('fx-spin','fx-shake','fx-bounce','fx-flex','fx-nod','fx-droop','fx-yawn','fx-pulse');void b.offsetWidth;b.classList.add('fx-'+cls);
+    b.className=b.className.replace(/\bfx-\S+/g,'').trim();void b.offsetWidth;b.classList.add('fx-'+cls);
     clearTimeout(b._fx);b._fx=setTimeout(()=>b.classList.remove('fx-'+cls),2600)},
   run(kind){
     if(!this.enabled())return;const stage=document.getElementById('gStage');if(!stage)return;
     this.layer(stage);const g=this.geo();
     switch(kind){
-      case 'c180':this.board('spin');this.fireworks(g,4);this.confetti(140,['#f3dec2','#d9a47e','#ffffff','#ffd36b']);break;
-      case 'checkout':this.board('pulse');this.confetti(160);this.trophy(g);break;
-      case 'huge':this.board('flex');this.stars(g,34,1.25);this.ring(g);break;
-      case 'big':this.board('bounce');this.stars(g,16,.9);break;
-      case 'mid':this.board('nod');this.stars(g,6,.55);break;
-      case 'low':this.board('droop');this.cloud(g);break;
-      case 'zero':this.board('yawn');this.tumbleweed(g);break;
-      case 'bust':this.board('shake');this.boom(g);break;
+      case 'c180':this.board('spin');
+        [[-6,-104],[0,-102],[6,-105]].forEach(([x,y],i)=>this.dartIn(g,this.pt(g,x,y),{delay:.25+i*.32,impact:true}));
+        this.sheen(g,1.3,'255,226,170');setTimeout(()=>this.sparks(g,{x:g.x,y:g.y-g.R*.46},70,1.3),1250);break;
+      case 'checkout':this.board('flip');this.sheen(g,.3,'255,236,200');this.champagne(110);this.logo(g,.5);break;
+      case 'huge':this.board('lean');this.sheen(g,.15,'255,230,190');this.ring(g,'217,164,126');this.sparks(g,{x:g.x,y:g.y},46,1.05);break;
+      case 'big':this.board('tilt');this.sheen(g,.1,'255,236,210');this.sparks(g,{x:g.x,y:g.y},22,.75);break;
+      case 'mid':this.board('sway');this.sheen(g,.05,'235,240,250',.5);break;
+      case 'low':this.board('back');this.dartFall(g);break;
+      case 'zero':this.board('shrug');[-1,1,-1].forEach((s,i)=>this.dartMiss(g,s,.12+i*.28));break;
+      case 'bust':this.board('shake');this.ring(g,'233,96,86');[[-30,-60],[20,-20],[50,40]].forEach(([x,y],i)=>this.dartBounce(g,this.pt(g,x,y),.1+i*.18));break;
     }
     this.loop();
   },
-  /* Célébration de fin de partie, plein écran */
   celebrate(){if(!this.enabled())return;const host=document.getElementById('view');if(!host)return;
-    this.layer(host);this.confetti(220);this.fireworks({x:this.W/2,y:this.H*.35,R:this.W/3},3);this.loop()},
-  loop(){if(this.raf)return;const step=t=>{const c=this.ctx;c.clearRect(0,0,this.W,this.H);
+    this.layer(host);const g={x:this.W/2,y:Math.min(this.H*.28,220),R:Math.min(this.W,420)/2.6};this.champagne(160);this.logo(g,.2,true);
+    setTimeout(()=>this.sparks(g,{x:g.x,y:g.y},60,1.2),700);this.loop()},
+  loop(){if(this.raf)return;const step=()=>{const c=this.ctx;c.clearRect(0,0,this.W,this.H);
       const now=performance.now();this.parts=this.parts.filter(p=>now-p.t0<p.life);
-      for(const p of this.parts)p.draw(c,(now-p.t0)/1000,p);
+      for(const p of this.parts){c.save();p.draw(c,(now-p.t0)/1000,p);c.restore()}
       if(this.parts.length)this.raf=requestAnimationFrame(step);else{this.raf=0;c.clearRect(0,0,this.W,this.H)}};
     this.raf=requestAnimationFrame(step)},
   add(life,draw,extra){this.parts.push(Object.assign({t0:performance.now(),life,draw},extra))},
 
-  confetti(n,cols=['#d9a47e','#f3dec2','#c9d1dd','#e3262c','#16a05a','#8fb4e6']){
-    for(let i=0;i<n;i++){const x=Math.random()*this.W,vy=90+Math.random()*160,vx=(Math.random()-.5)*60,col=cols[i%cols.length],w=5+Math.random()*5,h=8+Math.random()*7,rot=Math.random()*6,spin=(Math.random()-.5)*10,delay=Math.random()*.6;
-      this.add(3200,(c,t)=>{t-=delay;if(t<0)return;const y=-20+vy*t+40*t*t,xx=x+vx*t+Math.sin(t*4+i)*18;c.save();c.translate(xx,y);c.rotate(rot+spin*t);c.scale(1,Math.cos(t*6+i));c.fillStyle=col;c.fillRect(-w/2,-h/2,w,h);c.restore()})}},
-  stars(g,n,scale){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,sp=(.5+Math.random()*.9)*g.R*1.4*scale,sz=4+Math.random()*7*scale,col=['#ffd36b','#f3dec2','#ffffff','#d9a47e'][i%4];
-      this.add(1100,(c,t)=>{const k=t/1.1,d=sp*(1-Math.pow(1-k,3));c.globalAlpha=1-k;star(c,g.x+Math.cos(a)*d,g.y+Math.sin(a)*d,sz*(1-k*.4),col,t*4);c.globalAlpha=1})}},
-  ring(g){this.add(800,(c,t)=>{const k=t/.8;c.strokeStyle=`rgba(243,222,194,${1-k})`;c.lineWidth=6*(1-k)+1;c.beginPath();c.arc(g.x,g.y,g.R*(1+k*.5),0,7);c.stroke()})},
-  fireworks(g,n){for(let f=0;f<n;f++){const tx=g.x+(Math.random()-.5)*g.R*1.8,ty=g.y-g.R*(.3+Math.random()*.7),delay=f*.32,col=['#ffd36b','#ff6fa8','#7fe7ff','#f3dec2'][f%4],sx=tx+(Math.random()-.5)*60;
-      this.add(2400,(c,t)=>{t-=delay;if(t<0)return;
-        if(t<.45){const k=t/.45,y=this.H+10-(this.H+10-ty)*k,x=sx+(tx-sx)*k;c.fillStyle='#fff';c.beginPath();c.arc(x,y,2.2,0,7);c.fill();return}
-        const tt=t-.45;for(let i=0;i<36;i++){const a=i/36*Math.PI*2,d=tt*140*(1-tt*.25),x=tx+Math.cos(a)*d,y=ty+Math.sin(a)*d+tt*tt*60;c.globalAlpha=Math.max(0,1-tt/1.8);c.fillStyle=col;c.beginPath();c.arc(x,y,2.4,0,7);c.fill()}c.globalAlpha=1})}},
-  /* Petit nuage grognon qui pleut sur la cible */
-  cloud(g){const cx=g.x,cy=g.y-g.R*.55,s=g.R/120;
-    this.add(2800,(c,t)=>{const k=Math.min(1,t/.35),out=t>2.3?(t-2.3)/.5:0,a=k*(1-out);c.save();c.globalAlpha=a;c.translate(cx+Math.sin(t*2)*6*s,cy-(1-k)*30);c.scale(s,s);
-      c.fillStyle='#6f7a8c';for(const [x,y,r] of [[-38,6,24],[-12,-10,30],[20,-4,26],[42,8,20],[0,10,26]]){c.beginPath();c.arc(x,y,r,0,7);c.fill()}
-      c.fillStyle='#8c97a8';for(const [x,y,r] of [[-14,-14,20],[18,-8,16]]){c.beginPath();c.arc(x,y,r,0,7);c.fill()}
-      c.strokeStyle='#2b3340';c.lineWidth=3;c.lineCap='round';c.beginPath();c.moveTo(-18,4);c.lineTo(-8,8);c.moveTo(18,4);c.lineTo(8,8);c.stroke();
-      c.beginPath();c.arc(0,24,8,Math.PI*1.15,Math.PI*1.85);c.stroke();c.restore();
-      if(t>.35&&t<2.4){c.save();c.globalAlpha=a*.85;c.strokeStyle='#8fc2ff';c.lineWidth=2;for(let i=0;i<16;i++){const x=cx+(i-8)*7*s+Math.sin(i*7)*4,yy=cy+20*s+((t*420+i*53)%(g.R*1.3));c.beginPath();c.moveTo(x,yy);c.lineTo(x-2,yy+10*s);c.stroke()}c.restore()}})},
-  /* Boule de foin qui traverse la cible en roulant (le silence du désert) */
-  tumbleweed(g){const s=g.R/110,y0=g.y+g.R*.45,r=22*s;
-    this.add(2600,(c,t)=>{const k=t/2.6,x=-40+(this.W+80)*k,y=y0-Math.abs(Math.sin(t*5))*26*s;c.save();c.translate(x,y);c.rotate(t*7);
-      c.strokeStyle='#b0884e';c.lineWidth=1.6;for(let i=0;i<9;i++){c.beginPath();c.ellipse(0,0,r,r*.6,i*.7,0,Math.PI*1.7);c.stroke()}
-      c.strokeStyle='#d8b37a';c.lineWidth=1;for(let i=0;i<5;i++){c.beginPath();c.ellipse(0,0,r*.7,r*.35,i*1.3,.4,Math.PI*1.6);c.stroke()}c.restore();
-      if(Math.sin(t*5)>.9){c.fillStyle='rgba(216,179,122,.35)';c.beginPath();c.arc(x-8,y0+r*.6,6*s,0,7);c.fill()}})},
-  /* Explosion façon dessin animé + fissures sur la cible */
-  boom(g){const n=10;for(let i=0;i<n;i++){const a=i/n*Math.PI*2+Math.random()*.3,d=g.R*(.15+Math.random()*.25),r0=g.R*(.12+Math.random()*.1);
-      this.add(1500,(c,t)=>{const k=t/1.5;c.globalAlpha=Math.max(0,1-k*1.1);c.fillStyle=k<.15?'#ffd36b':k<.3?'#ff8a3d':'#5b6170';c.beginPath();c.arc(g.x+Math.cos(a)*d*(1+k),g.y+Math.sin(a)*d*(1+k)-k*20,r0*(1+k*1.4),0,7);c.fill();c.globalAlpha=1})}
-    this.add(400,(c,t)=>{const k=t/.4;c.fillStyle=`rgba(255,240,200,${.8*(1-k)})`;c.beginPath();c.arc(g.x,g.y,g.R*(.3+k*.8),0,7);c.fill()});
-    const cracks=[...Array(7)].map((_,i)=>{const a=i/7*Math.PI*2+Math.random()*.4;const pts=[[0,0]];let x=0,y=0;for(let j=0;j<5;j++){const aa=a+(Math.random()-.5)*.8;x+=Math.cos(aa)*g.R*.14;y+=Math.sin(aa)*g.R*.14;pts.push([x,y])}return pts});
-    this.add(1900,(c,t)=>{const k=Math.min(1,t/.2),out=t>1.4?(t-1.4)/.5:0;c.strokeStyle=`rgba(10,10,12,${.85*(1-out)})`;c.lineWidth=2.4;c.lineJoin='round';
-      for(const pts of cracks){c.beginPath();const m=Math.max(2,Math.ceil(pts.length*k));pts.slice(0,m).forEach(([x,y],j)=>j?c.lineTo(g.x+x,g.y+y):c.moveTo(g.x+x,g.y+y));c.stroke()}})},
-  /* Trophée qui tombe et rebondit */
-  trophy(g){const s=g.R/100;
-    this.add(2800,(c,t)=>{const k=Math.min(1,t/.6),bounce=k<1?1-Math.pow(1-k,3):1,y=g.y-g.R*1.6+(g.R*1.6)*bounce-Math.abs(Math.sin(Math.min(t,1.2)*9))*(t<1.2?12*(1.2-t):0),a=t>2.3?1-(t-2.3)/.5:1;
-      c.save();c.globalAlpha=a;c.translate(g.x,y);c.scale(s,s);const gr=c.createLinearGradient(-30,-40,30,40);gr.addColorStop(0,'#fff1c4');gr.addColorStop(.5,'#e6b54a');gr.addColorStop(1,'#9a6a1c');
-      c.fillStyle=gr;c.strokeStyle='#5a3d0e';c.lineWidth=2;
-      c.beginPath();c.moveTo(-28,-40);c.lineTo(28,-40);c.quadraticCurveTo(28,8,6,16);c.lineTo(6,28);c.lineTo(18,34);c.lineTo(18,42);c.lineTo(-18,42);c.lineTo(-18,34);c.lineTo(-6,28);c.lineTo(-6,16);c.quadraticCurveTo(-28,8,-28,-40);c.closePath();c.fill();c.stroke();
-      c.lineWidth=5;c.strokeStyle='#d4a03c';c.beginPath();c.arc(-30,-22,12,Math.PI*.5,Math.PI*1.5);c.stroke();c.beginPath();c.arc(30,-22,12,-Math.PI*.5,Math.PI*.5);c.stroke();
-      star(c,0,-14,11,'#fff8e0',t*2);c.restore()})}
+  /* Fléchette du logo dessinée en perspective : pointe en (x,y), échelle s, angle a (degrés) */
+  dart(c,x,y,s,a,alpha=1,g){if(!DART_IMG.complete)return;const L=(g?g.R/225:1)*51*s,H=L*40/146;
+    c.save();c.globalAlpha=alpha;c.translate(x,y);c.rotate(a*Math.PI/180);
+    c.shadowColor='rgba(0,0,0,.45)';c.shadowBlur=8*s;c.shadowOffsetX=3*s;c.shadowOffsetY=5*s;
+    c.drawImage(DART_IMG,-L*2/146,-H/2,L,H);c.restore()},
+  /* Arrivée en profondeur : la fléchette vient de l'écran vers la cible */
+  dartIn(g,to,{delay=0,impact=false}={}){const dur=.42,hold=1.7;
+    this.add((delay+dur+hold+.5)*1000,(c,t)=>{t-=delay;if(t<0)return;
+      if(t<dur){const k=t/dur,e=1-Math.pow(1-k,3),s=3.4-2.4*e,x=to.x+(g.R*.9)*(1-e),y=to.y+(g.R*.7)*(1-e);this.dart(c,x,y,s,-52+18*(1-e),Math.min(1,k*3),g);return}
+      const tt=t-dur;const wob=Math.sin(tt*38)*Math.exp(-tt*7)*7,fade=tt>hold?1-(tt-hold)/.5:1;this.dart(c,to.x,to.y,1,-52+wob,Math.max(0,fade),g)});
+    if(impact)setTimeout(()=>this.sparks(g,to,14,.5),(delay+dur)*1000)},
+  /* Rebond : la fléchette touche la cible puis repart en tournoyant */
+  dartBounce(g,to,delay){const dur=.36;
+    this.add((delay+2.2)*1000,(c,t)=>{t-=delay;if(t<0)return;
+      if(t<dur){const k=t/dur,e=1-Math.pow(1-k,2),s=3-2*e;this.dart(c,to.x+g.R*.8*(1-e),to.y+g.R*.6*(1-e),s,-50,Math.min(1,k*3),g);return}
+      const tt=t-dur,vx=g.R*1.1,vy=-g.R*1.2,gr=g.R*4.2;const x=to.x+vx*tt,y=to.y+vy*tt+gr*tt*tt/2,s=1+tt*1.4;
+      this.dart(c,x,y,s,-50+tt*620,Math.max(0,1-tt/1.6),g)});
+    setTimeout(()=>this.sparks(g,to,10,.45,['255,140,120','255,200,170']),(delay+dur)*1000)},
+  /* Raté : la fléchette passe à côté de la cible et file hors champ */
+  dartMiss(g,side,delay){const y0=g.y-g.R*(.2+Math.random()*.5),dur=.9;
+    this.add((delay+dur+.1)*1000,(c,t)=>{t-=delay;if(t<0||t>dur)return;const k=t/dur,s=3.2-2.6*k;
+      const x=g.x+side*(g.R*(.2+1.2*k)),y=y0+g.R*.9*(1-k)-Math.sin(k*Math.PI)*g.R*.15;this.dart(c,x,y,s,side>0?-40:-140,k<.85?1:(1-k)/.15,g)})},
+  /* Petit score : une fléchette déjà plantée se décroche et tombe */
+  dartFall(g){const p=this.pt(g,-38,-118);
+    this.add(2600,(c,t)=>{if(t<.7){this.dart(c,p.x,p.y,1,-52+Math.sin(t*30)*Math.min(1,t*2)*9,Math.min(1,t*5),g);return}
+      const tt=t-.7,y=p.y+g.R*3.2*tt*tt,x=p.x+g.R*.25*tt;this.dart(c,x,y,1+tt*.3,-52-tt*240,Math.max(0,1-tt/1.6),g)})},
+  /* Reflet de lumière qui balaie la cible */
+  sheen(g,delay,rgb,str=1){this.add((delay+1.1)*1000,(c,t)=>{t-=delay;if(t<0)return;const k=t/1.1;
+    c.beginPath();c.arc(g.x,g.y,g.R*.985,0,7);c.clip();c.globalCompositeOperation='lighter';
+    const off=-g.R*1.6+g.R*3.2*k,gr=c.createLinearGradient(g.x+off-g.R*.35,g.y-g.R,g.x+off+g.R*.35,g.y+g.R);
+    gr.addColorStop(0,`rgba(${rgb},0)`);gr.addColorStop(.5,`rgba(${rgb},${.32*str})`);gr.addColorStop(1,`rgba(${rgb},0)`);c.fillStyle=gr;c.fillRect(g.x-g.R,g.y-g.R,g.R*2,g.R*2)})},
+  /* Étincelles fines et lumineuses */
+  sparks(g,o,n,power,cols=['255,214,150','255,240,214','230,170,120']){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,sp=(.35+Math.random())*g.R*1.6*power,col=cols[i%cols.length],life=.7+Math.random()*.6;
+    this.add(life*1000,(c,t)=>{const k=t/life,vx=Math.cos(a)*sp,vy=Math.sin(a)*sp,x=o.x+vx*t,y=o.y+vy*t+g.R*.9*t*t,tx=x-vx*.045,ty=y-(vy+g.R*1.8*t)*.045;
+      c.globalCompositeOperation='lighter';c.strokeStyle=`rgba(${col},${1-k})`;c.lineWidth=1.6*(1-k)+.4;c.lineCap='round';c.beginPath();c.moveTo(tx,ty);c.lineTo(x,y);c.stroke()})}},
+  ring(g,rgb){this.add(900,(c,t)=>{const k=t/.9;c.globalCompositeOperation='lighter';c.strokeStyle=`rgba(${rgb},${.8*(1-k)})`;c.lineWidth=3*(1-k)+.6;c.beginPath();c.arc(g.x,g.y,g.R*(1+k*.35),0,7);c.stroke()})},
+  /* Pluie de bulles de lumière couleur champagne */
+  champagne(n){for(let i=0;i<n;i++){const x=Math.random()*this.W,r=1.5+Math.random()*3.5,sp=40+Math.random()*90,delay=Math.random()*1.2,col=['255,226,170','243,222,194','255,250,235','217,164,126'][i%4],sw=Math.random()*6;
+    this.add(3600,(c,t)=>{t-=delay;if(t<0)return;const y=-10+sp*t,xx=x+Math.sin(t*1.6+sw)*14,a=Math.min(1,t*2)*Math.max(0,1-(t-1.6)/1.4);
+      c.globalCompositeOperation='lighter';const gr=c.createRadialGradient(xx,y,0,xx,y,r*3);gr.addColorStop(0,`rgba(${col},${.9*a})`);gr.addColorStop(1,`rgba(${col},0)`);c.fillStyle=gr;c.beginPath();c.arc(xx,y,r*3,0,7);c.fill()})}},
+  /* Le logo ARROW apparaît au centre avec un éclat d'étoile */
+  logo(g,delay,big){this.add((delay+2.4)*1000,(c,t)=>{t-=delay;if(t<0||!LOGO_IMG.complete)return;const k=Math.min(1,t/.5),e=1-Math.pow(1-k,3),a=t<1.8?e:Math.max(0,1-(t-1.8)/.6);
+    const w=g.R*(big?1.5:1.25)*(.7+.3*e),h=w*.9;c.globalAlpha=a;c.shadowColor='rgba(0,0,0,.6)';c.shadowBlur=24;c.drawImage(LOGO_IMG,g.x-w/2,g.y-h*.55,w,h);
+    c.shadowBlur=0;c.globalCompositeOperation='lighter';const sx=g.x,sy=g.y-h*.55+h*40/270,gl=c.createRadialGradient(sx,sy,0,sx,sy,w*.35*(.6+.4*Math.sin(t*5)));gl.addColorStop(0,`rgba(255,255,255,${.7*a})`);gl.addColorStop(1,'rgba(255,255,255,0)');c.fillStyle=gl;c.beginPath();c.arc(sx,sy,w*.35,0,7);c.fill()})}
 };
-function star(c,x,y,r,col,rot){c.save();c.translate(x,y);c.rotate(rot||0);c.fillStyle=col;c.beginPath();for(let i=0;i<10;i++){const rr=i%2?r*.45:r,a=i/10*Math.PI*2-Math.PI/2;i?c.lineTo(Math.cos(a)*rr,Math.sin(a)*rr):c.moveTo(Math.cos(a)*rr,Math.sin(a)*rr)}c.closePath();c.fill();c.restore()}
+
+/* =========================================================
+   Décors derrière la cible (peints une fois, à la taille de l'écran)
+   ========================================================= */
+const DECORS={
+  none:{name:'Aucun',sub:'Fond ARROW bleu nuit'},
+  bricks:{name:'Briques',sub:'Mur de bar, lumière chaude'},
+  wood:{name:'Bois',sub:'Lambris de noyer'},
+  pub:{name:'Pub anglais',sub:'Vert anglais et laiton'},
+  marble:{name:'Marbre noir',sub:'Veines dorées, très chic'},
+  arena:{name:'Arène',sub:'Projecteurs de finale'}
+};
+function paintDecor(cv,key,geo,thumb){
+  const W=cv.width,H=cv.height,c=cv.getContext('2d');c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,W,H);
+  if(!key||key==='none')return;
+  const {x:cx,y:cy,R}=geo,R_=rng(4242+key.length);const rnd=()=>R_();
+  const spot=(rgb,a,rad)=>{const g=c.createRadialGradient(cx,cy,R*.3,cx,cy,rad);g.addColorStop(0,`rgba(${rgb},${a})`);g.addColorStop(1,`rgba(${rgb},0)`);c.fillStyle=g;c.fillRect(0,0,W,H)};
+  const vignette=a=>{const g=c.createRadialGradient(cx,cy,Math.min(W,H)*.35,cx,cy,Math.max(W,H)*.75);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,`rgba(0,0,0,${a})`);c.fillStyle=g;c.fillRect(0,0,W,H)};
+  const noise=(n,a)=>{for(let i=0;i<n;i++){c.fillStyle=`rgba(${rnd()<.5?'0,0,0':'255,255,255'},${a*rnd()})`;c.fillRect(rnd()*W,rnd()*H,1+rnd()*1.5,1+rnd()*1.5)}};
+  const u=Math.max(R,40);
+  if(key==='bricks'){
+    c.fillStyle='#2a1f1a';c.fillRect(0,0,W,H);const bh=u*.17,bw=bh*2.8,m=Math.max(1,bh*.09);
+    const cols=[[122,59,42],[110,52,38],[131,67,47],[95,46,34],[118,64,46]];
+    for(let row=0,y=0;y<H;row++,y+=bh){for(let x=-(row%2)*bw/2;x<W;x+=bw){const col=cols[Math.floor(rnd()*cols.length)],v=.85+rnd()*.3;
+      c.fillStyle=`rgb(${col[0]*v|0},${col[1]*v|0},${col[2]*v|0})`;c.fillRect(x+m,y+m,bw-2*m,bh-2*m);
+      const gr=c.createLinearGradient(0,y,0,y+bh);gr.addColorStop(0,'rgba(255,255,255,.06)');gr.addColorStop(1,'rgba(0,0,0,.18)');c.fillStyle=gr;c.fillRect(x+m,y+m,bw-2*m,bh-2*m)}}
+    noise(W*H/40,.18);spot('255,196,130',.42,R*2.6);vignette(.75)}
+  if(key==='wood'){
+    const pw=u*.42,cols=['#4a2c1b','#3f2516','#553420','#47291a'];
+    for(let x=0,i=0;x<W;x+=pw,i++){c.fillStyle=cols[i%cols.length];c.fillRect(x,0,pw,H);
+      c.lineWidth=1;for(let k=0;k<14;k++){const gx=x+rnd()*pw,ph=rnd()*6;c.strokeStyle=`rgba(${rnd()<.5?'255,210,160':'0,0,0'},${.05+rnd()*.07})`;c.beginPath();
+        for(let y=0;y<=H;y+=8){const xx=gx+Math.sin(y/(30+rnd()*4)+ph)*3;y?c.lineTo(xx,y):c.moveTo(xx,y)}c.stroke()}
+      c.fillStyle='rgba(0,0,0,.55)';c.fillRect(x,0,Math.max(1.5,pw*.025),H)}
+    spot('255,200,140',.32,R*2.6);vignette(.7)}
+  if(key==='pub'){
+    const rail=H*.68;c.fillStyle='#12322a';c.fillRect(0,0,W,rail);
+    c.strokeStyle='rgba(201,162,74,.07)';c.lineWidth=1;const d=u*.22;for(let y=-d;y<rail;y+=d)for(let x=-d;x<W+d;x+=d){const o=(Math.round(y/d)%2)*d/2;c.beginPath();c.moveTo(x+o,y);c.lineTo(x+o+d/2,y+d/2);c.lineTo(x+o,y+d);c.lineTo(x+o-d/2,y+d/2);c.closePath();c.stroke()}
+    c.fillStyle='#35200f';c.fillRect(0,rail,W,H-rail);
+    const pw=u*.8;for(let x=pw*.1;x<W;x+=pw){c.strokeStyle='rgba(0,0,0,.45)';c.lineWidth=2;c.strokeRect(x,rail+u*.12,pw*.8,H-rail-u*.24);c.strokeStyle='rgba(255,210,160,.08)';c.strokeRect(x+2,rail+u*.12+2,pw*.8,H-rail-u*.24)}
+    const br=c.createLinearGradient(0,rail-4,0,rail+5);br.addColorStop(0,'#f2d48a');br.addColorStop(.5,'#c9a24a');br.addColorStop(1,'#6e5320');c.fillStyle=br;c.fillRect(0,rail-3,W,7);
+    const lamp=c.createRadialGradient(cx,0,0,cx,0,R*2.4);lamp.addColorStop(0,'rgba(255,214,150,.45)');lamp.addColorStop(1,'rgba(255,214,150,0)');c.fillStyle=lamp;c.fillRect(0,0,W,H);
+    noise(W*H/60,.12);spot('255,214,150',.22,R*2);vignette(.7)}
+  if(key==='marble'){
+    const g=c.createLinearGradient(0,0,W,H);g.addColorStop(0,'#16191f');g.addColorStop(.5,'#0b0d11');g.addColorStop(1,'#14171c');c.fillStyle=g;c.fillRect(0,0,W,H);
+    for(let i=0;i<10;i++){const x=rnd()*W,y=rnd()*H,r=u*(.6+rnd()*1.6),gr=c.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,'rgba(120,130,150,.06)');gr.addColorStop(1,'rgba(120,130,150,0)');c.fillStyle=gr;c.fillRect(0,0,W,H)}
+    for(let i=0;i<(thumb?7:16);i++){let x=rnd()*W,y=-20,a=1+rnd()*.9;const gold=rnd()<.55;c.strokeStyle=gold?`rgba(214,176,106,${.25+rnd()*.3})`:`rgba(230,235,245,${.08+rnd()*.12})`;c.lineWidth=.5+rnd()*1.6;c.shadowColor=c.strokeStyle;c.shadowBlur=gold?4:2;c.beginPath();c.moveTo(x,y);
+      while(y<H+20&&x>-20&&x<W+20){const s=u*(.15+rnd()*.3);x+=Math.cos(a)*s;y+=Math.sin(a)*s;a+=(rnd()-.5)*.9;if(a<.3)a=.3;if(a>2.8)a=2.8;c.lineTo(x,y)}c.stroke()}
+    c.shadowBlur=0;const ref=c.createLinearGradient(0,0,W,H*.6);ref.addColorStop(0,'rgba(255,255,255,0)');ref.addColorStop(.5,'rgba(255,255,255,.035)');ref.addColorStop(1,'rgba(255,255,255,0)');c.fillStyle=ref;c.fillRect(0,0,W,H);
+    spot('243,222,194',.14,R*2.2);vignette(.55)}
+  if(key==='arena'){
+    c.fillStyle='#04060b';c.fillRect(0,0,W,H);c.globalCompositeOperation='lighter';
+    for(const [sx,col] of [[W*.08,'200,215,255'],[W*.5,'255,236,210'],[W*.92,'200,215,255']]){const gr=c.createLinearGradient(sx,0,cx,cy);gr.addColorStop(0,`rgba(${col},.32)`);gr.addColorStop(1,`rgba(${col},0)`);
+      c.fillStyle=gr;c.beginPath();c.moveTo(sx-u*.05,0);c.lineTo(sx+u*.05,0);c.lineTo(cx+R*1.05,cy+R*.4);c.lineTo(cx-R*1.05,cy+R*.4);c.closePath();c.fill()}
+    for(let i=0;i<(thumb?20:70);i++){const x=rnd()*W,y=rnd()*H,r=u*(.05+rnd()*.25),gr=c.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,'rgba(180,200,255,.05)');gr.addColorStop(1,'rgba(180,200,255,0)');c.fillStyle=gr;c.fillRect(x-r,y-r,r*2,r*2)}
+    const halo=c.createRadialGradient(cx,cy,R*.9,cx,cy,R*1.5);halo.addColorStop(0,'rgba(150,180,255,.35)');halo.addColorStop(1,'rgba(150,180,255,0)');c.fillStyle=halo;c.fillRect(0,0,W,H);
+    c.globalCompositeOperation='source-over';vignette(.6)}
+}
+function decorGeo(stage,cv){const b=document.getElementById('board'),sr=stage.getBoundingClientRect(),k=cv.width/Math.max(1,sr.width);
+  if(b&&!b.hidden){const r=b.getBoundingClientRect();return {x:(r.left-sr.left+r.width/2)*k,y:(r.top-sr.top+r.height/2)*k,R:r.width/2*k}}
+  return {x:cv.width/2,y:cv.height/2,R:Math.min(cv.width,cv.height)/2.4}}
+function drawDecor(){const st=document.getElementById('gStage'),cv=document.getElementById('decor');if(!st||!cv)return;
+  const r=st.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,2);cv.width=Math.round(r.width*dpr);cv.height=Math.round(r.height*dpr);
+  paintDecor(cv,prefs.decor,decorGeo(st,cv))}
+function decorPicker(){return `<div class="skins">${Object.entries(DECORS).map(([k,v])=>`<button class="skin decor" data-act="decor" data-v="${k}" aria-pressed="${prefs.decor===k}"><canvas class="decor-cv" data-decor="${k}" width="240" height="160"></canvas><b>${v.name}</b><span>${v.sub}</span></button>`).join('')}</div>`}
+async function drawDecorThumbs(){if(!thumbCache[prefs.skin]){const off=document.createElement('canvas');await drawBoard(off,prefs.skin,192);thumbCache[prefs.skin]=off}
+  document.querySelectorAll('.decor-cv').forEach(cv=>{const k=cv.dataset.decor;const g={x:120,y:80,R:52};
+  paintDecor(cv,k,g,true);const c=cv.getContext('2d');if(k==='none'){c.fillStyle='#0f1b2e';c.fillRect(0,0,240,160)}
+  const src=thumbCache[prefs.skin];c.save();c.shadowColor='rgba(0,0,0,.6)';c.shadowBlur=14;c.beginPath();c.arc(g.x,g.y,g.R,0,7);c.fillStyle='#151413';c.fill();c.restore();
+  if(src)c.drawImage(src,g.x-g.R,g.y-g.R,g.R*2,g.R*2)})}
 
 /* =========================================================
    Joueurs, statistiques, historique et tournois
@@ -1230,11 +1432,14 @@ function playerIndex(g,p){let i=g.players.findIndex(x=>x.id===p.id);if(i<0)i=g.p
 function statsOf(p){
   const st={games:0,wins:0,ties:0,x01:{darts:0,pts:0,best:0,c180:0,c140:0,c100:0,co:0,dAtt:0,dHit:0},cricket:{darts:0,marks:0},byType:{},evo:[],recent:[]};
   for(const g of gameHistory().slice().reverse()){
-    const i=playerIndex(g,p);if(i<0)continue;const m=GAMES[g.type||'x01'];if(!m)continue;let S;try{S=m.run(g)}catch(e){continue}
+    let i=playerIndex(g,p),mi=-1,ml=1;
+    if(i<0){i=g.players.findIndex(x=>x.members&&x.members.some(m=>m.id===p.id||m.name.trim().toLowerCase()===p.name.trim().toLowerCase()));
+      if(i>=0){const mem=g.players[i].members;mi=mem.findIndex(m=>m.id===p.id||m.name.trim().toLowerCase()===p.name.trim().toLowerCase());ml=mem.length}}
+    if(i<0)continue;const m=GAMES[g.type||'x01'];if(!m)continue;let S;try{S=m.run(g)}catch(e){continue}
     st.games++;const won=S.winner===i,tie=!!(S.tie&&S.tie.includes(i));if(won)st.wins++;if(tie)st.ties++;
     const bt=st.byType[m.name]||(st.byType[m.name]={games:0,wins:0});bt.games++;if(won)bt.wins++;
     st.recent.push({g,won,tie,i});
-    const ts=S.turns.filter(t=>t.p===i);
+    const ts=S.turns.filter(t=>t.p===i).filter((t,k)=>mi<0||k%ml===mi);
     if((g.type||'x01')==='x01'){let d=0,pts=0;
       for(const t of ts){d+=t.darts.length;pts+=t.total;st.x01.best=Math.max(st.x01.best,t.total);
         if(t.total===180)st.x01.c180++;else if(t.total>=140)st.x01.c140++;else if(t.total>=100)st.x01.c100++;
@@ -1270,12 +1475,15 @@ function renderPlayers(){
   const rank=list.filter(x=>x.s.games).sort((a,b)=>b.s.wins-a.s.wins||(b.s.x01.darts?b.s.x01.pts/b.s.x01.darts:0)-(a.s.x01.darts?a.s.x01.pts/a.s.x01.darts:0));
   frame('Joueurs',`<div class="col">
     <section><h2 class="sec-title">Ajouter un joueur</h2>
-      <form class="addp" data-form="addprof"><input id="newProf" placeholder="Prénom ou pseudo" maxlength="24" autocomplete="off" aria-label="Nouveau joueur"><button class="btn btn-primary" type="submit">Ajouter</button></form></section>
+      <form class="stack" data-form="addprof"><input id="newProf" class="tin" placeholder="Prénom ou pseudo" maxlength="24" autocomplete="off" aria-label="Nouveau joueur">
+        <input id="newCode" class="tin code-in sm" placeholder="Code utilisateur (facultatif)" maxlength="6" autocomplete="off" autocapitalize="characters" aria-label="Code utilisateur du joueur">
+        <button class="btn btn-primary" type="submit">Ajouter le joueur</button></form>
+      <p class="note" style="margin-top:8px">Si le joueur a ARROW sur son téléphone, ajoutez son code utilisateur : vous pourrez lui envoyer ses parties.</p></section>
     ${rank.length?`<section><h2 class="sec-title">Classement</h2><div class="stats-wrap"><table class="stats"><thead><tr><th>#</th><th>Joueur</th><th>Parties</th><th>Victoires</th><th>% vict.</th><th>Moy. 3</th><th>180</th></tr></thead><tbody>
       ${rank.map((x,k)=>`<tr><td>${k+1}</td><td><button class="lnk" data-act="player" data-v="${x.p.id}">${esc(x.p.name)}</button></td><td>${x.s.games}</td><td>${x.s.wins}</td><td>${Math.round(x.s.wins/x.s.games*100)} %</td><td>${x.s.x01.darts?fmt1(x.s.x01.pts/x.s.x01.darts*3):'–'}</td><td>${x.s.x01.c180}</td></tr>`).join('')}</tbody></table></div>
       <p class="note" style="margin-top:8px">Classé par victoires, puis par moyenne sur 3 fléchettes (301 à 901).</p></section>`:''}
     <section><h2 class="sec-title">Profils · ${list.length}</h2>
-      ${list.length?`<div class="plist">${list.map(({p,s})=>`<button class="prow-card" data-act="player" data-v="${p.id}">${avatar(p,0)}<span class="pc-name">${esc(p.name)}</span><span class="pc-sub">${s.games?`${s.games} partie${s.games>1?'s':''} · ${s.wins} victoire${s.wins>1?'s':''}`:'Aucune partie'}</span>${I.next}</button>`).join('')}</div>`:'<p class="note">Aucun joueur pour l\'instant. Ajoutez-en un ci-dessus, ou lancez une partie : les joueurs sont créés automatiquement.</p>'}</section>
+      ${list.length?`<div class="plist">${list.map(({p,s})=>`<button class="prow-card" data-act="player" data-v="${p.id}">${avatar(p,0)}<span class="pc-name">${esc(p.name)}</span><span class="pc-sub">${p.owner?'Moi · ':''}${p.code?'code '+p.code+' · ':''}${s.games?`${s.games} partie${s.games>1?'s':''} · ${s.wins} victoire${s.wins>1?'s':''}`:'Aucune partie'}${p.code&&!p.owner&&pendingFor(p.code)?` · <b class="pend">${pendingFor(p.code)} à envoyer</b>`:''}</span>${I.next}</button>`).join('')}</div>`:'<p class="note">Aucun joueur pour l\'instant. Ajoutez-en un ci-dessus, ou lancez une partie : les joueurs sont créés automatiquement.</p>'}</section>
     <div class="row2"><button class="btn btn-ghost" data-act="history">Historique des parties</button></div>
   </div>`);
 }
@@ -1293,15 +1501,21 @@ function renderPlayer(){
         <div class="swatches">${AV_COLORS.map(c=>`<button class="sw" data-act="pcolor" data-v="${c}" style="--tone:${c}" aria-pressed="${p.color===c}" aria-label="Couleur"></button>`).join('')}</div>
         ${p.photo?'<button class="lnk" data-act="pphotodel">Retirer la photo</button>':''}</div>
     </section>
+    ${p.owner?`<section class="card"><span class="lbl">Mon code utilisateur</span><div class="room-code">${p.code}</div><p class="note">Donnez ce code à la personne qui gère la partie pour recevoir vos statistiques.</p></section>`
+      :`<section class="card"><label class="lbl" for="profCode">Code utilisateur du joueur</label>
+      <div class="addp" style="margin-top:6px"><input id="profCode" class="tin code-in sm" value="${esc(p.code||'')}" maxlength="6" placeholder="EX. 7K2QXM" autocomplete="off" autocapitalize="characters"><button class="btn btn-ghost" data-act="savecode">Enregistrer</button></div>
+      <p class="note" style="margin-top:8px">${p.code?'Les parties de ce joueur peuvent lui être envoyées sur son téléphone.':'Le joueur trouve son code sur l\'accueil de son appli ARROW.'}</p>
+      ${p.code&&pendingFor(p.code)?`<button class="btn btn-primary" style="margin-top:10px" data-act="sendstats" data-v="${p.code}">Envoyer ses statistiques (${pendingFor(p.code)} partie${pendingFor(p.code)>1?'s':''})</button>`:''}</section>`}
     <section><h2 class="sec-title">Statistiques</h2><div class="tiles">${tiles.map(([k,v])=>`<div class="tile"><span>${k}</span><b>${v}</b></div>`).join('')}</div></section>
     <section class="card"><h2 class="sec-title">Évolution de la moyenne (301 à 901)</h2>${evoChart(s.evo)}</section>
+    ${(()=>{const os=otherStatsOf(p);Object.entries(os).forEach(([k,v])=>s.byType[k]=v);return ''})()}
     ${Object.keys(s.byType).length?`<section><h2 class="sec-title">Par jeu</h2><div class="stats-wrap"><table class="stats"><thead><tr><th>Jeu</th><th>Parties</th><th>Victoires</th></tr></thead><tbody>${Object.entries(s.byType).map(([k,v])=>`<tr><td>${esc(k)}</td><td>${v.games}</td><td>${v.wins}</td></tr>`).join('')}</tbody></table></div></section>`:''}
     <section><h2 class="sec-title">Dernières parties</h2>${s.recent.length?`<div class="hlist">${s.recent.slice(0,12).map(r=>histRow(r.g,r.won?'Gagnée':r.tie?'Égalité':'Perdue')).join('')}</div>`:'<p class="note">Aucune partie terminée.</p>'}</section>
     <p class="note">Formules : moyenne 3 fléchettes = points retirés ÷ fléchettes lancées × 3 (301 à 901, « bust » = 0 point). Réussite doubles = finitions réussies ÷ fléchettes lancées quand le score restant pouvait se finir d'une seule fléchette (2 à 40 pair, ou 50), en sortie double. Marques / volée = marques ÷ fléchettes × 3.</p>
     <div id="delBox"><button class="btn btn-danger" data-act="pdelask">Supprimer ce profil</button></div>
   </div>`);
 }
-function histRow(g,tag){const m=GAMES[g.type||'x01'];let S;try{S=m.run(g)}catch(e){return ''}
+function histRow(g,tag){const m=GAMES[g.type||'x01'];if(!m)return '';let S;try{S=m.run(g)}catch(e){return ''}
   const w=S.winner!=null?g.players[S.winner].name:'Égalité';const d=new Date(g.finishedAt||g.created);
   return `<button class="hrow" data-act="hgame" data-v="${g.id}"><span class="hr-date">${d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}</span><span class="hr-main"><b>${esc(g.type==='x01'?String(g.start):m.short)}</b> · ${g.players.map(p=>esc(p.name)).join(', ')}</span><span class="hr-win">${tag?`<i class="tag ${tag==='Gagnée'?'ok':''}">${tag}</i>`:esc(w)}</span></button>`}
 function renderHistory(){
@@ -1326,7 +1540,7 @@ const saveTournaments=l=>store.set('tournaments',l);
 const tById=id=>tournaments().find(t=>t.id===id);
 function saveT(t){const l=tournaments();const i=l.findIndex(x=>x.id===t.id);if(i>=0)l[i]=t;else l.unshift(t);saveTournaments(l)}
 const pName=(t,id)=>{const p=t.players.find(x=>x.id===id);return p?p.name:'?'};
-function newTDraft(){return {name:'Tournoi du '+new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long'}),format:'ko',legs:1,type:'x01',opts:defaultOpts('x01'),pids:profilesByRecent().slice(0,4).map(p=>p.id)}}
+function newTDraft(){return {name:'Tournoi du '+new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long'}),format:'ko',legs:1,gsize:4,type:'x01',opts:defaultOpts('x01'),pids:profilesByRecent().slice(0,4).map(p=>p.id)}}
 /* Élimination directe : tableau complet, exemptés qualifiés d'office */
 function buildKO(ids){let n=1;while(n<ids.length)n*=2;const seeds=ids.concat(Array(n-ids.length).fill(null));
   const order=[];for(let i=0;i<n/2;i++)order.push([seeds[i],seeds[n-1-i]]);
@@ -1340,30 +1554,42 @@ function koAdvance(ms){let changed=true;while(changed){changed=false;
 function buildLeague(ids,legs){const a=ids.slice();if(a.length%2)a.push(null);const n=a.length,ms=[];
   for(let r=0;r<n-1;r++){for(let i=0;i<n/2;i++){const x=a[i],y=a[n-1-i];if(x&&y)ms.push({id:uid(),r,a:r%2?y:x,b:r%2?x:y,winner:null})}a.splice(1,0,a.pop())}
   if(legs===2){const back=ms.map(m=>({id:uid(),r:m.r+n-1,a:m.b,b:m.a,winner:null,leg:2}));ms.push(...back)}return ms}
-function standings(t){const tab=Object.fromEntries(t.players.map(p=>[p.id,{id:p.id,pl:0,w:0,l:0,d:0,pts:0}]));
-  for(const m of t.matches){if(!m.done)continue;const A=tab[m.a],B=tab[m.b];A.pl++;B.pl++;
+/* Poules : répartition en serpentin, chacun contre chacun dans sa poule */
+function buildGroups(ids,size){const ng=Math.max(2,Math.round(ids.length/size));const groups=[...Array(ng)].map(()=>[]);
+  ids.forEach((id,k)=>{const row=Math.floor(k/ng),col=k%ng;groups[row%2?ng-1-col:col].push(id)});
+  const ms=[];groups.forEach((gr,gi)=>buildLeague(gr,1).forEach(m=>ms.push(Object.assign(m,{stage:'g',grp:gi}))));return {groups,ms}}
+const koMatches=t=>t.format==='groups'?t.matches.filter(m=>m.stage==='k'):t.matches;
+const GROUP_L='ABCDEFGHIJKLMNOP';
+/* Phase finale : les 2 premiers de chaque poule, 1er d'une poule contre 2e d'une autre */
+function buildFinals(t){const W=[],R=[];t.groups.forEach((gr,gi)=>{const st=standings(t,gr,t.matches.filter(m=>m.stage==='g'&&m.grp===gi));if(st[0])W.push({id:st[0].id,g:gi});if(st[1])R.push({id:st[1].id,g:gi})});
+  const len=W.length+R.length;let n=1;while(n<len)n*=2;const seeds=Array(len).fill(null);W.forEach((w,i)=>seeds[i]=w.id);
+  const left=R.slice();for(let j=0;j<W.length;j++){const pi=n-1-j;if(pi>=len||pi<W.length)continue;let k=left.findIndex(r=>r.g!==W[j].g);if(k<0)k=0;seeds[pi]=left.splice(k,1)[0].id}
+  for(let i=W.length;i<len;i++)if(seeds[i]==null)seeds[i]=left.shift().id;
+  buildKO(seeds).forEach(m=>t.matches.push(Object.assign(m,{stage:'k'})))}
+function standings(t,ids,ms){const tab=Object.fromEntries((ids||t.players.map(p=>p.id)).map(id=>[id,{id,pl:0,w:0,l:0,d:0,pts:0}]));
+  for(const m of (ms||t.matches)){if(!m.done||!tab[m.a]||!tab[m.b])continue;const A=tab[m.a],B=tab[m.b];A.pl++;B.pl++;
     if(m.winner===m.a){A.w++;B.l++;A.pts+=2}else if(m.winner===m.b){B.w++;A.l++;B.pts+=2}else{A.d++;B.d++;A.pts++;B.pts++}}
   return Object.values(tab).sort((x,y)=>y.pts-x.pts||y.w-x.w||x.l-y.l)}
-function tStatus(t){if(t.format==='ko'){const fin=t.matches.find(m=>m.r===Math.max(...t.matches.map(x=>x.r)));return fin&&fin.winner?{done:true,champ:fin.winner}:{done:false}}
+const tLabel=t=>t.format==='ko'?'Élimination directe':t.format==='groups'?'Poules + phase finale':'Championnat'+(t.legs===2?' aller-retour':'');
+function tStatus(t){if(t.format!=='league'){const K=koMatches(t);if(!K.length)return {done:false};const fin=K.find(m=>m.r===Math.max(...K.map(x=>x.r)));return fin&&fin.winner?{done:true,champ:fin.winner}:{done:false}}
   if(t.matches.every(m=>m.done)){const s=standings(t);return {done:true,champ:s[0].id}}return {done:false}}
 function renderTournaments(){
   const l=tournaments();
   frame('Tournois',`<div class="col">
     <button class="btn btn-primary" data-act="tnew">Créer un tournoi</button>
     <section><h2 class="sec-title">Mes tournois</h2>${l.length?`<div class="plist">${l.map(t=>{const s=tStatus(t),done=t.matches.filter(m=>m.done&&!m.bye).length,tot=t.matches.filter(m=>!m.bye).length;
-      return `<button class="prow-card" data-act="topen" data-v="${t.id}"><span class="t-ico">${t.format==='ko'?'⟩':'≡'}</span><span class="pc-name">${esc(t.name)}</span><span class="pc-sub">${t.format==='ko'?'Élimination directe':'Championnat'+(t.legs===2?' aller-retour':'')} · ${t.players.length} joueurs · ${s.done?'Vainqueur : '+esc(pName(t,s.champ)):done+' / '+tot+' matchs'}</span>${I.next}</button>`}).join('')}</div>`:'<p class="note">Aucun tournoi pour l\'instant.</p>'}</section>
+      return `<button class="prow-card" data-act="topen" data-v="${t.id}"><span class="t-ico">${t.format==='ko'?'⟩':t.format==='groups'?'⊞':'≡'}</span><span class="pc-name">${esc(t.name)}</span><span class="pc-sub">${tLabel(t)} · ${t.players.length} joueurs · ${s.done?'Vainqueur : '+esc(pName(t,s.champ)):done+' / '+tot+' matchs'}</span>${I.next}</button>`}).join('')}</div>`:'<p class="note">Aucun tournoi pour l\'instant.</p>'}</section>
   </div>`);
 }
-function optsHTML(type,opts,act){return GAMES[type].opts.map(o=>{const v=opts[o.k];return `<div class="opt-row"><span class="lbl">${o.label}</span>
-      <div class="seg">${o.vals.map(([val,lab])=>`<button data-act="${act}" data-k="${o.k}" data-v='${JSON.stringify(val)}' aria-pressed="${v===val}">${lab}</button>`).join('')}</div>
-      ${o.help?`<p>${o.help(v)}</p>`:''}</div>`}).join('')}
+function optsHTML(type,opts,act){return GAMES[type].opts.map(o=>optRowHTML(o,opts[o.k],act)).join('')}
 function renderTNew(){
   const d=tdraft;const P=profilesByRecent();
   frame('Nouveau tournoi',`<div class="col">
     <section><h2 class="sec-title">Nom</h2><input class="tin" id="tName" value="${esc(d.name)}" maxlength="40" aria-label="Nom du tournoi"></section>
     <section class="card"><div class="opt-row"><span class="lbl">Formule</span>
-      <div class="seg"><button data-act="tformat" data-v="ko" aria-pressed="${d.format==='ko'}">Élimination directe</button><button data-act="tformat" data-v="league" aria-pressed="${d.format==='league'}">Championnat</button></div>
-      <p>${d.format==='ko'?'Un match perdu et c\'est fini. Si le nombre de joueurs n\'est pas une puissance de 2, certains sont qualifiés d\'office au premier tour.':'Chacun affronte tous les autres. Victoire = 2 points, égalité = 1 point. Le meilleur total gagne.'}</p></div>
+      <div class="seg"><button data-act="tformat" data-v="ko" aria-pressed="${d.format==='ko'}">Élimination</button><button data-act="tformat" data-v="groups" aria-pressed="${d.format==='groups'}">Poules</button><button data-act="tformat" data-v="league" aria-pressed="${d.format==='league'}">Championnat</button></div>
+      <p>${d.format==='ko'?'Un match perdu et c\'est fini. Si le nombre de joueurs n\'est pas une puissance de 2, certains sont qualifiés d\'office au premier tour.':d.format==='groups'?'Les joueurs sont répartis en poules ; chacun affronte les joueurs de sa poule (victoire 2 points, nul 1 point). Les 2 premiers de chaque poule passent en phase finale, à élimination directe : le 1er d\'une poule rencontre le 2e d\'une autre.':'Chacun affronte tous les autres. Victoire = 2 points, égalité = 1 point. Le meilleur total gagne.'}</p></div>
+      ${d.format==='groups'?`<div class="opt-row"><span class="lbl">Joueurs par poule</span><div class="seg">${[3,4,5,6].map(n=>`<button data-act="tgsize" data-v="${n}" aria-pressed="${d.gsize===n}">${n}</button>`).join('')}</div><p>${d.pids.length>=4?`${Math.max(2,Math.round(d.pids.length/d.gsize))} poules pour ${d.pids.length} joueurs.`:'Il faut au moins 4 joueurs pour faire des poules.'}</p></div>`:''}
       ${d.format==='league'?`<div class="opt-row"><span class="lbl">Matchs</span><div class="seg"><button data-act="tlegs" data-v="1" aria-pressed="${d.legs===1}">Aller simple</button><button data-act="tlegs" data-v="2" aria-pressed="${d.legs===2}">Aller-retour</button></div></div>`:''}</section>
     <section class="card"><h2 class="sec-title">Jeu de chaque match</h2>
       <select id="tType" aria-label="Jeu">${Object.values(GAMES).map(g=>`<option value="${g.id}" ${d.type===g.id?'selected':''}>${esc(g.name)}</option>`).join('')}</select>
@@ -1372,7 +1598,7 @@ function renderTNew(){
       <div class="chips">${P.map(p=>`<button class="chip pchip" data-act="tpick" data-v="${p.id}" aria-pressed="${d.pids.includes(p.id)}">${esc(p.name)}</button>`).join('')}</div>
       <form class="addp" data-form="taddp" style="margin-top:10px"><input id="tNewP" placeholder="Ajouter un joueur" maxlength="24" autocomplete="off" aria-label="Ajouter un participant"><button class="btn btn-ghost" type="submit">Ajouter</button></form>
       <p class="note" style="margin-top:8px">Pas de limite de participants. Les matchs peuvent se jouer dans n'importe quel ordre, y compris sur plusieurs cibles en même temps.</p></section>
-    <button class="btn btn-primary" data-act="tcreate" ${d.pids.length<2?'disabled':''}>Créer le tournoi (${d.pids.length} joueurs)</button>
+    <button class="btn btn-primary" data-act="tcreate" ${d.pids.length<(d.format==='groups'?4:2)?'disabled':''}>Créer le tournoi (${d.pids.length} joueurs)</button>
   </div>`);
 }
 function matchRow(t,m){const A=m.a?esc(pName(t,m.a)):'<i>à venir</i>',B=m.b?esc(pName(t,m.b)):'<i>à venir</i>';
@@ -1382,15 +1608,21 @@ function matchRow(t,m){const A=m.a?esc(pName(t,m.a)):'<i>à venir</i>',B=m.b?esc
 function renderTournament(){
   const t=tById(curTid);if(!t){go('tournaments');return}const s=tStatus(t);const G=GAMES[t.game.type];
   let body='';
-  if(t.format==='ko'){const R=Math.max(...t.matches.map(m=>m.r));const names=['Finale','Demi-finales','Quarts de finale','Huitièmes de finale','Seizièmes de finale'];
-    body=`<section><h2 class="sec-title">Tableau</h2><div class="bracket">${[...Array(R+1)].map((_,r)=>`<div class="bcol"><h3>${names[R-r]||'Tour '+(r+1)}</h3>${t.matches.filter(m=>m.r===r).map(m=>`<div class="bm ${m.done?'done':''}"><span class="${m.winner&&m.winner===m.a?'mw':''}">${m.a?esc(pName(t,m.a)):(m.bye&&r===0?'—':'…')}</span><span class="${m.winner&&m.winner===m.b?'mw':''}">${m.b?esc(pName(t,m.b)):(r===0?'exempté':'…')}</span></div>`).join('')}</div>`).join('')}</div></section>
-      <section><h2 class="sec-title">Matchs</h2><div class="mlist">${t.matches.filter(m=>!m.bye&&m.a&&m.b).sort((a,b)=>(a.done-b.done)||a.r-b.r).map(m=>matchRow(t,m)).join('')}</div></section>`}
+  const koBody=(K,title)=>{const R=Math.max(...K.map(m=>m.r));const names=['Finale','Demi-finales','Quarts de finale','Huitièmes de finale','Seizièmes de finale'];
+    return `<section><h2 class="sec-title">${title}</h2><div class="bracket">${[...Array(R+1)].map((_,r)=>`<div class="bcol"><h3>${names[R-r]||'Tour '+(r+1)}</h3>${K.filter(m=>m.r===r).map(m=>`<div class="bm ${m.done?'done':''}"><span class="${m.winner&&m.winner===m.a?'mw':''}">${m.a?esc(pName(t,m.a)):(m.bye&&r===0?'—':'…')}</span><span class="${m.winner&&m.winner===m.b?'mw':''}">${m.b?esc(pName(t,m.b)):(r===0?'exempté':'…')}</span></div>`).join('')}</div>`).join('')}</div></section>
+      <section><h2 class="sec-title">Matchs</h2><div class="mlist">${K.filter(m=>!m.bye&&m.a&&m.b).sort((a,b)=>(a.done-b.done)||a.r-b.r).map(m=>matchRow(t,m)).join('')}</div></section>`};
+  if(t.format==='ko')body=koBody(t.matches,'Tableau');
+  else if(t.format==='groups'){const K=koMatches(t);
+    body=(K.length?koBody(K,'Phase finale'):'')+t.groups.map((gr,gi)=>{const ms=t.matches.filter(m=>m.stage==='g'&&m.grp===gi),st=standings(t,gr,ms);
+      return `<section><h2 class="sec-title">Poule ${GROUP_L[gi]}</h2><div class="stats-wrap"><table class="stats"><thead><tr><th>#</th><th>Joueur</th><th>Pts</th><th>J</th><th>G</th><th>N</th><th>P</th></tr></thead><tbody>${st.map((r,k)=>`<tr class="${k<2&&ms.every(m=>m.done)?'w':''}"><td>${k+1}</td><td>${esc(pName(t,r.id))}</td><td>${r.pts}</td><td>${r.pl}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td></tr>`).join('')}</tbody></table></div>
+        <div class="mlist" style="margin-top:8px">${ms.slice().sort((a,b)=>(a.done-b.done)||a.r-b.r).map(m=>matchRow(t,m)).join('')}</div></section>`}).join('')
+      +(K.length?'':'<p class="note">La phase finale se crée automatiquement quand tous les matchs de poule sont joués. Les 2 premiers de chaque poule (en couleur) sont qualifiés.</p>')}
   else{const st=standings(t);
     body=`<section><h2 class="sec-title">Classement</h2><div class="stats-wrap"><table class="stats"><thead><tr><th>#</th><th>Joueur</th><th>Pts</th><th>J</th><th>G</th><th>N</th><th>P</th></tr></thead><tbody>${st.map((r,k)=>`<tr class="${k===0&&s.done?'w':''}"><td>${k+1}</td><td>${esc(pName(t,r.id))}</td><td>${r.pts}</td><td>${r.pl}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td></tr>`).join('')}</tbody></table></div>
       <p class="note" style="margin-top:8px">Pts : victoire 2, nul 1. J joués, G gagnés, N nuls, P perdus.</p></section>
       <section><h2 class="sec-title">Matchs</h2><div class="mlist">${t.matches.slice().sort((a,b)=>(a.done-b.done)||a.r-b.r).map(m=>matchRow(t,m)).join('')}</div></section>`}
   frame(esc(t.name),`<div class="col">
-    <div class="win">${s.done?`<span class="crown">Vainqueur du tournoi</span><h1>${esc(pName(t,s.champ))}</h1>`:`<span class="crown">${t.format==='ko'?'Élimination directe':'Championnat'+(t.legs===2?' aller-retour':'')}</span>`}
+    <div class="win">${s.done?`<span class="crown">Vainqueur du tournoi</span><h1>${esc(pName(t,s.champ))}</h1>`:`<span class="crown">${tLabel(t)}</span>`}
       <p>${t.game.type==='x01'?t.game.opts.start+' · '+OUT_LABEL[t.game.opts.outRule]:esc(G.name)} · ${t.players.length} joueurs · ${t.matches.filter(m=>m.done&&!m.bye).length} / ${t.matches.filter(m=>!m.bye).length} matchs joués</p></div>
     ${body}
     <div id="tDelBox"><button class="btn btn-danger" data-act="tdelask">Supprimer le tournoi</button></div>
@@ -1401,20 +1633,257 @@ function playMatch(mid){const t=tById(curTid);const m=t.matches.find(x=>x.id===m
   const d={type:t.game.type,opts:Object.assign({},t.game.opts)};
   const amb=store.get('ambByName',{});
   game=Object.assign({id:uid(),created:Date.now(),amb:Object.fromEntries(pls.map(p=>[p.id,amb[p.name]&&AMBIANCES[amb[p.name]]?amb[p.name]:'standard'])),players:pls,darts:[],validated:0,tournament:{tid:t.id,mid:m.id}},asGame(d));
-  if(GAMES[game.type].setup)GAMES[game.type].setup(game);saveGame();Sound.unlock();Voice.warm();go('game')}
+  if(GAMES[game.type].setup)GAMES[game.type].setup(game);saveGame();Sound.unlock();Voice.warm();go('game');announceStart()}
 /* Fin d'une partie de tournoi : on inscrit le résultat */
 function recordTournament(g,S){if(!g.tournament)return;const t=tById(g.tournament.tid);if(!t)return;const m=t.matches.find(x=>x.id===g.tournament.mid);if(!m)return;
   const w=S.winner!=null?g.players[S.winner].id:null;
-  if(t.format==='ko'&&w==null)return; // égalité en élimination directe : le match reste à rejouer
-  m.done=true;m.winner=w;m.gameId=g.id;if(t.format==='ko')koAdvance(t.matches);saveT(t)}
+  const ko=t.format==='ko'||m.stage==='k';
+  if(ko&&w==null)return; // égalité en élimination directe : le match reste à rejouer
+  m.done=true;m.winner=w;m.gameId=g.id;if(ko)koAdvance(koMatches(t));
+  if(t.format==='groups'&&m.stage==='g'&&!koMatches(t).length&&t.matches.every(x=>x.stage!=='g'||x.done))buildFinals(t);
+  saveT(t)}
 function unrecordTournament(g){if(!g.tournament)return;const t=tById(g.tournament.tid);if(!t)return;const m=t.matches.find(x=>x.id===g.tournament.mid);if(!m||m.gameId!==g.id)return;
-  if(t.format==='ko'){const nx=t.matches.find(x=>x.r===m.r+1&&x.i===Math.floor(m.i/2));if(nx&&nx.done)return;if(nx)nx[m.i%2?'b':'a']=null}
+  if(m.stage==='g'&&koMatches(t).some(x=>x.done&&!x.bye))return; // phase finale déjà commencée
+  if(m.stage==='g')t.matches=t.matches.filter(x=>x.stage!=='k');
+  if(t.format==='ko'||m.stage==='k'){const nx=koMatches(t).find(x=>x.r===m.r+1&&x.i===Math.floor(m.i/2));if(nx&&nx.done)return;if(nx)nx[m.i%2?'b':'a']=null}
   m.done=false;m.winner=null;m.gameId=null;saveT(t)}
 
 /* =========================================================
+   Profil de l'utilisateur et code utilisateur
+   Chaque appareil a un profil « propriétaire » avec un code à 6 caractères.
+   Sur l'appareil qui gère la partie, on ajoute le code d'un joueur à son profil :
+   ses parties peuvent ensuite lui être envoyées par un lien, et elles
+   s'ajoutent à ses statistiques sur son propre téléphone. Aucun serveur.
+   ========================================================= */
+const CODE_ABC='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+function newUserCode(){let c='';const a=new Uint32Array(6);try{crypto.getRandomValues(a)}catch(e){for(let i=0;i<6;i++)a[i]=Math.random()*1e9}for(let i=0;i<6;i++)c+=CODE_ABC[a[i]%CODE_ABC.length];return c}
+const normCode=c=>String(c||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
+function owner(){return profiles().find(p=>p.owner)||null}
+function profByCode(c){c=normCode(c);return c?profiles().find(p=>p.code===c):null}
+
+/* ---------- Première ouverture : créer son profil ---------- */
+function renderWelcome(){
+  const P=profilesByRecent();
+  frame('<span class="wm">ARROW</span>',`<div class="col">
+    <div class="hero"><div class="logo-wrap">${logoSVG('w',false)}</div><div class="mark">ARROW</div><div class="byline">by elmagination</div></div>
+    <section class="card"><h2 class="sec-title">Créer mon profil</h2>
+      <p class="note" style="margin:-4px 0 12px">Votre profil reçoit un code utilisateur. Donnez-le à l'ami qui gère la partie : il pourra vous envoyer vos parties, et elles s'ajouteront à vos statistiques.</p>
+      <form data-form="welcome" class="stack"><input id="wName" class="tin" placeholder="Votre prénom ou pseudo" maxlength="24" autocomplete="off" aria-label="Votre prénom"><button class="btn btn-primary" type="submit">Créer mon profil</button></form>
+      ${P.length?`<p class="note" style="margin:14px 0 6px">Ou choisissez un joueur déjà enregistré sur cet appareil :</p><div class="chips">${P.map(p=>`<button class="chip" data-act="iam" data-v="${p.id}">C'est moi : ${esc(p.name)}</button>`).join('')}</div>`:''}
+    </section>
+  </div>`,{right:'settings'});
+}
+function makeOwner(p){profiles().forEach(x=>{if(x!==p)delete x.owner});p.owner=true;if(!p.code)p.code=newUserCode();saveProfiles()}
+
+/* ---------- Mon profil ---------- */
+function myCodeCard(){const o=owner();if(!o)return '';
+  return `<section class="card mycode"><div class="mc-head">${avatar(o,0)}<div><span class="lbl">Mon profil</span><b>${esc(o.name)}</b></div></div>
+    <span class="lbl">Mon code utilisateur</span><div class="room-code">${o.code}</div>
+    <p class="note">Donnez ce code à la personne qui gère la partie sur son téléphone. Elle l'ajoute à votre profil de joueur, puis vous envoie vos parties par lien.</p>
+    <div class="row2"><button class="btn btn-ghost" data-act="copycode">Copier mon code</button><button class="btn btn-ghost" data-act="player" data-v="${o.id}">Mes statistiques</button></div></section>`}
+
+/* ---------- Parties à envoyer ---------- */
+function outbox(){return store.get('outbox',{})}
+function queueGame(g){const o=owner();const box=outbox();
+  g.players.flatMap(pl=>pl.members||[pl]).forEach(pl=>{const pr=profById(pl.id);if(pr&&pr.code&&(!o||pr.code!==o.code)){(box[pr.code]=box[pr.code]||[]);if(!box[pr.code].includes(g.id))box[pr.code].push(g.id)}});store.set('outbox',box)}
+function unqueueGame(g){const box=outbox();for(const k of Object.keys(box)){box[k]=box[k].filter(id=>id!==g.id);if(!box[k].length)delete box[k]}store.set('outbox',box)}
+function pendingFor(code){return (outbox()[code]||[]).length}
+
+/* Lien d'envoi : parties compressées dans le lien (#imp=…) */
+const b64u={enc(u8){let s='';for(let i=0;i<u8.length;i+=0x8000)s+=String.fromCharCode.apply(null,u8.subarray(i,i+0x8000));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')},
+  dec(t){t=t.replace(/-/g,'+').replace(/_/g,'/');while(t.length%4)t+='=';const s=atob(t),u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u}};
+async function zip(str){const u=new TextEncoder().encode(str);if(typeof CompressionStream==='undefined')return '0'+b64u.enc(u);
+  const cs=new Blob([u]).stream().pipeThrough(new CompressionStream('deflate-raw'));return '1'+b64u.enc(new Uint8Array(await new Response(cs).arrayBuffer()))}
+async function unzip(t){const u=b64u.dec(t.slice(1));if(t[0]==='0')return new TextDecoder().decode(u);
+  const ds=new Blob([u]).stream().pipeThrough(new DecompressionStream('deflate-raw'));return await new Response(ds).text()}
+function packGame(g){return {i:g.id,t:g.type||'x01',s:g.start,o:g.outRule,n:g.inRule,op:g.opts,a:g.assign,q:g.seq,c:g.created,f:g.finishedAt,
+  p:g.players.map(pl=>{const pr=profById(pl.id);return [pl.name,(pr&&pr.code)||'',pl.members?pl.members.map(m=>{const q=profById(m.id);return [m.name,(q&&q.code)||'']}):undefined]}),d:g.darts.map(d=>d.seg*4+d.mult)}}
+function unpackGame(x){const g={id:x.i,type:x.t,opts:x.op||{},created:x.c,finishedAt:x.f,imported:true,validated:0,
+  players:x.p.map(([name,code,mem],i)=>{const pl={id:'imp-'+x.i+'-'+i,name,code};if(mem)pl.members=mem.map(([n,c],j)=>({id:'imp-'+x.i+'-'+i+'-'+j,name:n,code:c}));return pl}),darts:x.d.map(v=>({seg:Math.floor(v/4),mult:v%4}))};
+  if(x.t==='x01'){g.start=x.s;g.outRule=x.o;g.inRule=x.n}if(x.a)g.assign=x.a;if(x.q)g.seq=x.q;return g}
+async function sendStats(code){const pr=profByCode(code);const ids=outbox()[code]||[];const hist=gameHistory();
+  const games=ids.map(id=>hist.find(g=>g.id===id)).filter(Boolean);
+  if(!games.length){toastMsg('Aucune partie à envoyer');return}
+  const o=owner();const payload={v:1,to:code,from:o?o.name:'',games:games.map(packGame)};
+  const link=location.origin+location.pathname+'#imp='+await zip(JSON.stringify(payload));
+  const txt=`${pr?pr.name:'Salut'}, voici tes ${games.length} partie${games.length>1?'s':''} de fléchettes pour ARROW. Ouvre ce lien pour les ajouter à tes statistiques :`;
+  const done=()=>{const box=outbox();delete box[code];store.set('outbox',box);render()};
+  if(navigator.share){navigator.share({title:'ARROW · statistiques',text:txt,url:link}).then(done).catch(()=>{})}
+  else{openSheet(`<div class="sheet-head"><h2>Envoyer les statistiques</h2><button class="icon-btn" data-act="closesheet" aria-label="Fermer">${I.x}</button></div>
+      <p>Copiez ce lien et envoyez-le à ${esc(pr?pr.name:'ce joueur')} (WhatsApp, SMS…).</p><div class="linkbox">${esc(link)}</div>
+      <button class="btn btn-primary" data-act="copyimp">Copier le lien</button>`,'Envoyer');window._impLink=link;window._impDone=done}}
+
+/* ---------- Réception : importer des parties ---------- */
+let incoming=null;
+async function readImport(hash){try{incoming=JSON.parse(await unzip(hash))}catch(e){incoming={error:true}}}
+function renderImport(){
+  const o=owner(),x=incoming;
+  if(!x||x.error||!x.games){frame('Importer',`<div class="col"><section class="card"><p>Ce lien est incomplet ou abîmé. Demandez à votre ami de vous le renvoyer.</p></section><button class="btn btn-primary" data-act="home">Accueil</button></div>`);return}
+  const games=x.games.map(unpackGame);const known=new Set(gameHistory().map(g=>g.id));const fresh=games.filter(g=>!known.has(g.id));
+  const mine=o&&o.code===x.to;
+  frame('Importer',`<div class="col">
+    <div class="win"><span class="crown">Statistiques reçues${x.from?' de '+esc(x.from):''}</span><h1>${games.length} partie${games.length>1?'s':''}</h1>
+      <p>Pour le code <b>${esc(x.to)}</b>${o?` · votre code : <b>${o.code}</b>`:''}</p></div>
+    ${!o?`<section class="card"><p>Créez d'abord votre profil : ces parties y seront ajoutées.</p></section>`:!mine?`<section class="card"><p>Ce lien a été préparé pour un autre code utilisateur. Vous pouvez l'importer quand même si c'est bien vous.</p></section>`:''}
+    <div class="hlist">${games.map(g=>{const m=GAMES[g.type];let w='';try{const S=m.run(g);w=S.winner!=null?g.players[S.winner].name+' gagne':'Égalité'}catch(e){}
+      return `<div class="hrow"><span class="hr-date">${new Date(g.finishedAt||g.created).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}</span><span class="hr-main"><b>${esc(g.type==='x01'?String(g.start):m.short)}</b> · ${g.players.map(p=>esc(p.name)).join(', ')}</span><span class="hr-win">${known.has(g.id)?'<i class="tag">déjà là</i>':esc(w)}</span></div>`}).join('')}</div>
+    ${o&&fresh.length?`<button class="btn btn-primary" data-act="doimport">Ajouter ${fresh.length} partie${fresh.length>1?'s':''} à mes statistiques</button>`:o?'<p class="note">Toutes ces parties sont déjà dans vos statistiques.</p>':''}
+    <button class="btn btn-ghost" data-act="home">${o?'Ne pas importer':'Créer mon profil'}</button>
+  </div>`);
+}
+function doImport(){const o=owner(),x=incoming;if(!o||!x)return;
+  const known=new Set(gameHistory().map(g=>g.id));const h=store.get('history',[]);let n=0;
+  for(const raw of x.games){const g=unpackGame(raw);if(known.has(g.id))continue;
+    g.players.flatMap(pl=>pl.members||[pl]).forEach(pl=>{if(pl.code&&pl.code===x.to){pl.id=o.id;pl.name=o.name}else{const pr=pl.code?profByCode(pl.code):null;if(pr)pl.id=pr.id}});
+    h.push(g);n++}
+  h.sort((a,b)=>(b.finishedAt||b.created||0)-(a.finishedAt||a.created||0));store.set('history',h.slice(0,500));
+  incoming=null;toastMsg(`${n} partie${n>1?'s':''} ajoutée${n>1?'s':''} à vos statistiques`);curPid=o.id;go('player')}
+
+/* =========================================================
+   Autres jeux de lancer : compteur de points
+   Pétanque, palet breton, Tossit (par mènes), Cornhole (manches avec annulation),
+   Mölkky (quilles, 50 exact). Même principe que les fléchettes : la partie est
+   une liste d'évènements, le score est recalculé, annuler = retirer le dernier.
+   ========================================================= */
+const OTHER={
+  petanque:{name:'Pétanque',sub:'Boules et cochonnet',kind:'menes',
+    rules:o=>`Deux équipes lancent leurs boules le plus près possible du cochonnet. À chaque mène, seule l'équipe la mieux placée marque : un point par boule plus proche que la meilleure boule adverse (jusqu'à ${o.max} points). La première équipe à ${o.target} points gagne. ${o.target} à 0, c'est « fanny » !`,
+    opts:[{k:'format',label:'Formule',vals:[['tat','Tête-à-tête'],['dbl','Doublette'],['tri','Triplette']],def:'dbl',help:v=>({tat:'1 contre 1, 3 boules chacun : jusqu\'à 3 points par mène.',dbl:'2 contre 2, 3 boules chacun : jusqu\'à 6 points par mène.',tri:'3 contre 3, 2 boules chacun : jusqu\'à 6 points par mène.'})[v]},
+          {k:'target',label:'Partie en',vals:[[11,'11'],[13,'13'],[15,'15'],[21,'21']],def:13}],
+    max:o=>o.format==='tat'?3:6,fanny:true,unit:'mène'},
+  palet:{name:'Palet breton',sub:'Palets sur planche en bois',kind:'menes',
+    rules:o=>`Sur une planche en bois, chaque équipe lance ses palets en fonte au plus près du petit palet, le « maître ». À chaque mène, l'équipe la mieux placée marque un point par palet plus proche que le meilleur palet adverse. Un palet tombé de la planche ne compte pas. La première équipe à ${o.target} points gagne.`,
+    opts:[{k:'max',label:'Palets par équipe',vals:[[4,'4'],[6,'6'],[8,'8'],[12,'12']],def:6,help:()=>'C\'est aussi le nombre maximal de points d\'une mène.'},
+          {k:'target',label:'Partie en',vals:[[11,'11'],[12,'12'],[13,'13'],[21,'21']],def:12}],
+    max:o=>o.max,fanny:true,unit:'mène'},
+  tossit:{name:'Tossit',sub:'Fléchettes à ventouse et Jack',kind:'menes',
+    rules:o=>`Comme à la pétanque, avec des fléchettes à ventouse : on lance d'abord le Jack, puis chacun tente de coller ses Tossit au plus près. Tant qu'une équipe est la plus proche, l'autre continue de lancer. À la fin de la manche, l'équipe la mieux placée marque un point par Tossit plus proche que le meilleur adverse. La première à ${o.target} points gagne.`,
+    opts:[{k:'max',label:'Tossit par équipe',vals:[[3,'3'],[6,'6']],def:3},{k:'target',label:'Partie en',vals:[[11,'11'],[13,'13'],[21,'21']],def:13}],
+    max:o=>o.max,fanny:false,unit:'manche'},
+  cornhole:{name:'Cornhole',sub:'Sacs sur planche percée',kind:'cornhole',
+    rules:o=>`Deux équipes lancent chacune 4 sacs vers une planche inclinée percée d'un trou. Sac dans le trou : 3 points. Sac resté sur la planche : 1 point. ${o.cancel?'Avec l\'annulation, seule l\'équipe qui a fait le plus marque, et seulement la différence.':'Chaque équipe marque tous ses points.'} La première équipe à ${o.target} points gagne${o.exact?' ; au-delà de '+o.target+', le score retombe à 15':''}.`,
+    opts:[{k:'target',label:'Partie en',vals:[[11,'11'],[15,'15'],[21,'21']],def:21},{k:'cancel',label:'Annulation des points',vals:[[true,'Oui'],[false,'Non']],def:true},
+          {k:'exact',label:'Score exact obligatoire',vals:[[false,'Non'],[true,'Oui']],def:false}]},
+  molkky:{name:'Mölkky',sub:'Quilles finlandaises',kind:'molkky',
+    rules:o=>`On lance le bâton sur 12 quilles numérotées. Une seule quille tombée : on marque son numéro. Plusieurs quilles : on marque le nombre de quilles tombées. Il faut atteindre exactement 50 points : au-delà, on retombe à 25. ${o.elim?'Trois lancers ratés de suite : le joueur est éliminé.':'Trois lancers ratés de suite : le score retombe à 0.'}`,
+    opts:[{k:'elim',label:'Après 3 ratés de suite',vals:[[true,'Éliminé'],[false,'Retour à 0']],def:true}]}
+};
+const MK_LAYOUT=[[7,9,8],[5,11,12,6],[3,10,4],[1,2]];
+
+/* ---------- Calcul du score ---------- */
+function run2(g){const D=OTHER[g.kind],o=g.opts,n=g.teams.length;
+  if(D.kind==='menes'){const sc=g.teams.map(()=>0);let winner=null;
+    g.events.forEach(e=>{if(winner!=null)return;sc[e.t]+=e.pts;if(sc[e.t]>=o.target)winner=e.t});
+    return {sc,winner,fanny:winner!=null&&D.fanny&&sc.some((s,i)=>i!==winner&&s===0)}}
+  if(D.kind==='cornhole'){const sc=[0,0];let winner=null;const log=[];
+    g.events.forEach(e=>{if(winner!=null)return;const a=e.a[0]*3+e.a[1],b=e.b[0]*3+e.b[1];let pa=a,pb=b;if(o.cancel){pa=Math.max(0,a-b);pb=Math.max(0,b-a)}
+      sc[0]+=pa;sc[1]+=pb;let bust=[false,false];if(o.exact)for(const i of [0,1])if(sc[i]>o.target){sc[i]=15;bust[i]=true}
+      log.push({pa,pb,bust});if(sc[0]>=o.target&&sc[0]>sc[1])winner=0;else if(sc[1]>=o.target&&sc[1]>sc[0])winner=1});
+    return {sc,winner,log}}
+  if(D.kind==='molkky'){const P=g.teams.map(()=>({sc:0,miss:0,out:false}));let turn=0,winner=null;const log=[];
+    const nextTurn=()=>{for(let k=1;k<=n;k++){const j=(turn+k)%n;if(!P[j].out){turn=j;return}}};
+    g.events.forEach(e=>{if(winner!=null)return;const st=P[turn];let pts=e.pins.length===1?e.pins[0]:e.pins.length;let note='';
+      if(!pts){st.miss++;if(st.miss>=3){if(o.elim){st.out=true;note='éliminé'}else{st.sc=0;st.miss=0;note='retour à 0'}}}
+      else{st.miss=0;st.sc+=pts;if(st.sc>50){st.sc=25;note='au-delà de 50 : retour à 25'}}
+      log.push({p:turn,pts,note,pins:e.pins});
+      if(st.sc===50)winner=turn;else{const alive=P.map((x,i)=>x.out?-1:i).filter(i=>i>=0);if(alive.length===1&&n>1)winner=alive[0];else nextTurn()}});
+    return {P,turn,winner,log}}
+}
+
+/* ---------- Écran de choix ---------- */
+let g2=store.get('current2',null),odraft=null,mkSel=[],chDraft={a:[0,0],b:[0,0]};
+function saveG2(){if(g2)store.set('current2',g2);else store.del('current2')}
+function renderMore(){
+  const cur=g2&&!g2.finishedAt?g2:null;
+  frame('Autres jeux',`<div class="col">
+    ${cur?`<button class="card resume" data-act="mresume"><div class="big">${esc(OTHER[cur.kind].name.split(' ')[0])}</div><div class="meta"><b>Reprendre la partie</b><span>${cur.teams.map(t=>esc(t.name)).join(' · ')}</span></div>${I.next}</button>`:''}
+    <section><h2 class="sec-title">Choisissez le jeu</h2><div class="catalog">${Object.entries(OTHER).map(([k,d])=>`<button class="gcard" data-act="mnew" data-v="${k}"><b>${d.name}</b><span>${d.sub}</span></button>`).join('')}</div></section>
+    <p class="note">ARROW compte les points : vous saisissez le résultat de chaque mène ou de chaque lancer.</p>
+  </div>`);
+}
+function newODraft(kind){const D=OTHER[kind],o={};D.opts.forEach(x=>o[x.k]=x.def);const last=store.get('lastOther',{})[kind];
+  const P=profilesByRecent().map(p=>p.name);
+  if(D.kind==='molkky')return {kind,opts:Object.assign(o,last&&last.opts),teams:(P.length>=2?P.slice(0,2):['Joueur 1','Joueur 2']).map(n=>({name:n}))};
+  return {kind,opts:Object.assign(o,last&&last.opts),teams:[{name:'Équipe 1',members:P[0]?[P[0]]:[]},{name:'Équipe 2',members:P[1]?[P[1]]:[]}]};
+}
+function renderOSetup(){
+  const d=odraft,D=OTHER[d.kind];const P=profilesByRecent();
+  const teamsHTML=D.kind==='molkky'
+    ?`<section><h2 class="sec-title">Joueurs ou équipes · ordre de passage</h2><div class="players-list">${d.teams.map((t,i)=>`<div class="prow"><span class="ord">${i+1}</span><input data-tname="${i}" value="${esc(t.name)}" maxlength="24" aria-label="Nom ${i+1}">
+        <button class="icon-btn" data-act="mtup" data-v="${i}" aria-label="Monter" ${i===0?'disabled':''}>${I.up}</button><button class="icon-btn" data-act="mtdel" data-v="${i}" aria-label="Retirer" ${d.teams.length<=2?'disabled':''}>${I.x}</button></div>`).join('')}</div>
+        <div class="row2" style="margin-top:10px"><button class="btn btn-ghost" data-act="mtadd">+ Ajouter</button></div>
+        ${P.length?`<div class="chips" style="margin-top:10px">${P.filter(p=>!d.teams.some(t=>t.name===p.name)).map(p=>`<button class="chip" data-act="mtprof" data-v="${esc(p.name)}">+ ${esc(p.name)}</button>`).join('')}</div>`:''}</section>`
+    :`<section><h2 class="sec-title">Équipes</h2><div class="stack">${d.teams.map((t,i)=>`<div class="card team-card"><input class="tin" data-tname="${i}" value="${esc(t.name)}" maxlength="24" aria-label="Nom de l'équipe ${i+1}">
+        <div class="chips" style="margin-top:8px">${P.map(p=>`<button class="chip pchip" data-act="mtmem" data-v="${i}|${esc(p.name)}" aria-pressed="${(t.members||[]).includes(p.name)}">${esc(p.name)}</button>`).join('')||'<span class="note">Ajoutez des joueurs dans « Joueurs et stats » pour les choisir ici.</span>'}</div></div>`).join('')}</div>
+      <p class="note" style="margin-top:8px">Le nom de l'équipe suffit ; choisir ses joueurs permet de suivre leurs victoires.</p></section>`;
+  frame(esc(D.name),`<div class="col">
+    <section class="card"><h2 class="sec-title">Règle</h2><p class="rule-text" style="margin:0 0 14px">${D.rules(Object.assign({max:D.max?D.max(d.opts):0},d.opts))}</p>
+      ${D.opts.map(o=>{const v=d.opts[o.k];return `<div class="opt-row"><span class="lbl">${o.label}</span><div class="seg">${o.vals.map(([val,lab])=>`<button data-act="mopt" data-k="${o.k}" data-v='${JSON.stringify(val)}' aria-pressed="${v===val}">${lab}</button>`).join('')}</div>${o.help?`<p>${o.help(v)}</p>`:''}</div>`}).join('')}</section>
+    ${teamsHTML}
+    <button class="btn btn-primary" data-act="mstart">Commencer</button>
+  </div>`);
+}
+
+/* ---------- Écran de score ---------- */
+function renderOPlay(){
+  const D=OTHER[g2.kind],S=run2(g2),o=g2.opts;let body='';
+  const over=S.winner!=null;
+  if(D.kind==='menes'){const max=D.max(o);
+    body=`<div class="mteams">${g2.teams.map((t,i)=>`<section class="mteam ${S.winner===i?'win':''}" id="mt${i}"><div class="mt-name">${esc(t.name)}</div>${t.members&&t.members.length?`<div class="mt-mem">${t.members.map(esc).join(', ')}</div>`:''}
+      <div class="mt-score">${S.sc[i]}</div><div class="mt-bar"><i style="width:${Math.min(100,S.sc[i]/o.target*100)}%"></i></div>
+      ${over?'':`<div class="mt-pts">${[...Array(max)].map((_,k)=>`<button data-act="mpt" data-v="${i}|${k+1}">+${k+1}</button>`).join('')}</div>`}</section>`).join('')}</div>
+      <p class="note center">Objectif ${o.target} points · touchez les points gagnés par l'équipe à la fin de la ${D.unit}.</p>`}
+  if(D.kind==='cornhole'){const a=chDraft.a,b=chDraft.b,pa=a[0]*3+a[1],pb=b[0]*3+b[1],na=o.cancel?Math.max(0,pa-pb):pa,nb=o.cancel?Math.max(0,pb-pa):pb;
+    const side=(k,i)=>`<section class="mteam ${S.winner===i?'win':''}" id="mt${i}"><div class="mt-name">${esc(g2.teams[i].name)}</div><div class="mt-score">${S.sc[i]}</div><div class="mt-bar"><i style="width:${Math.min(100,S.sc[i]/o.target*100)}%"></i></div>
+      ${over?'':`<div class="ch-row"><span>Dans le trou <small>3 pts</small></span>${stepper(k,0)}</div><div class="ch-row"><span>Sur la planche <small>1 pt</small></span>${stepper(k,1)}</div>`}</section>`;
+    body=`<div class="mteams">${side('a',0)}${side('b',1)}</div>
+      ${over?'':`<button class="btn btn-primary" data-act="chval">Valider la manche · ${o.cancel?(na?esc(g2.teams[0].name)+' +'+na:nb?esc(g2.teams[1].name)+' +'+nb:'aucun point'):'+'+pa+' / +'+pb}</button>`}
+      <p class="note center">Objectif ${o.target} points · 4 sacs par équipe et par manche.</p>`}
+  if(D.kind==='molkky'){const cur=S.turn;
+    body=`<div class="mk-players">${g2.teams.map((t,i)=>{const p=S.P[i];return `<div class="mkp ${i===cur&&!over?'on':''} ${p.out?'out':''} ${S.winner===i?'win':''}"><span class="mkp-name">${esc(t.name)}</span><span class="mkp-miss">${[0,1,2].map(k=>`<i class="${k<p.miss?'x':''}"></i>`).join('')}</span><span class="mkp-sc">${p.sc}</span><span class="mt-bar"><i style="width:${p.sc*2}%"></i></span></div>`}).join('')}</div>
+      ${over?'':`<p class="mk-turn">Au tour de <b>${esc(g2.teams[cur].name)}</b> · reste ${50-S.P[cur].sc}</p>
+      <div class="mk-pins">${MK_LAYOUT.map(r=>`<div class="mk-row">${r.map(n=>`<button class="pin" data-act="mkpin" data-v="${n}" aria-pressed="${mkSel.includes(n)}">${n}</button>`).join('')}</div>`).join('')}</div>
+      <button class="btn btn-primary" data-act="mkval">${mkSel.length===0?'Raté (aucune quille)':mkSel.length===1?'Valider : '+mkSel[0]+' point'+(mkSel[0]>1?'s':''):'Valider : '+mkSel.length+' quilles = '+mkSel.length+' points'}</button>`}`}
+  const hist=histOther(D,S);
+  const wname=over?g2.teams[S.winner].name:'';
+  frame(esc(D.name)+`<small>${D.kind==='molkky'?'50 points':o.target+' points'}</small>`,`<div class="col" id="oplay">
+    ${over?`<div class="win ow"><span class="crown">${S.fanny?'Fanny !':'Victoire'}</span><h1>${esc(wname)} gagne</h1><p>${D.kind==='molkky'?'':S.sc.join(' à ')}</p>${g2.endPhrase?`<p class="end-say">« ${esc(g2.endPhrase)} »</p>`:''}</div>`:''}
+    ${body}
+    ${over?`<div class="stack"><button class="btn btn-primary" data-act="mrematch">Revanche</button><button class="btn btn-silver" data-act="more">Autres jeux</button></div>`:''}
+    <section><h2 class="sec-title">Historique</h2>${hist}
+      ${g2.events.length?'<div class="row2" style="margin-top:8px"><button class="btn btn-ghost" data-act="mundo">'+I.undo+' Annuler la dernière saisie</button></div>':''}</section>
+  </div>`);
+}
+function stepper(k,j){const v=chDraft[k][j];return `<div class="stepper"><button data-act="chs" data-v="${k}|${j}|-1" aria-label="Moins">−</button><output>${v}</output><button data-act="chs" data-v="${k}|${j}|1" aria-label="Plus">+</button></div>`}
+function histOther(D,S){const ev=g2.events;if(!ev.length)return '<p class="empty">Les scores apparaîtront ici.</p>';
+  let rows=[];
+  if(D.kind==='menes')rows=ev.map((e,i)=>`<li><div class="h-who"><b>${D.unit==='mène'?'Mène':'Manche'} ${i+1}</b><span>${esc(g2.teams[e.t].name)}</span></div><div class="h-tot">+${e.pts}</div><div class="h-rem"></div></li>`);
+  if(D.kind==='cornhole')rows=ev.map((e,i)=>{const l=S.log[i]||{};return `<li><div class="h-who"><b>Manche ${i+1}</b><span>${e.a[0]} trou · ${e.a[1]} planche / ${e.b[0]} trou · ${e.b[1]} planche</span></div><div class="h-tot">${l.pa?esc(g2.teams[0].name)+' +'+l.pa:''}${l.pb?esc(g2.teams[1].name)+' +'+l.pb:''}${!l.pa&&!l.pb?'0':''}</div><div class="h-rem"></div></li>`});
+  if(D.kind==='molkky')rows=S.log.map(l=>`<li><div class="h-who"><b>${esc(g2.teams[l.p].name)}</b><span>${l.pins.length?'Quilles '+l.pins.join(', '):'Raté'}${l.note?' · '+l.note:''}</span></div><div class="h-tot">${l.pts?'+'+l.pts:'0'}</div><div class="h-rem"></div></li>`);
+  return `<ul class="hist-list">${rows.slice(-12).reverse().join('')}</ul>`}
+
+/* Réaction après une saisie : son, étincelles, et annonce du vainqueur */
+function o2react(pts,max,teamIdx){const S=run2(g2);
+  const cat=S.winner!=null?'checkout':pts>=max?'huge':pts>=Math.ceil(max/2)?'big':pts>0?'mid':'zero';
+  Sound.play(cat);
+  if(prefs.fx&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){const el=document.getElementById('mt'+teamIdx)||document.querySelector('.mkp.on');
+    if(el){el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop')}}
+  if(S.winner!=null&&!g2.finishedAt){g2.finishedAt=Date.now();const name=g2.teams[S.winner].name;
+    const ph=S.fanny?'Fanny ! '+choosePhrase('superchambreur','tie',{n:'',r:''}).text:choosePhrase('standard','winner',{n:name,r:''}).text;g2.endPhrase=ph;
+    const h=store.get('history2',[]);h.unshift({id:g2.id,kind:g2.kind,date:g2.finishedAt,teams:g2.teams,winner:S.winner,score:S.sc||S.P.map(p=>p.sc)});store.set('history2',h.slice(0,300));
+    saveG2();renderOPlay();setTimeout(()=>Fx.celebrate(),200);setTimeout(()=>Voice.say(ph,'standard'),700);return true}
+  return false}
+/* Victoires dans les autres jeux, pour la fiche d'un joueur */
+function otherStatsOf(p){const out={};for(const h of store.get('history2',[])){const ti=h.teams.findIndex(t=>(t.members||[]).includes(p.name)||t.name===p.name);if(ti<0)continue;
+  const d=OTHER[h.kind];const o=out[d.name]||(out[d.name]={games:0,wins:0});o.games++;if(h.winner===ti)o.wins++}return out}
+
+const VERSION='1.10 · 12 novembre 2026';
+function sendButtons(g){const o=owner();const l=g.players.map(pl=>profById(pl.id)).filter(pr=>pr&&pr.code&&(!o||pr.code!==o.code)&&pendingFor(pr.code));
+  return l.length?`<section class="card"><h2 class="sec-title">Envoyer les statistiques</h2><div class="stack">${l.map(pr=>`<button class="btn btn-ghost" data-act="sendstats" data-v="${pr.code}">${I.share} Envoyer à ${esc(pr.name)} (${pendingFor(pr.code)} partie${pendingFor(pr.code)>1?'s':''})</button>`).join('')}</div></section>`:''}
+/* =========================================================
    Réglages et état
    ========================================================= */
-const DEF_PREFS={input:'board',ambiance:'standard',volume:.8,sounds:true,voice:true,muted:false,rate:1,voiceURI:'',confirmBoard:false,skin:'classic',fx:true,announce:true,adaptive:false,thr:{x01:{big:100,low:30}}};
+const DEF_PREFS={input:'board',ambiance:'standard',volume:.8,sounds:true,voice:true,muted:false,rate:1,voiceURI:'',confirmBoard:false,skin:'classic',decor:'none',fx:true,announce:true,adaptive:false,thr:{x01:{big:100,low:30}}};
 const prefs=(()=>{const p=Object.assign({},DEF_PREFS,store.get('prefs',{}));p.thr=Object.assign({},DEF_PREFS.thr,p.thr||{});p.thr.x01=Object.assign({},DEF_PREFS.thr.x01,p.thr.x01||{});return p})();
 let game=store.get('current',null);if(game&&!game.type)game.type='x01';
 let screen='home';
@@ -1423,7 +1892,8 @@ let padNum=null;
 let wakeLock=null;
 const app=document.getElementById('app');
 
-function saveGame(){if(game)store.set('current',game);else store.del('current')}
+function saveGame(){if(game)store.set('current',game);else store.del('current');}
+function spectator(){if(game&&game.room&&game.room.role==='spectateur'){toastMsg('Mode spectateur : vous suivez la partie.');return true}return false}
 function savePrefs(){store.set('prefs',prefs)}
 function recentPlayers(){return store.get('players',[])}
 function rememberPlayers(names){const old=recentPlayers().filter(n=>!names.includes(n));store.set('players',[...names,...old].slice(0,16))}
@@ -1440,6 +1910,7 @@ const I={
   snd:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 010 7M18.5 5.5a9 9 0 010 13"/></svg>',
   mute:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M22 9l-6 6M16 9l6 6"/></svg>',
   play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
+  share:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>',
 };
 const avatar=(pl,i)=>{const pr=typeof profById==='function'&&pl.id?profById(pl.id):null;const col=(pr&&pr.color)||pl.color||AV_COLORS[i%AV_COLORS.length];
   if(pr&&pr.photo)return `<span class="av ph" style="--tone:${col};background-image:url(${pr.photo})"></span>`;
@@ -1476,12 +1947,21 @@ const Sound={ctx:null,out:null,
 /* Voix : la plus naturelle de l'appareil. Si des voix enregistrées (générateur de voix) sont
    installées dans le dossier « voix », elles sont jouées à la place. */
 function voiceQuality(v){let q=0;if(/natural|neural|online|premium|enhanced|am[ée]lior|wavenet|studio/i.test(v.name))q+=4;if(/google/i.test(v.name))q+=1;if(/fr[-_]FR/i.test(v.lang))q+=1;if(!v.localService)q+=1;return q}
-const Pack={files:{},ready:false,
-  /* voix/manifest.json : { "superstar": ["superstar_big_1", …], … } */
-  async load(){try{const r=await fetch('voix/manifest.json',{cache:'no-cache'});if(!r.ok)return;const j=await r.json();
-    for(const [amb,ids] of Object.entries(j))this.files[amb]=new Set(ids);this.ready=true}catch(e){}},
+const Pack={files:{},clips:{},src:{},buf:{},ready:false,
+  /* voix.json : { packs: { standard: { file:"voix-standard.mp3", clips:{ "standard_big_1":[début,durée], … } }, … } }
+     Une ambiance = un seul fichier son ; chaque phrase est un extrait de ce fichier. */
+  async load(){try{const r=await fetch('voix.json',{cache:'no-store'});if(!r.ok)return;const j=await r.json();const P=j.packs||{};
+    for(const [amb,pk] of Object.entries(P)){this.files[amb]=new Set(Object.keys(pk.clips));this.src[amb]=pk.file+'?v='+(j.v||1);Object.assign(this.clips,pk.clips)}
+    this.ready=Object.keys(P).length>0}catch(e){}},
   has(amb){return this.ready&&this.files[amb]&&this.files[amb].size>0},
-  play(id,cb){try{const a=new Audio('voix/'+id+'.mp3');a.volume=prefs.volume;a.onplaying=()=>cb&&cb(true);a.onerror=()=>cb&&cb(false);a.play().catch(()=>cb&&cb(false));return true}catch(e){cb&&cb(false);return false}}
+  /* Télécharge et décode le fichier d'une ambiance (une seule fois) */
+  get(amb){Sound.unlock();const c=Sound.ctx;if(!c)return Promise.reject();
+    if(!this.buf[amb])this.buf[amb]=fetch(this.src[amb]).then(r=>{if(!r.ok)throw 0;return r.arrayBuffer()}).then(a=>new Promise((ok,ko)=>c.decodeAudioData(a,ok,ko))).catch(e=>{delete this.buf[amb];throw e});
+    return this.buf[amb]},
+  preload(ambs){[...new Set(ambs)].forEach(a=>{if(this.has(a))this.get(a).catch(()=>{})})},
+  play(id,cb){const amb=id.split('_')[0],cl=this.clips[id];if(!cl||!this.has(amb)){cb&&cb(false);return false}
+    this.get(amb).then(b=>{const c=Sound.ctx;if(c.state==='suspended')c.resume();const s=c.createBufferSource(),g=c.createGain();s.buffer=b;g.gain.value=prefs.volume;s.connect(g);g.connect(c.destination);
+      const st=Math.max(0,cl[0]-.04);s.start(0,st,cl[1]+.1);cb&&cb(true)}).catch(()=>cb&&cb(false));return true}
 };
 Pack.load();
 const Voice={ok:'speechSynthesis' in window,list:[],
@@ -1532,11 +2012,11 @@ const recentPick={};
    qui contiennent le prénom ou le score (elles ne peuvent pas être enregistrées à l'avance). */
 function choosePhrase(amb,cat,vars){
   const A=AMBIANCES[amb]||AMBIANCES.standard,list=A[cat]||A.mid,key=amb+cat;
-  let pool=list.map((_,i)=>i);if(Pack.has(amb)){const np=pool.filter(i=>!/\{[nr]\}/.test(list[i]));if(np.length)pool=np}
+  let pool=list.map((_,i)=>i);if(Pack.has(amb)){const np=pool.filter(i=>Pack.files[amb].has(`${amb}_${cat}_${i+1}`));if(np.length)pool=np}
   const used=recentPick[key]||[],free=pool.filter(i=>!used.includes(i));const from=free.length?free:pool;
   const i=from[Math.floor(Math.random()*from.length)];
   recentPick[key]=[...used,i].slice(-Math.floor(pool.length/2));
-  return {text:list[i].replace(/\{n\}/g,vars.n).replace(/\{r\}/g,vars.r),id:`${amb}_${cat}_${i+1}`};
+  return {text:untag(list[i]).replace(/\{n\}/g,vars.n).replace(/\{r\}/g,vars.r),id:`${amb}_${cat}_${i+1}`};
 }
 function pickPhrase(amb,cat,vars){return choosePhrase(amb,cat,vars).text}
 const TAGS={c180:'Cent quatre-vingts',checkout:'Partie gagnée',huge:'Très grosse volée',big:'Belle volée',bust:'Bust'};
@@ -1559,7 +2039,7 @@ function frame(title,body,{fixed=false,right='quit'}={}){
 function go(s){screen=s;lastFrame=null;closeSheet();render()}
 function render(){
   if(screen!=='game')releaseWake();
-  ({home:renderHome,setup:renderSetup,ambiance:renderAmbiance,game:renderGameShell,end:renderEnd,settings:renderSettings,players:renderPlayers,player:renderPlayer,history:renderHistory,tournaments:renderTournaments,tnew:renderTNew,tournament:renderTournament}[screen]||renderHome)();
+  ({home:renderHome,setup:renderSetup,ambiance:renderAmbiance,game:renderGameShell,end:renderEnd,settings:renderSettings,players:renderPlayers,player:renderPlayer,history:renderHistory,tournaments:renderTournaments,tnew:renderTNew,tournament:renderTournament,welcome:renderWelcome,import:renderImport,more:renderMore,mset:renderOSetup,mplay:renderOPlay}[screen]||renderHome)();
 }
 
 /* ---------- Lancement animé ---------- */
@@ -1579,10 +2059,11 @@ function renderHome(){
     res=`<button class="card resume" data-act="resume"><div class="big">${g.type==='x01'?g.start:esc(m.short)}</div><div class="meta"><b>Reprendre la partie</b><span>${g.players.map(p=>esc(p.name)).join(' · ')}</span><span>Au tour de ${esc(pl.name)} · ${m.resume(S,S.p,g)}</span></div>${I.next}</button>`}
   frame('<span class="wm">ARROW</span>',`<div class="col">
     <div class="hero"><div class="logo-wrap">${logoSVG('h',false)}</div><div class="mark">ARROW</div><div class="byline">by elmagination</div></div>
-    ${res}
+    ${res}${g2&&!g2.finishedAt?`<button class="card resume" data-act="mresume"><div class="big">${esc(OTHER[g2.kind].name.split(' ')[0])}</div><div class="meta"><b>Reprendre la partie</b><span>${g2.teams.map(t=>esc(t.name)).join(' · ')}</span></div>${I.next}</button>`:''}
     <div class="stack">
       <button class="btn btn-primary" data-act="new">Nouvelle partie</button>
-      <button class="btn btn-silver" disabled>Rejoindre une partie <small>étape 4</small></button>
+
+      <button class="btn btn-silver" data-act="more">Pétanque, Mölkky, palet, cornhole…</button>
       <div class="row2"><button class="btn btn-ghost" data-act="players">Joueurs et stats</button><button class="btn btn-ghost" data-act="tournaments">Tournois</button></div>
       <button class="btn btn-ghost" data-act="history">Historique des parties</button>
     </div>
@@ -1591,10 +2072,11 @@ function renderHome(){
         <li class="done"><span class="dot"></span><div><b>1 · Écran de jeu</b> <span>— cible réaliste, pavé tactile, 301/501/701/901, annulation.</span></div></li>
         <li class="done"><span class="dot"></span><div><b>2 · Ambiances et audio</b> <span>— Standard, Chambreur, Superstar, sons et voix française.</span></div></li>
         <li class="done"><span class="dot"></span><div><b>3 · Autres jeux</b> <span>— tous les jeux du cahier des charges sont jouables : X01, Cricket, Cut-Throat, Count Up, High Score, Shanghai, Baseball, Golf, Killer, Tour de l'horloge, Bob's 27, 121, doubles, triples, finitions. À venir : équipes et jeux personnalisés.</span></div></li>
-        <li class="now"><span class="dot"></span><div><b>4 · Comptes et parties à distance</b> <span>— lien et code de partie, synchro entre appareils.</span></div></li>
+        <li class="done"><span class="dot"></span><div><b>4 · Profils et codes utilisateur</b> <span>— chacun reçoit ses statistiques sur son téléphone par lien.</span></div></li>
         <li class="done"><span class="dot"></span><div><b>5 · Statistiques et classements</b> <span>— profils, moyennes, courbe d'évolution, historique.</span></div></li>
         <li class="now"><span class="dot"></span><div><b>6 · Tournois</b> <span>— élimination directe et championnat aller-retour jouables. À venir : poules, équipes.</span></div></li>
       </ul></section>
+    <p class="note" style="text-align:center">Version ${VERSION}</p>
   </div>`,{right:'settings'});
 }
 
@@ -1602,10 +2084,21 @@ function renderHome(){
 function newDraft(){
   const rec=recentPlayers();const names=rec.length>=2?rec.slice(0,2):['Joueur 1','Joueur 2'];const last=store.get('lastSetup',{});
   const type=GAMES[last.type]?last.type:'x01';
-  return {type,opts:Object.assign({},defaultOpts(type),(last.opts||{})[type]||{}),
+  return {type,teamSize:last.teamSize||1,opts:Object.assign({},defaultOpts(type),JSON.parse(JSON.stringify((last.opts||{})[type]||{}))),
     players:names.map((n,i)=>({id:uid(),name:n,color:AV_COLORS[i%AV_COLORS.length]}))};
 }
-function defaultOpts(type){const o={};GAMES[type].opts.forEach(x=>o[x.k]=x.def);return o}
+function defaultOpts(type){const o={};GAMES[type].opts.forEach(x=>o[x.k]=Array.isArray(x.def)?x.def.slice():x.def);return o}
+/* Option de jeu : boutons, valeur libre, ou parcours de numéros */
+function optRowHTML(o,v,act){
+  if(o.type==='seq')return `<div class="opt-row"><span class="lbl">${o.label}</span>
+    <div class="seqpick">${[...Array(20)].map((_,i)=>i+1).concat(25).map(n=>{const k=v.indexOf(n);return `<button data-act="${act}seq" data-k="${o.k}" data-v="${n}" aria-pressed="${k>=0}">${n===25?'Bull':n}${k>=0?`<i>${k+1}</i>`:''}</button>`}).join('')}</div>
+    <p>${v.length?'Ordre : '+v.map(n=>n===25?'Bull':n).join(' → '):'Touchez au moins un numéro.'}</p>
+    <div class="row2"><button class="btn btn-ghost" data-act="${act}seqclr" data-k="${o.k}">Effacer</button><button class="btn btn-ghost" data-act="${act}seqdef" data-k="${o.k}">15 à 20 + Bull</button></div></div>`;
+  const known=o.vals.some(([x])=>x===v);
+  return `<div class="opt-row"><span class="lbl">${o.label}</span>
+    <div class="seg">${o.vals.map(([val,lab])=>`<button data-act="${act}" data-k="${o.k}" data-v='${JSON.stringify(val)}' aria-pressed="${v===val}">${lab}</button>`).join('')}</div>
+    ${o.free?`<label class="free-in"><span>${o.free.label}</span><input type="number" inputmode="numeric" data-free="${act}" data-k="${o.k}" min="${o.free.min}" max="${o.free.max}" value="${known?'':v}" placeholder="—"></label>`:''}
+    ${o.help?`<p>${o.help(v)}</p>`:''}</div>`}
 const RULES={301:'Chaque joueur part de 301 points et retire ce qu\'il marque à chaque volée de trois fléchettes. Le premier à tomber exactement à zéro gagne.',
   501:'Le format des compétitions : départ à 501 points. On retire le score de chaque volée ; le premier à atteindre exactement zéro gagne, généralement avec une dernière fléchette dans un double.',
   701:'Même principe que le 501, avec un départ à 701 points. Idéal pour une partie plus longue ou en équipes.',
@@ -1615,17 +2108,16 @@ function asGame(d){const g={type:d.type,opts:d.opts};if(d.type==='x01'){g.start=
 function renderSetup(){
   const d=draft,m=GAMES[d.type],rec=profilesByRecent().map(p=>p.name).filter(n=>!d.players.some(p=>p.name.trim().toLowerCase()===n.toLowerCase()));
   const cats=[...new Set(Object.values(GAMES).map(x=>x.group))];
-  const optHTML=m.opts.map(o=>{const v=d.opts[o.k];return `<div class="opt-row"><span class="lbl">${o.label}</span>
-      <div class="seg">${o.vals.map(([val,lab])=>`<button data-act="opt" data-k="${o.k}" data-v='${JSON.stringify(val)}' aria-pressed="${v===val}">${lab}</button>`).join('')}</div>
-      ${o.help?`<p>${o.help(v)}</p>`:''}</div>`}).join('');
+  const optHTML=m.opts.map(o=>optRowHTML(o,d.opts[o.k],'opt')).join('');const ts=d.teamSize||1;
   frame('Nouvelle partie',`<div class="col">
     <section><h2 class="sec-title">Jeu</h2>
       ${cats.map(c=>`<p class="cat-lbl">${c}</p><div class="catalog">${Object.values(GAMES).filter(x=>x.group===c).map(x=>`<button class="gcard" data-act="gtype" data-v="${x.id}" aria-pressed="${d.type===x.id}"><b>${x.name}</b><span>${x.sub}</span></button>`).join('')}</div>`).join('')}
-      <p class="cat-lbl">En préparation</p><div class="soon">${SOON_GAMES.map(n=>`<div><b>${n}</b>Bientôt</div>`).join('')}</div>
     </section>
     <section class="card"><h2 class="sec-title">Règle · ${m.name}</h2><p class="rule-text" style="margin:0 0 14px">${m.rules(asGame(d))}</p>${optHTML}</section>
     <section><h2 class="sec-title">Joueurs · ordre de passage</h2>
-      <div class="players-list">${d.players.map((p,i)=>`<div class="prow"><span class="ord">${i+1}</span>${avatar(p,i)}
+      <div class="seg" style="margin-bottom:10px">${[[1,'Individuel'],[2,'Équipes de 2'],[3,'Équipes de 3']].map(([n,l])=>`<button data-act="teamsize" data-v="${n}" aria-pressed="${ts===n}">${l}</button>`).join('')}</div>
+      ${ts>1?'<p class="note" style="margin:-2px 0 10px">Les joueurs sont regroupés dans l\'ordre de la liste. Chaque équipe partage un score ; ses joueurs lancent chacun leur tour.</p>':''}
+      <div class="players-list">${d.players.map((p,i)=>`${ts>1&&i%ts===0?`<p class="team-lbl">Équipe ${i/ts+1} · ${d.players.slice(i,i+ts).map(x=>esc(x.name)).join(' & ')}</p>`:''}<div class="prow"><span class="ord">${i+1}</span>${avatar(p,i)}
         <input id="pn-${p.id}" data-pid="${p.id}" value="${esc(p.name)}" maxlength="24" aria-label="Nom du joueur ${i+1}" autocomplete="off">
         <button class="icon-btn" data-act="pup" data-v="${i}" aria-label="Monter" ${i===0?'disabled':''}>${I.up}</button>
         <button class="icon-btn" data-act="pdel" data-v="${i}" aria-label="Retirer" ${d.players.length<=1?'disabled':''}>${I.x}</button></div>`).join('')}</div>
@@ -1667,12 +2159,10 @@ function renderAmbiance(){
         <div class="amb-players">${d.players.map(p=>`<button class="chip pchip" data-act="pamb" data-pid="${p.id}" data-v="${k}" aria-pressed="${draftAmb(p)===k}">${esc(p.name)}</button>`).join('')}</div></div>`).join('')}</div>
       <div class="row2" style="margin-top:10px"><button class="btn btn-ghost" data-act="ambreset">Tout le monde en Standard</button></div>
       <p class="note" style="margin-top:10px">Après la troisième fléchette : un signal sonore, une animation sur la cible, puis une réaction adaptée au score et à l'ambiance du joueur.</p></section>
-    <section class="card"><h2 class="sec-title">Cible</h2>${skinPicker()}</section>
-    <section class="card"><h2 class="sec-title">Audio</h2>${audioControls()}</section>
+    <p class="note">Sons, voix, cible et décor se règlent dans <button class="lnk" data-act="settings">Réglages</button>.</p>
     <div class="row2"><button class="btn btn-ghost" data-act="tosetup">Retour</button></div>
     <button class="btn btn-primary" data-act="launch">Lancer la partie</button>
   </div>`);
-  drawSkinThumbs();
 }
 /* Choix de la cible avec aperçus */
 function skinPicker(){return `<div class="skins">${Object.entries(SKINS).map(([k,v])=>`<button class="skin" data-act="skin" data-v="${k}" aria-pressed="${prefs.skin===k}"><canvas class="skin-cv" data-skin="${k}" width="96" height="96"></canvas><b>${v.name}</b><span>${v.sub}</span></button>`).join('')}</div>`}
@@ -1685,12 +2175,14 @@ function drawSkinThumbs(){document.querySelectorAll('.skin-cv').forEach(async c=
 function renderSettings(){
   const t=prefs.thr.x01;
   frame('Réglages',`<div class="col">
-    <section class="card"><h2 class="sec-title">Audio et voix</h2>${audioControls()}
+    ${myCodeCard()}
+    <section class="card"><h2 class="sec-title">Sons et voix</h2>${audioControls()}
       <div class="set-row" style="display:block;margin-top:12px"><div class="txt" style="margin-bottom:4px"><b>Vitesse de la voix</b></div><input type="range" id="rate" min="0.7" max="1.4" step="0.05" value="${prefs.rate}" aria-label="Vitesse de la voix"></div>
 </section>
     <section class="card"><h2 class="sec-title">Cible</h2>${skinPicker()}</section>
+    <section class="card"><h2 class="sec-title">Décor derrière la cible</h2>${decorPicker()}</section>
     <section class="card"><h2 class="sec-title">Animations</h2>
-      <div class="set-row"><div class="txt"><b>Animations sur la cible</b><span>Confettis, feu d'artifice, nuage de pluie, explosion… selon la volée</span></div><button class="switch" data-act="tog" data-v="fx" aria-pressed="${prefs.fx}" aria-label="Animations"></button></div></section>
+      <div class="set-row"><div class="txt"><b>Animations 3D</b><span>La cible pivote, les fléchettes du logo volent, reflets et étincelles dorées selon la volée</span></div><button class="switch" data-act="tog" data-v="fx" aria-pressed="${prefs.fx}" aria-label="Animations"></button></div></section>
     <section class="card"><h2 class="sec-title">Seuils des réactions · jeux aux points</h2>
       <div class="set-row"><div class="txt"><b>Gros score à partir de</b><span>Au-dessus de 140, réaction « très grosse volée »</span></div>
         <div class="stepper"><button data-act="thr" data-v="big:-10" aria-label="Moins">−</button><output>${t.big}</output><button data-act="thr" data-v="big:10" aria-label="Plus">+</button></div></div>
@@ -1703,7 +2195,7 @@ function renderSettings(){
       <div class="set-row" style="margin-top:12px"><div class="txt"><b>Bouton Valider aussi sur la cible</b><span>Sur le pavé, chaque volée se valide toujours avec le bouton</span></div><button class="switch" data-act="tog" data-v="confirmBoard" aria-pressed="${prefs.confirmBoard}" aria-label="Valider sur la cible"></button></div></section>
     <p class="note">Les réglages sont enregistrés sur cet appareil.</p>
   </div>`);
-  updateVoiceBox();drawSkinThumbs();
+  updateVoiceBox();drawSkinThumbs();drawDecorThumbs();
 }
 function demo(amb){
   Sound.unlock();const A=AMBIANCES[amb];const ph=pickPhrase(amb,'big',{n:'Yannick',r:0});
@@ -1721,9 +2213,9 @@ function renderGameShell(){
   frame(m.title(game),`<div class="g g-${game.type||'x01'}">
     <div class="g-side"><div class="g-players" id="gPlayers"></div><section class="act" id="gAct"></section>
       ${m.table?'<section class="card g-table"><h2 class="sec-title">Tableau</h2><div id="gTable"></div></section>':''}
-      <section class="card g-hist"><h2 class="sec-title">Historique</h2><div id="gHist"></div><div class="row2" style="margin-top:10px"><button class="btn btn-ghost" data-act="undoturn">Annuler toute la volée</button></div></section></div>
-    <div class="stage" id="gStage">
-      <div class="board" id="board" ${prefs.input==='pad'?'hidden':''}><div class="ph">Préparation de la cible…</div><canvas id="cv" aria-label="Cible de fléchettes, touchez la zone atteinte"></canvas><svg id="marks" viewBox="-225 -225 450 450"></svg></div>
+      <section class="card g-hist"><h2 class="sec-title">Historique</h2><div id="gHist"></div><div class="row2" style="margin-top:10px"><button class="btn btn-ghost" data-act="undoturn">Annuler toute la volée</button><button class="btn btn-ghost" data-act="absent">Joueur absent</button></div></section></div>
+    <div class="stage" id="gStage"><canvas id="decor" class="decor-layer" aria-hidden="true"></canvas>
+      <div class="board" id="board" ${prefs.input==='pad'?'hidden':''}><div class="ph">Préparation de la cible…</div><canvas id="cv" aria-label="Cible de fléchettes, touchez la zone atteinte ; à côté de la cible, dans le carré : raté"></canvas><svg id="marks" viewBox="-225 -225 450 450"><defs>${dartDefs('m')}<filter id="dsh" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2"/></filter><g id="dartSym">${dartMarkup('m')}</g></defs><g id="mk"></g></svg></div>
       <div class="pad" id="pad" ${prefs.input==='board'?'hidden':''}></div>
       <div class="toast" id="toast"></div>
     </div>
@@ -1734,7 +2226,7 @@ function renderGameShell(){
 function setupBoard(){
   const cv=document.getElementById('cv');const board=document.getElementById('board');
   const draw=()=>drawBoard(cv).then(()=>{const ph=board.querySelector('.ph');if(ph&&cv.dataset.drawn)ph.remove()});
-  let t;const ro=new ResizeObserver(()=>{clearTimeout(t);t=setTimeout(draw,90)});ro.observe(board);
+  let t;const ro=new ResizeObserver(()=>{clearTimeout(t);t=setTimeout(()=>{draw();drawDecor()},90)});ro.observe(board);ro.observe(document.getElementById('gStage'));
   let lp=null;
   const toMM=e=>{const r=cv.getBoundingClientRect();return {x:(e.clientX-r.left-r.width/2)/(r.width/2)*G.rim,y:(e.clientY-r.top-r.height/2)/(r.height/2)*G.rim,r}};
   const showLoupe=e=>{
@@ -1760,6 +2252,7 @@ function setupBoard(){
   board.addEventListener('pointerdown',e=>{if(!cv.dataset.drawn||e.button>0)return;e.preventDefault();board.setPointerCapture(e.pointerId);active=e.pointerId;showLoupe(e)});
   board.addEventListener('pointermove',e=>{if(e.pointerId===active)showLoupe(e)});
   board.addEventListener('pointerup',e=>{if(e.pointerId!==active)return;const {m,hit}=showLoupe(e);hideLoupe();active=null;
+    const br=board.getBoundingClientRect();if(e.clientX<br.left||e.clientX>br.right||e.clientY<br.top||e.clientY>br.bottom)return; // relâché hors du carré : annulé
     if(hit)addDart({seg:hit.seg,mult:hit.mult,x:+m.x.toFixed(2),y:+m.y.toFixed(2)})});
   board.addEventListener('pointercancel',()=>{active=null;hideLoupe()});
   board.addEventListener('contextmenu',e=>e.preventDefault());
@@ -1778,7 +2271,7 @@ function updateGame(){
   else if(S.over)co=S.winner!=null?`<b>Victoire de ${esc(pl.name)} !</b>`:'<b>Égalité !</b>';
   else co=m.hint(S,p,game,cd);
   const muted=prefs.muted;
-  document.getElementById('gAct').innerHTML=`<div class="act-who">${avatar(pl,p)}<span class="act-name">${pend?esc(pl.name)+' · à valider':S.over?(S.winner!=null?'Gagnant : '+esc(pl.name):'Partie terminée'):'À toi, '+esc(pl.name)}</span><span class="act-turn">Volée ${nTurn}</span>
+  document.getElementById('gAct').innerHTML=`<div class="act-who">${avatar(pl,p)}<span class="act-name">${pend?esc(pl.name)+' · à valider':S.over?(S.winner!=null?'Gagnant : '+esc(pl.name):'Partie terminée'):'À toi, '+esc(throwerName(pl,nTurn-1))}</span><span class="act-turn">Volée ${nTurn}</span>
       <button class="icon-btn sm" data-act="mute" aria-pressed="${muted}" aria-label="${muted?'Réactiver le son':'Couper le son'}">${muted?I.mute:I.snd}</button>
       <button class="icon-btn sm hist-btn" data-act="hist" aria-label="Historique">${I.list}</button></div>
     <div class="act-score" aria-live="polite">${m.big(S,p,game)}</div>
@@ -1790,12 +2283,13 @@ function updateGame(){
   const sh=document.getElementById('sheetHist');if(sh)sh.innerHTML=histList(S,30);
   const st=document.getElementById('sheetTable');if(st&&m.table)st.innerHTML=m.table(S,game);
   const tg=m.target?m.target(S,p):null;
-  document.getElementById('marks').innerHTML=(tg?targetOutline(tg):'')+cd.map((d,i)=>{const pt=d.x!=null?{x:d.x,y:d.y}:zoneCenter(d.seg,d.mult);if(!pt)return '';const L=3.6;
-    return `<g transform="translate(${pt.x} ${pt.y})"><path d="M${-L} 0H${L}M0 ${-L}V${L}" stroke="rgba(0,0,0,.75)" stroke-width="1.6" stroke-linecap="round"/><path d="M${-L} 0H${L}M0 ${-L}V${L}" stroke="#fff" stroke-width=".6" stroke-linecap="round"/><text x="3.4" y="-3" font-size="6.5" font-weight="800" fill="#fff" stroke="rgba(0,0,0,.8)" stroke-width="1.6" paint-order="stroke" font-family="Figtree,sans-serif">${i+1}</text></g>`}).join('');
+  renderMarks(tg,cd);
   if(prefs.input==='pad')renderPad(tg);
   renderCtrl(S,cd,pend);
 }
 /* Barre de commandes : mode de saisie, Raté, Valider, Annuler */
+/* Équipe : ses joueurs lancent chacun leur tour */
+function throwerName(pl,k){if(!pl.members)return pl.name;return pl.members[k%pl.members.length].name}
 function needConfirm(){return prefs.input==='pad'||prefs.confirmBoard}
 function pendingTurn(S){return needConfirm()&&game.validated!=null&&S.turns.length>game.validated?S.turns[game.validated]:null}
 function renderCtrl(S,cd,pend){
@@ -1807,6 +2301,17 @@ function renderCtrl(S,cd,pend){
     ${conf?`<button class="btn btn-primary btn-val${pend?' ready':''}" data-act="validate" ${canVal?'':'disabled'}>Valider<small>${pend?m.fmt(pend):cd.length?m.curTotal(cd):''}</small></button>`:''}
     <button class="btn btn-undo" data-act="undo" aria-label="Annuler la dernière fléchette">${I.undo}</button>`;
 }
+/* Fléchettes du logo plantées à l'endroit exact de l'impact (pointe = point touché) */
+let shownDarts=0;
+function renderMarks(tg,cd){const mk=document.getElementById('mk');if(!mk)return;
+  const pts=cd.map(d=>d.x!=null?{x:d.x,y:d.y}:zoneCenter(d.seg,d.mult));
+  mk.innerHTML=(tg?targetOutline(tg):'')+pts.map((pt,i)=>{if(!pt)return '';const r=Math.hypot(pt.x,pt.y);const k=r>G.do?'out':'';
+    return `<g transform="translate(${pt.x.toFixed(2)} ${pt.y.toFixed(2)}) rotate(-52)" class="dk ${k}"><g class="dk-in">
+      <use href="#dartSym" transform="translate(6 11) scale(.36)" filter="url(#dsh)" opacity=".42" style="fill:#000"/>
+      <use href="#dartSym" transform="scale(.36)"/>${i>=shownDarts?`<animateTransform attributeName="transform" type="scale" values="2.8;0.92;1" keyTimes="0;.75;1" dur="0.34s" begin="indefinite" fill="freeze"/><animate attributeName="opacity" from="0" to="1" dur="0.12s" begin="indefinite" fill="freeze"/>`:''}</g>
+      <circle r="1.3" fill="#fff" stroke="#000" stroke-width=".5"/></g>`}).join('');
+  if(cd.length>shownDarts)mk.querySelectorAll('animateTransform,animate').forEach(a=>{try{a.beginElement()}catch(e){}});
+  shownDarts=cd.length}
 /* Contour fin du numéro à viser (ne masque pas la cible) */
 function targetOutline(seg){
   if(seg===25)return `<circle r="${G.b+1}" fill="none" stroke="rgba(0,0,0,.6)" stroke-width="2.6"/><circle r="${G.b+1}" fill="none" stroke="#f3dec2" stroke-width="1.3"/>`;
@@ -1833,7 +2338,7 @@ function renderPad(tg){
 
 let toastT=null,endT=null;
 function addDart(d){
-  if(!game||game.finishedAt)return;
+  if(!game||game.finishedAt||spectator())return;
   const m=GAMES[game.type||'x01'];const before=m.run(game);if(before.over&&!pendingTurn(before))return;
   if(game.validated==null)game.validated=before.turns.length;
   if(pendingTurn(before)){toastMsg('Validez d\'abord la volée (ou corrigez avec ↶)');return}
@@ -1846,6 +2351,7 @@ function addDart(d){
 }
 /* Valider la volée : moins de 3 fléchettes → les manquantes comptent comme ratées */
 function validate(){
+  if(spectator())return;
   const m=GAMES[game.type||'x01'];let S=m.run(game);
   if(S.turns.length<=game.validated){
     if(!S.cur||!S.cur.darts.length||S.over){updateGame();return}
@@ -1875,10 +2381,10 @@ function showToast(t,cat,phrase,m){
   clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2400);
 }
 function undoDart(){
-  if(!game||!game.darts.length)return;
+  if(!game||!game.darts.length||spectator())return;
   clearTimeout(endT);game.darts.pop();
   const n=GAMES[game.type||'x01'].run(game).turns.length;if(game.validated==null||game.validated>n)game.validated=n;
-  if(game.finishedAt){unrecordTournament(game);delete game.finishedAt;store.set('history',store.get('history',[]).filter(h=>h.id!==game.id))}
+  if(game.finishedAt){unrecordTournament(game);unqueueGame(game);delete game.finishedAt;store.set('history',store.get('history',[]).filter(h=>h.id!==game.id))}
   saveGame();
 }
 function undoTurn(){
@@ -1891,24 +2397,28 @@ function finishGame(){
   const S=GAMES[game.type||'x01'].run(game);
   if(S.winner!=null){const amb=ambOf(S.winner);const c=choosePhrase(amb,'winner',{n:game.players[S.winner].name,r:''});game.endPhrase={amb,...c}}
   else if(S.tie){const amb=ambOf(S.tie[0]);const c=choosePhrase(amb,'tie',{n:'',r:''});game.endPhrase={amb,...c}}
-  saveGame();recordTournament(game,S);announceEnd();
+  saveGame();recordTournament(game,S);queueGame(game);announceEnd();
   const h=store.get('history',[]).filter(x=>x.id!==game.id);h.unshift(game);store.set('history',h.slice(0,200));
   go('end');setTimeout(()=>Fx.celebrate(),250);
 }
+/* Début de partie : phrase de lancement dans l'ambiance du premier joueur */
+function announceStart(){if(!game||!game.players||!game.players.length)return;Pack.preload(game.players.map((_,k)=>ambOf(k)));const amb=ambOf(0);const c=choosePhrase(amb,'start',{n:game.players[0].name,r:''});
+  setTimeout(()=>{if(screen==='game')Voice.react(c,'',amb)},700)}
 function announceEnd(){const e=game.endPhrase;if(!e)return;const d=Sound.play('checkout');setTimeout(()=>Voice.react(e,'',e.amb),Math.round(d*500)+100)}
 
 /* ---------- Fin de partie ---------- */
 function renderEnd(){
   const m=GAMES[game.type||'x01'],S=m.run(game),w=S.winner;const rows=m.statRows(S,game);
   const order=S.ranking||game.players.map((_,i)=>i);
-  const head=w!=null?`${esc(game.players[w].name)} gagne`:`Égalité : ${(S.tie||[]).map(i=>esc(game.players[i].name)).join(' et ')}`;
+  const head=w!=null?`${esc(game.players[w].name)} ${game.players[w].members?'gagnent':'gagne'}`:`Égalité : ${(S.tie||[]).map(i=>esc(game.players[i].name)).join(' et ')}`;
   frame('Résultats',`<div class="col">
-    <div class="win"><span class="crown">${esc(m.name)}${game.type==='x01'?' · '+game.start+' · '+OUT_LABEL[game.outRule]:''}</span><h1>${head}</h1>
+    <div class="win"><span class="crown">${game.type==='x01'?game.start+' · '+OUT_LABEL[game.outRule]:esc(m.name)}</span><h1>${head}</h1>
       <p>${m.endLine(S,game)}</p>${game.endPhrase?`<p class="end-say">« ${esc(game.endPhrase.text)} »</p>`:''}</div>
     <div class="stats-wrap"><table class="stats"><thead><tr><th>#</th><th>Joueur</th>${m.statCols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
       <tbody>${order.map((i,k)=>`<tr class="${i===w?'w':''}"><td>${k+1}</td><td>${esc(game.players[i].name)}</td>${rows[i].map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
     ${m.table?m.table(S,game):''}
     <p class="note">${m.statNote}</p>
+    ${sendButtons(game)}
     <div class="stack">${game.tournament?`<button class="btn btn-primary" data-act="topen" data-v="${game.tournament.tid}">Retour au tournoi</button>`:`<button class="btn btn-primary" data-act="rematch">Revanche</button><button class="btn btn-silver" data-act="new">Nouvelle partie</button>`}
       <button class="btn btn-ghost" data-act="endundo">Annuler la dernière fléchette</button></div>
   </div>`);
@@ -1925,7 +2435,7 @@ function openHist(){
   openSheet(`<div class="sheet-head"><h2>${m.table?'Tableau et historique':'Historique des volées'}</h2><button class="icon-btn" data-act="closesheet" aria-label="Fermer">${I.x}</button></div>
     ${m.table?`<div id="sheetTable">${m.table(S,game)}</div>`:''}
     <div id="sheetHist">${histList(S,30)}</div>
-    <div class="row2"><button class="btn btn-ghost" data-act="undoturn">Annuler toute la volée</button></div>`,'Historique');
+    <div class="row2"><button class="btn btn-ghost" data-act="undoturn">Annuler toute la volée</button><button class="btn btn-ghost" data-act="absent">Joueur absent : passer sa volée</button></div>`,'Historique');
 }
 function openQuit(){
   openSheet(`<div class="sheet-head"><h2>Quitter la partie ?</h2><button class="icon-btn" data-act="closesheet" aria-label="Fermer">${I.x}</button></div>
@@ -1950,6 +2460,41 @@ document.addEventListener('click',e=>{
   if(a==='listen')e.stopPropagation();
   switch(a){
     case 'home':go('home');break;
+    case 'more':go('more');break;
+    case 'mresume':go('mplay');break;
+    case 'mnew':odraft=newODraft(v);go('mset');break;
+    case 'mopt':odraft.opts[b.dataset.k]=JSON.parse(v);renderOSetup();break;
+    case 'mtadd':odraft.teams.push({name:'Joueur '+(odraft.teams.length+1)});renderOSetup();break;
+    case 'mtprof':odraft.teams.push({name:v});renderOSetup();break;
+    case 'mtdel':odraft.teams.splice(+v,1);renderOSetup();break;
+    case 'mtup':{const i=+v;[odraft.teams[i-1],odraft.teams[i]]=[odraft.teams[i],odraft.teams[i-1]];renderOSetup();break}
+    case 'mtmem':{const [i,n]=v.split('|');const t=odraft.teams[+i];t.members=t.members||[];const k=t.members.indexOf(n);if(k>=0)t.members.splice(k,1);else{t.members.push(n);odraft.teams.forEach((x,j)=>{if(j!==+i&&x.members)x.members=x.members.filter(m=>m!==n)})}renderOSetup();break}
+    case 'mstart':{const d=odraft;const D=OTHER[d.kind];
+      d.teams.forEach((t,i)=>{t.name=(t.name||'').trim()||(D.kind==='molkky'?'Joueur '+(i+1):'Équipe '+(i+1));if(D.kind==='molkky')ensureProfile(t.name)});
+      g2={id:uid(),kind:d.kind,opts:Object.assign({},d.opts),teams:JSON.parse(JSON.stringify(d.teams)),events:[],created:Date.now()};
+      const lo=store.get('lastOther',{});lo[d.kind]={opts:d.opts};store.set('lastOther',lo);chDraft={a:[0,0],b:[0,0]};mkSel=[];saveG2();Sound.unlock();Voice.warm();go('mplay');break}
+    case 'mpt':{if(g2.finishedAt)break;const [t,pts]=v.split('|').map(Number);g2.events.push({t,pts});saveG2();renderOPlay();o2react(pts,OTHER[g2.kind].max(g2.opts),t);break}
+    case 'chs':{const [k,j,d]=v.split('|');const a=chDraft[k];const nv=Math.max(0,Math.min(4,a[+j]+(+d)));if(nv+a[1-(+j)]<=4)a[+j]=nv;renderOPlay();break}
+    case 'chval':{if(g2.finishedAt)break;const e={a:chDraft.a.slice(),b:chDraft.b.slice()};g2.events.push(e);chDraft={a:[0,0],b:[0,0]};saveG2();renderOPlay();
+      const S=run2(g2),l=S.log[S.log.length-1];o2react(Math.max(l.pa,l.pb),9,l.pa>=l.pb?0:1);break}
+    case 'mkpin':{const n=+v,i=mkSel.indexOf(n);if(i>=0)mkSel.splice(i,1);else mkSel.push(n);renderOPlay();break}
+    case 'mkval':{if(g2.finishedAt)break;g2.events.push({pins:mkSel.slice().sort((a,b)=>a-b)});mkSel=[];saveG2();renderOPlay();const S=run2(g2),l=S.log[S.log.length-1];o2react(l.pts,12,-1);break}
+    case 'mundo':{if(!g2||!g2.events.length)break;if(g2.finishedAt){store.set('history2',store.get('history2',[]).filter(h=>h.id!==g2.id));delete g2.finishedAt;delete g2.endPhrase}
+      g2.events.pop();saveG2();renderOPlay();break}
+    case 'mrematch':{const t=JSON.parse(JSON.stringify(g2.teams));if(OTHER[g2.kind].kind==='molkky')t.push(t.shift());else t.reverse();
+      g2={id:uid(),kind:g2.kind,opts:g2.opts,teams:t,events:[],created:Date.now()};chDraft={a:[0,0],b:[0,0]};mkSel=[];saveG2();go('mplay');break}
+    case 'iam':{const pr=profById(v);if(pr){makeOwner(pr);go('home')}break}
+    case 'copycode':{const o=owner();try{navigator.clipboard.writeText(o.code).then(()=>toastMsg('Code copié : '+o.code),()=>toastMsg('Votre code : '+o.code))}catch(e){toastMsg('Votre code : '+o.code)}break}
+    case 'sendstats':sendStats(v);break;
+    case 'savecode':{const pr=profById(curPid),code=normCode(document.getElementById('profCode').value);
+      if(code&&code.length!==6){toastMsg('Le code utilisateur fait 6 caractères');break}
+      const other=code&&profByCode(code);if(other&&other!==pr){toastMsg('Ce code est déjà celui de '+other.name);break}
+      const o=owner();if(code&&o&&code===o.code){toastMsg('C\'est votre propre code');break}
+      pr.code=code||undefined;saveProfiles();toastMsg(code?'Code enregistré':'Code retiré');renderPlayer();break}
+    case 'copyimp':{try{navigator.clipboard.writeText(window._impLink).then(()=>{toastMsg('Lien copié');window._impDone&&window._impDone();closeSheet()})}catch(e){}break}
+    case 'doimport':doImport();break;
+    case 'absent':{if(spectator()||!game||game.finishedAt)break;const m=GAMES[game.type||'x01'];let S=m.run(game);if(pendingTurn(S)){validate();break}
+      const n=S.cur?3-S.cur.darts.length:3;for(let k=0;k<n;k++)game.darts.push({seg:0,mult:0});closeSheet();validate();break}
     case 'players':go('players');break;
     case 'player':curPid=v;go('player');break;
     case 'history':go('history');break;
@@ -1968,7 +2513,9 @@ document.addEventListener('click',e=>{
     case 'tpick':{const i=tdraft.pids.indexOf(v);if(i>=0)tdraft.pids.splice(i,1);else tdraft.pids.push(v);renderTNew();break}
     case 'tcreate':{const d=tdraft;const ids=shuffleSeeded(d.pids,Date.now()|0);const players=ids.map(id=>{const p=profById(id);return {id,name:p.name,color:p.color}});
       const t={id:uid(),name:(d.name||'Tournoi').trim(),format:d.format,legs:d.legs,game:{type:d.type,opts:d.opts},players,created:Date.now(),
-        matches:d.format==='ko'?buildKO(ids):buildLeague(ids,d.legs)};saveT(t);curTid=t.id;go('tournament');break}
+        matches:[]};if(d.format==='ko')t.matches=buildKO(ids);else if(d.format==='league')t.matches=buildLeague(ids,d.legs);else{const G2=buildGroups(ids,d.gsize);t.groups=G2.groups;t.matches=G2.ms}
+      saveT(t);curTid=t.id;go('tournament');break}
+    case 'tgsize':tdraft.gsize=+v;renderTNew();break;
     case 'tplay':playMatch(v);break;
     case 'tdelask':document.getElementById('tDelBox').innerHTML='<div class="row2"><button class="btn btn-danger" data-act="tdelyes">Confirmer la suppression</button><button class="btn btn-ghost" data-act="tdelno">Annuler</button></div>';break;
     case 'tdelno':renderTournament();break;
@@ -1983,6 +2530,10 @@ document.addEventListener('click',e=>{
     case 'resume':go('game');break;
     case 'gtype':draft.type=v;draft.opts=Object.assign(defaultOpts(v),(store.get('lastSetup',{}).opts||{})[v]||{});renderSetup();break;
     case 'opt':draft.opts[b.dataset.k]=JSON.parse(v);renderSetup();break;
+    case 'teamsize':draft.teamSize=+v;renderSetup();break;
+    case 'optseq':case 'toptseq':{const o=a==='optseq'?draft.opts:tdraft.opts,k=b.dataset.k,n=+v,arr=o[k],i=arr.indexOf(n);if(i>=0)arr.splice(i,1);else arr.push(n);a==='optseq'?renderSetup():renderTNew();break}
+    case 'optseqclr':case 'toptseqclr':{(a==='optseqclr'?draft.opts:tdraft.opts)[b.dataset.k]=[];a==='optseqclr'?renderSetup():renderTNew();break}
+    case 'optseqdef':case 'toptseqdef':{(a==='optseqdef'?draft.opts:tdraft.opts)[b.dataset.k]=[20,19,18,17,16,15,25];a==='optseqdef'?renderSetup():renderTNew();break}
     case 'pin':prefs.input=v;savePrefs();render();break;
     case 'padd':{const n=draft.players.length;draft.players.push({id:uid(),name:'Joueur '+(n+1),color:AV_COLORS[n%AV_COLORS.length]});renderSetup();const inp=document.getElementById('pn-'+draft.players[n].id);inp&&(inp.focus(),inp.select());break}
     case 'prec':{const n=draft.players.length;draft.players.push({id:uid(),name:v,color:AV_COLORS[n%AV_COLORS.length]});renderSetup();break}
@@ -1996,7 +2547,8 @@ document.addEventListener('click',e=>{
       document.querySelectorAll(`.pchip[data-pid="${pl.id}"]`).forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===m[pl.name]));break}
     case 'ambreset':{const m=store.get('ambByName',{});draft.players.forEach(p=>m[p.name]='standard');store.set('ambByName',m);
       document.querySelectorAll('.pchip').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v==='standard'));break}
-    case 'skin':prefs.skin=v;savePrefs();document.querySelectorAll('.skin').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===v));break;
+    case 'skin':prefs.skin=v;savePrefs();document.querySelectorAll('.skin:not(.decor)').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===v));drawDecorThumbs();break;
+    case 'decor':prefs.decor=v;savePrefs();document.querySelectorAll('.skin.decor').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===v));break;
     case 'listen':Sound.unlock();Voice.warm();demo(v);break;
     case 'vtest':Sound.unlock();Voice._testing=true;Voice.runTest();break;
     case 'tog':prefs[v]=!prefs[v];savePrefs();b.setAttribute('aria-pressed',prefs[v]);if(v==='sounds'&&prefs.sounds)Sound.play('mid');break;
@@ -2005,13 +2557,16 @@ document.addEventListener('click',e=>{
       Sound.unlock();Voice.warm();
       const used=new Set();const pls=draft.players.map((p,i)=>{let nm=(p.name||'').trim()||('Joueur '+(i+1));let k=2;while(used.has(nm.toLowerCase()))nm=((p.name||'').trim()||'Joueur')+' '+k++;used.add(nm.toLowerCase());
         const pr=ensureProfile(nm,p.color);return {id:pr.id,name:pr.name,color:pr.color}});
-      game=Object.assign({id:uid(),created:Date.now(),amb:Object.fromEntries(draft.players.map((p,i)=>[pls[i].id,draftAmb(p)])),players:pls,darts:[],validated:0},asGame(draft));if(GAMES[game.type].setup)GAMES[game.type].setup(game);
+      let amb=Object.fromEntries(draft.players.map((p,i)=>[pls[i].id,draftAmb(p)])),gp=pls;const ts=draft.teamSize||1;
+      if(ts>1&&pls.length>ts){gp=[];for(let i=0;i<pls.length;i+=ts){const mem=pls.slice(i,i+ts);const tid='team-'+uid();
+        gp.push({id:tid,name:mem.map(x=>x.name).join(' & '),color:mem[0].color,members:mem});amb[tid]=mem.map(x=>amb[x.id]).find(a=>a!=='standard')||'standard'}}
+      game=Object.assign({id:uid(),created:Date.now(),amb,players:gp,darts:[],validated:0},asGame(draft));if(GAMES[game.type].setup)GAMES[game.type].setup(game);
       const ls=store.get('lastSetup',{});store.set('lastSetup',{type:draft.type,opts:Object.assign({},ls.opts||{},{[draft.type]:draft.opts})});
-      rememberPlayers(pls.map(p=>p.name));saveGame();go('game');break}
+      rememberPlayers(pls.map(p=>p.name));const ls2=store.get('lastSetup',{});ls2.teamSize=ts;store.set('lastSetup',ls2);saveGame();go('game');announceStart();break}
     case 'mode':{const wasPend=pendingTurn(GAMES[game.type||'x01'].run(game));prefs.input=v;savePrefs();padNum=null;if(wasPend&&!needConfirm())validate();}
       document.getElementById('board').hidden=v!=='board';document.getElementById('pad').hidden=v!=='pad';
       document.querySelectorAll('[data-act="mode"]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===v));
-      if(v==='board')drawBoard(document.getElementById('cv'));updateGame();break;
+      if(v==='board')drawBoard(document.getElementById('cv'));updateGame();setTimeout(drawDecor,30);break;
     case 'mute':prefs.muted=!prefs.muted;savePrefs();if(prefs.muted&&Voice.ok)try{speechSynthesis.cancel()}catch(e){}updateGame();break;
     case 'miss':padNum=null;addDart({seg:0,mult:0});break;
     case 'validate':padNum=null;validate();break;
@@ -2025,7 +2580,7 @@ document.addEventListener('click',e=>{
     case 'endundo':undoDart();go('game');break;
     case 'rematch':{const pls=game.players.slice(1).concat(game.players[0]);
       const old=game;game={id:uid(),created:Date.now(),type:old.type||'x01',opts:old.opts||{},amb:old.amb,ambiance:old.ambiance,players:pls,darts:[],validated:0};
-      if(game.type==='x01'){game.start=old.start;game.outRule=old.outRule;game.inRule=old.inRule}if(GAMES[game.type].setup)GAMES[game.type].setup(game);saveGame();go('game');break}
+      if(game.type==='x01'){game.start=old.start;game.outRule=old.outRule;game.inRule=old.inRule}if(GAMES[game.type].setup)GAMES[game.type].setup(game);saveGame();go('game');announceStart();break}
   }
 });
 document.addEventListener('keydown',e=>{
@@ -2038,6 +2593,10 @@ document.addEventListener('input',e=>{
   const t=e.target;
   if(t.id==='vol'){prefs.volume=+t.value;savePrefs();return}
   if(t.id==='tName'&&tdraft){tdraft.name=t.value;return}
+  if(t.dataset&&t.dataset.free){const o=t.dataset.free==='opt'?draft.opts:tdraft.opts;const v=parseInt(t.value,10);
+    if(v>=+t.min&&v<=+t.max){o[t.dataset.k]=v;t.closest('.opt-row').querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed','false'));
+      const r=document.querySelector('.rule-text');if(r&&t.dataset.free==='opt')r.innerHTML=GAMES[draft.type].rules(asGame(draft))}return}
+  if(t.dataset&&t.dataset.tname!=null&&odraft){odraft.teams[+t.dataset.tname].name=t.value;return}
   if(t.id==='rate'){prefs.rate=+t.value;savePrefs();return}
   const id=t.dataset&&t.dataset.pid;if(!id||!draft)return;
   const p=draft.players.find(x=>x.id===id);if(p){p.name=t.value;const av=t.previousElementSibling;if(av)av.textContent=(p.name.trim().charAt(0)||'?').toUpperCase()}
@@ -2052,11 +2611,22 @@ document.addEventListener('change',e=>{
 
 /* Démarrage : animation, puis reprise directe d'une partie interrompue */
 if(game&&!game.finishedAt&&game.darts&&game.darts.length)screen='game';
+if(!owner())screen='welcome';
+{const m=/^#imp=(.+)$/.exec(location.hash||'');
+  if(m){try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
+    readImport(m[1]).then(()=>{screen='import';render()});screen='import'}}
 render();splash();
+/* Lien de statistiques ouvert alors que l'appli est déjà ouverte */
+window.addEventListener('hashchange',()=>{const m=/^#imp=(.+)$/.exec(location.hash||'');if(!m)return;
+  try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}readImport(m[1]).then(()=>go('import'))});
 
 /* Formulaires : ajout de joueur (écran Joueurs, création de tournoi) */
 document.addEventListener('submit',e=>{const f=e.target.dataset&&e.target.dataset.form;if(!f)return;e.preventDefault();
-  if(f==='addprof'){const v=document.getElementById('newProf').value.trim();if(!v)return;const pr=ensureProfile(v);curPid=pr.id;renderPlayers()}
+  if(f==='welcome'){const v=document.getElementById('wName').value.trim();if(!v)return;const pr=ensureProfile(v);makeOwner(pr);go('home');return}
+  if(f==='addprof'){const v=document.getElementById('newProf').value.trim();if(!v)return;const code=normCode(document.getElementById('newCode').value);
+    if(code&&code.length!==6){toastMsg('Le code utilisateur fait 6 caractères');return}
+    const other=code&&profByCode(code);if(other&&other.name.toLowerCase()!==v.toLowerCase()){toastMsg('Ce code est déjà celui de '+other.name);return}
+    const pr=ensureProfile(v);if(code)pr.code=code;saveProfiles();renderPlayers()}
   if(f==='taddp'){const v=document.getElementById('tNewP').value.trim();if(!v)return;const pr=ensureProfile(v);if(!tdraft.pids.includes(pr.id))tdraft.pids.push(pr.id);renderTNew()}
 });
 </script>
