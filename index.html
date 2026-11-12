@@ -111,6 +111,9 @@ input,select{font:inherit;color:inherit}
 /* ---------- Cartes / sections ---------- */
 .sec-title{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--silver-2);font-weight:700;margin:0 0 10px}
 .card{background:linear-gradient(180deg,var(--surface) 0%,rgba(19,35,59,.6) 100%);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px}
+.resume-row{display:flex;align-items:center;gap:8px}
+.resume-row .resume{flex:1;min-width:0}
+.resume-row .icon-btn{flex:none;color:#ffc7bf}
 .resume{display:flex;align-items:center;gap:14px;text-align:left;width:100%}
 .resume .big{font-family:var(--ff-num);font-weight:400;font-size:34px;line-height:1;color:var(--copper-hi)}
 .resume .meta{flex:1;min-width:0}
@@ -614,8 +617,8 @@ details.rules .rule-text{margin-top:8px}
 .scene canvas{display:block;width:100%;cursor:pointer;-webkit-user-select:none;user-select:none}
 .scene::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;box-shadow:inset 0 0 60px 6px rgba(10,19,34,.55)}
 .ch-badge{position:absolute;z-index:1;transform:translate(-50%,-50%);min-width:30px;height:24px;padding:0 7px;border-radius:12px;display:grid;place-items:center;font:700 12.5px/1 Figtree,system-ui,sans-serif;color:#0f1b2e;box-shadow:0 2px 8px rgba(0,0,0,.45);pointer-events:none}
-.ch-badge.a{background:linear-gradient(135deg,#f0c7a3,#c98a5e)}
-.ch-badge.b{background:linear-gradient(135deg,#c4d6ec,#6f93bd)}
+.ch-badge.a{background:linear-gradient(135deg,#d58a55,#a8562a);color:#fff}
+.ch-badge.b{background:linear-gradient(135deg,#4a72ad,#23406c);color:#fff}
 .scene-hint{position:absolute;z-index:1;left:0;right:0;bottom:8px;text-align:center;font-size:11.5px;font-weight:600;letter-spacing:.04em;color:rgba(243,222,194,.85);text-shadow:0 1px 3px rgba(0,0,0,.6);pointer-events:none}
 details.mk-alt{border:1px solid var(--line);border-radius:16px;padding:10px 14px}
 details.mk-alt summary{cursor:pointer;font-size:13.5px;font-weight:700;color:var(--silver-2)}
@@ -624,8 +627,8 @@ details.mk-alt[open] summary{margin-bottom:10px}
 .ch-teams .chip{display:inline-flex;align-items:center;gap:8px;height:40px}
 .ch-teams .chip[aria-pressed="true"]{background:var(--silver);color:#13233b;border-color:var(--silver)}
 .bagdot{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px;flex:none}
-.bagdot.a{background:linear-gradient(135deg,#f0c7a3,#c98a5e)}
-.bagdot.b{background:linear-gradient(135deg,#c4d6ec,#6f93bd)}
+.bagdot.a{background:linear-gradient(135deg,#d58a55,#a8562a)}
+.bagdot.b{background:linear-gradient(135deg,#4a72ad,#23406c);box-shadow:0 0 0 1px rgba(184,194,204,.55)}
 .ch-sum{margin:0;display:flex;flex-direction:column;gap:2px;font-size:13.5px;color:var(--silver-2)}
 .ch-sum b{color:var(--silver)}
 .tin{min-height:50px}
@@ -2083,14 +2086,22 @@ const OTHER={
     rules:o=>`Comme à la pétanque, avec des fléchettes à ventouse : on lance d'abord le Jack, puis chacun tente de coller ses Tossit au plus près. Tant qu'une équipe est la plus proche, l'autre continue de lancer. À la fin de la manche, l'équipe la mieux placée marque un point par Tossit plus proche que le meilleur adverse. La première à ${o.target} points gagne.`,
     opts:[{k:'max',label:'Tossit par équipe',vals:[[3,'3'],[6,'6']],def:3},{k:'target',label:'Partie en',vals:[[11,'11'],[13,'13'],[21,'21']],def:13}],
     max:o=>o.max,fanny:false,unit:'manche'},
-  cornhole:{name:'Cornhole',sub:'Sacs sur planche percée',kind:'cornhole',
-    rules:o=>`Deux équipes lancent chacune 4 sacs vers une planche inclinée percée d'un trou. Sac dans le trou : 3 points. Sac resté sur la planche : 1 point. ${o.cancel?'Avec l\'annulation, seule l\'équipe qui a fait le plus marque, et seulement la différence.':'Chaque équipe marque tous ses points.'} La première équipe à ${o.target} points gagne${o.exact?' ; au-delà de '+o.target+', le score retombe à 15':''}.`,
-    opts:[{k:'target',label:'Partie en',vals:[[11,'11'],[15,'15'],[21,'21']],def:21},{k:'cancel',label:'Annulation des points',vals:[[true,'Oui'],[false,'Non']],def:true},
-          {k:'exact',label:'Score exact obligatoire',vals:[[false,'Non'],[true,'Oui']],def:false}]},
+  /* Réglages par défaut = règles officielles (American Cornhole Organization) ;
+     les autres valeurs sont des variantes « maison » courantes. */
+  cornhole:{name:'Cornhole',sub:'Sacs sur planche percée',kind:'cornhole',official:true,
+    rules:o=>`Deux équipes lancent chacune 4 sacs, un sac à tour de rôle, vers une planche inclinée percée d'un trou. Sac dans le trou : 3 points. Sac resté sur la planche : 1 point. Sac au sol, ou qui touche à la fois le sol et la planche, ou qui a rebondi par terre avant de monter sur la planche : 0 point. ${o.cancel?'Annulation : seule l\'équipe qui a fait le plus marque, et seulement la différence.':'Sans annulation : chaque équipe marque tous ses points.'} L'équipe qui a marqué commence la manche suivante ; si personne n'a marqué, l'ordre ne change pas. La partie se gagne à la fin d'une manche, avec ${o.exact?'exactement '+o.target+' points : au-delà, '+(o.exact==='prev'?'le score revient à celui d\'avant la manche':'le score retombe à '+chFall(o)):o.target+' points ou plus'}${o.win2?' et au moins 2 points d\'écart':''}.${o.skunk?' Victoire immédiate à 11-0.':''}`,
+    opts:[{k:'target',label:'Partie en',vals:[[21,'21 (officiel)'],[15,'15'],[11,'11']],def:21},
+          {k:'cancel',label:'Annulation des points',vals:[[true,'Oui (officiel)'],[false,'Non']],def:true},
+          {k:'exact',label:'Score dépassé',vals:[[false,'Sans effet (officiel)'],[true,'Retour à 15'],['b11','Retour à 11'],['prev','Score d\'avant']],def:false,
+            help:v=>v?'Variante « bust » : il faut tomber juste. Pour une partie en 15 ou en 11, le retour est réduit en proportion.':'Règle officielle : atteindre ou dépasser le score suffit.'},
+          {k:'win2',label:'2 points d\'écart pour gagner',vals:[[false,'Non (officiel)'],[true,'Oui']],def:false},
+          {k:'skunk',label:'Victoire éclair à 11-0',vals:[[false,'Non (officiel)'],[true,'Oui']],def:false,help:v=>v?'Variante « skunk » : la partie s\'arrête si une équipe mène 11 à 0.':''}]},
   molkky:{name:'Mölkky',sub:'Quilles finlandaises',kind:'molkky',
     rules:o=>`On lance le bâton sur 12 quilles numérotées. Une seule quille tombée : on marque son numéro. Plusieurs quilles : on marque le nombre de quilles tombées. Il faut atteindre exactement 50 points : au-delà, on retombe à 25. ${o.elim?'Trois lancers ratés de suite : le joueur est éliminé.':'Trois lancers ratés de suite : le score retombe à 0.'}`,
     opts:[{k:'elim',label:'Après 3 ratés de suite',vals:[[true,'Éliminé'],[false,'Retour à 0']],def:true}]}
 };
+/* Cornhole, variante « bust » : palier de retour (15 ou 11 pour une partie en 21, réduit en proportion sinon) */
+function chFall(o){return Math.round(o.target*(o.exact==='b11'?11:15)/21)}
 const MK_LAYOUT=[[7,9,8],[5,11,12,6],[3,10,4],[1,2]];
 
 /* ---------- Calcul du score ---------- */
@@ -2098,11 +2109,17 @@ function run2(g){const D=OTHER[g.kind],o=g.opts,n=g.teams.length;
   if(D.kind==='menes'){const sc=g.teams.map(()=>0);let winner=null;
     g.events.forEach(e=>{if(winner!=null)return;sc[e.t]+=e.pts;if(sc[e.t]>=o.target)winner=e.t});
     return {sc,winner,fanny:winner!=null&&D.fanny&&sc.some((s,i)=>i!==winner&&s===0)}}
-  if(D.kind==='cornhole'){const sc=[0,0];let winner=null;const log=[];
+  if(D.kind==='cornhole'){const sc=[0,0];let winner=null,skunk=false;const log=[];
     g.events.forEach(e=>{if(winner!=null)return;const a=e.a[0]*3+e.a[1],b=e.b[0]*3+e.b[1];let pa=a,pb=b;if(o.cancel){pa=Math.max(0,a-b);pb=Math.max(0,b-a)}
-      sc[0]+=pa;sc[1]+=pb;let bust=[false,false];if(o.exact)for(const i of [0,1])if(sc[i]>o.target){sc[i]=15;bust[i]=true}
-      log.push({pa,pb,bust});if(sc[0]>=o.target&&sc[0]>sc[1])winner=0;else if(sc[1]>=o.target&&sc[1]>sc[0])winner=1});
-    return {sc,winner,log}}
+      const before=sc.slice();sc[0]+=pa;sc[1]+=pb;
+      /* variante « bust » : score dépassé → retour à un palier, ou au score d'avant la manche */
+      const bust=[false,false];if(o.exact)for(const i of [0,1])if(sc[i]>o.target){sc[i]=o.exact==='prev'?before[i]:chFall(o);bust[i]=true}
+      log.push({pa,pb,bust});
+      /* la partie se gagne en fin de manche ; à égalité (sans annulation) on continue */
+      const gap=o.win2?2:1;
+      for(const i of [0,1])if(sc[i]>=o.target&&sc[i]-sc[1-i]>=gap)winner=i;
+      if(winner==null&&o.skunk)for(const i of [0,1])if(sc[i]>=11&&sc[1-i]===0){winner=i;skunk=true}});
+    return {sc,winner,log,fanny:skunk}}
   if(D.kind==='molkky'){const P=g.teams.map(()=>({sc:0,miss:0,out:false}));let turn=0,winner=null;const log=[];
     const nextTurn=()=>{for(let k=1;k<=n;k++){const j=(turn+k)%n;if(!P[j].out){turn=j;return}}};
     g.events.forEach(e=>{if(winner!=null)return;const st=P[turn];let pts=e.pins.length===1?e.pins[0]:e.pins.length;let note='';
@@ -2114,7 +2131,11 @@ function run2(g){const D=OTHER[g.kind],o=g.opts,n=g.teams.length;
 }
 
 /* ---------- Partie en cours et saisie ---------- */
-let g2=store.get('current2',null),odraft=null,mkSel=[],chDraft={a:[0,0],b:[0,0]};
+/* g2 : partie en cours. Saisie du lancer en préparation :
+   mkSel = quilles sélectionnées, mkMiss = point de pelouse touché pour un raté ({x,z}) ;
+   chDraft = sacs de la manche : a/b = [dans le trou, sur la planche], bags = sacs dessinés. */
+let g2=store.get('current2',null),odraft=null,mkSel=[],mkMiss=null,chDraft={a:[0,0],b:[0,0]};
+function resetOtherDraft(){mkSel=[];mkMiss=null;chDraft={a:[0,0],b:[0,0]}}
 function saveG2(){if(g2)store.set('current2',g2);else store.del('current2')}
 function newODraft(kind){const D=OTHER[kind],o={};D.opts.forEach(x=>o[x.k]=x.def);const last=store.get('lastOther',{})[kind];
   const P=profilesByRecent().map(p=>p.name);
@@ -2133,7 +2154,8 @@ function renderOSetup(){
       <p class="note" style="margin-top:8px">Le nom de l'équipe suffit ; choisir ses joueurs permet de suivre leurs victoires.</p></section>`;
   frame(esc(D.name),`<div class="col">
     <section class="card"><h2 class="sec-title">Règle</h2><p class="rule-text" style="margin:0 0 14px">${D.rules(Object.assign({max:D.max?D.max(d.opts):0},d.opts))}</p>
-      ${D.opts.map(o=>{const v=d.opts[o.k];return `<div class="opt-row"><span class="lbl">${o.label}</span><div class="seg">${o.vals.map(([val,lab])=>`<button data-act="mopt" data-k="${o.k}" data-v='${JSON.stringify(val)}' aria-pressed="${v===val}">${lab}</button>`).join('')}</div>${o.help?`<p>${o.help(v)}</p>`:''}</div>`}).join('')}</section>
+      ${D.opts.map(o=>{const v=d.opts[o.k];return `<div class="opt-row"><span class="lbl">${o.label}</span><div class="seg">${o.vals.map(([val,lab])=>`<button data-act="mopt" data-k="${o.k}" data-v='${JSON.stringify(val)}' aria-pressed="${v===val}">${lab}</button>`).join('')}</div>${o.help&&o.help(v)?`<p>${o.help(v)}</p>`:''}</div>`}).join('')}
+      ${D.official&&D.opts.some(o=>d.opts[o.k]!==o.def)?'<button class="btn btn-ghost" data-act="mofficial">Remettre les règles officielles</button>':''}</section>
     ${teamsHTML}
     <button class="btn btn-primary" data-act="mstart">Commencer</button>
   </div>`);
@@ -2152,15 +2174,15 @@ function renderOPlay(){
     const side=i=>`<section class="mteam ${S.winner===i?'win':''}" id="mt${i}"><div class="mt-name"><i class="bagdot ${i?'b':'a'}"></i>${esc(g2.teams[i].name)}</div><div class="mt-score">${S.sc[i]}</div><div class="mt-bar"><i style="width:${Math.min(100,S.sc[i]/o.target*100)}%"></i></div></section>`;
     body=`<div class="mteams">${side(0)}${side(1)}</div>
       ${over?'':`<div class="ch-teams" role="group" aria-label="Sacs de quelle équipe ?">${['a','b'].map((t,i)=>`<button class="chip" data-act="chteam" data-v="${t}" aria-pressed="${CH3.team===t}"><i class="bagdot ${t}"></i>Sacs ${esc(g2.teams[i].name)}</button>`).join('')}</div>
-      <div class="scene ch-scene"><canvas id="chCv" aria-label="Planche de cornhole : touchez l'endroit où chaque sac s'est arrêté, ou le trou"></canvas><span class="scene-hint">Touchez où le sac s'est arrêté · touchez un sac pour l'enlever</span></div>
+      <div class="scene ch-scene"><canvas id="chCv" aria-label="Planche de cornhole : touchez l'endroit où chaque sac s'est arrêté, ou le trou"></canvas><span class="scene-hint">Touchez où le sac est tombé, même sur le gazon · retouchez un sac pour l'enlever</span></div>
       <p class="ch-sum" id="chSum"></p>
       <button class="btn btn-primary" data-act="chval">${chLabel()}</button>
       <details class="mk-alt"><summary>Saisir sans la planche</summary>${['a','b'].map((k,i)=>`<p class="cat-lbl">${esc(g2.teams[i].name)}</p><div class="ch-row"><span>Dans le trou <small>3 pts</small></span>${stepper(k,0)}</div><div class="ch-row"><span>Sur la planche <small>1 pt</small></span>${stepper(k,1)}</div>`).join('')}</details>`}
-      <p class="note center">Objectif ${o.target} points · 4 sacs par équipe et par manche.</p>`}
+      <p class="note center">Objectif ${o.target} points · 4 sacs par équipe et par manche, lancés à tour de rôle.</p>`}
   if(D.kind==='molkky'){const cur=S.turn;
     body=`<div class="mk-players">${g2.teams.map((t,i)=>{const p=S.P[i];return `<div class="mkp ${i===cur&&!over?'on':''} ${p.out?'out':''} ${S.winner===i?'win':''}"><span class="mkp-name">${esc(t.name)}</span><span class="mkp-miss">${[0,1,2].map(k=>`<i class="${k<p.miss?'x':''}"></i>`).join('')}</span><span class="mkp-sc">${p.sc}</span><span class="mt-bar"><i style="width:${p.sc*2}%"></i></span></div>`}).join('')}</div>
       ${over?'':`<p class="mk-turn">Au tour de <b>${esc(g2.teams[cur].name)}</b> · reste ${50-S.P[cur].sc}</p>
-      <div class="scene mk-scene"><canvas id="mkCv" aria-label="Quilles de Mölkky : touchez les quilles tombées"></canvas><span class="scene-hint">Touchez les quilles tombées</span></div>
+      <div class="scene mk-scene"><canvas id="mkCv" aria-label="Quilles de Mölkky : touchez les quilles tombées"></canvas><span class="scene-hint">Touchez les quilles tombées, ou la pelouse pour un raté</span></div>
       <button class="btn btn-primary" data-act="mkval">${mkLabel()}</button>
       <details class="mk-alt"><summary>Saisir par numéro</summary><div class="mk-pins">${MK_LAYOUT.map(r=>`<div class="mk-row">${r.map(n=>`<button class="pin" data-act="mkpin" data-v="${n}" aria-pressed="${mkSel.includes(n)}">${n}</button>`).join('')}</div>`).join('')}</div></details>`}`}
   const hist=histOther(D,S);
@@ -2177,14 +2199,14 @@ function renderOPlay(){
 function chLabel(){const o=g2.opts,a=chDraft.a,b=chDraft.b,pa=a[0]*3+a[1],pb=b[0]*3+b[1],na=o.cancel?Math.max(0,pa-pb):pa,nb=o.cancel?Math.max(0,pb-pa):pb;
   return 'Valider la manche · '+(o.cancel?(na?g2.teams[0].name+' +'+na:nb?g2.teams[1].name+' +'+nb:'aucun point'):'+'+pa+' / +'+pb)}
 function chUpdate(){const sum=document.getElementById('chSum');if(!sum)return;
-  sum.innerHTML=['a','b'].map((t,i)=>{const [h,bd]=chDraft[t];return `<span><i class="bagdot ${t}"></i><b>${esc(g2.teams[i].name)}</b> ${h} trou · ${bd} planche = <b>${h*3+bd} pts</b></span>`}).join('');
+  sum.innerHTML=['a','b'].map((t,i)=>{const [h,bd]=chDraft[t];const out=(chDraft.bags||[]).filter(b=>b.t===t&&b.miss).length;return `<span><i class="bagdot ${t}"></i><b>${esc(g2.teams[i].name)}</b> ${h} trou · ${bd} planche${out?' · '+out+' dehors':''} = <b>${h*3+bd} pts</b></span>`}).join('');
   const v=document.querySelector('[data-act="chval"]');if(v)v.textContent=chLabel();
   document.querySelectorAll('.stepper output').forEach((x,i)=>{const t=i<2?'a':'b';x.textContent=chDraft[t][i%2]})}
 function stepper(k,j){const v=chDraft[k][j];return `<div class="stepper"><button data-act="chs" data-v="${k}|${j}|-1" aria-label="Moins">−</button><output>${v}</output><button data-act="chs" data-v="${k}|${j}|1" aria-label="Plus">+</button></div>`}
 function histOther(D,S){const ev=g2.events;if(!ev.length)return '<p class="empty">Les scores apparaîtront ici.</p>';
   let rows=[];
   if(D.kind==='menes')rows=ev.map((e,i)=>`<li><div class="h-who"><b>${D.unit==='mène'?'Mène':'Manche'} ${i+1}</b><span>${esc(g2.teams[e.t].name)}</span></div><div class="h-tot">+${e.pts}</div><div class="h-rem"></div></li>`);
-  if(D.kind==='cornhole')rows=ev.map((e,i)=>{const l=S.log[i]||{};return `<li><div class="h-who"><b>Manche ${i+1}</b><span>${e.a[0]} trou · ${e.a[1]} planche / ${e.b[0]} trou · ${e.b[1]} planche</span></div><div class="h-tot">${l.pa?esc(g2.teams[0].name)+' +'+l.pa:''}${l.pb?esc(g2.teams[1].name)+' +'+l.pb:''}${!l.pa&&!l.pb?'0':''}</div><div class="h-rem"></div></li>`});
+  if(D.kind==='cornhole')rows=ev.map((e,i)=>{const l=S.log[i]||{};return `<li><div class="h-who"><b>Manche ${i+1}</b><span>${e.a[0]} trou · ${e.a[1]} planche / ${e.b[0]} trou · ${e.b[1]} planche</span></div><div class="h-tot">${[l.pa?esc(g2.teams[0].name)+' +'+l.pa:'',l.pb?esc(g2.teams[1].name)+' +'+l.pb:''].filter(Boolean).join(' · ')}${!l.pa&&!l.pb?'0':''}</div><div class="h-rem">${l.bust&&l.bust.some(Boolean)?'score dépassé':''}</div></li>`});
   if(D.kind==='molkky')rows=S.log.map(l=>`<li><div class="h-who"><b>${esc(g2.teams[l.p].name)}</b><span>${l.pins.length?'Quilles '+l.pins.join(', '):'Raté'}${l.note?' · '+l.note:''}</span></div><div class="h-tot">${l.pts?'+'+l.pts:'0'}</div><div class="h-rem"></div></li>`);
   return `<ul class="hist-list">${rows.slice(-12).reverse().join('')}</ul>`}
 
@@ -2326,19 +2348,26 @@ const Geo={
       Geo.band(g,mk(prof[q]),mk(prof[q+1]))}
     return g},
 
-  /* Sac de cornhole : coussin carré rempli, couture tout autour, dessous aplati */
-  bag(half,top,bot,N=26){const g=Geo.make();
-    const f=a=>Math.pow(Math.max(0,1-Math.pow(Math.abs(a),4)),.42);
-    const P=(s,t,side)=>{const pinch=1-.05*(1-t*t)*Math.abs(s)-.05*(1-s*s)*Math.abs(t);
-      return [s*half*pinch,(side>0?top:-bot)*f(s)*f(t),t*half*pinch]};
+  /* Sac de cornhole : coussin carré cousu. Une bordure plate (la couture) entoure
+     un ventre rempli de grains, légèrement bosselé ; le dessous est aplati.
+     seed change les bosses : plusieurs variantes évitent des sacs tous identiques. */
+  bag(half,top,bot,seed=1,N=34){const g=Geo.make(),R=seeded(seed),ph=[R()*7,R()*7,R()*7,R()*7],IN=.86;
+    const belly=a=>Math.sqrt(Math.max(0,1-Math.pow(Math.min(1,Math.abs(a)/IN),3)));
+    const lumps=(s,t)=>1+.16*Math.sin(s*4.1+ph[0])*Math.sin(t*3.7+ph[1])+.1*Math.sin(s*7.3+ph[2]+t*2)*Math.sin(t*6.1+ph[3]);
+    const P=(s,t,side)=>{const pinch=1-.035*(1-t*t)*Math.abs(s)-.035*(1-s*s)*Math.abs(t),h=belly(s)*belly(t);
+      return [s*half*pinch,side>0?.0016+top*h*lumps(s,t):-.0012-bot*h,t*half*pinch]};
     for(const side of [1,-1]){const s0=g.p.length/3;
-      for(let b=0;b<=N;b++)for(let a=0;a<=N;a++){const s=a/N*2-1,t=b/N*2-1,e=.002;
+      for(let b=0;b<=N;b++)for(let a=0;a<=N;a++){const s=a/N*2-1,t=b/N*2-1,e=.004;
         const p=P(s,t,side),ds=V3.sub(P(Math.min(1,s+e),t,side),P(Math.max(-1,s-e),t,side)),dt=V3.sub(P(s,Math.min(1,t+e),side),P(s,Math.max(-1,t-e),side));
         let n=V3.norm(V3.cross(dt,ds));if(side<0)n=V3.mul(n,-1);
-        if(Math.abs(s)>.995||Math.abs(t)>.995)n=V3.norm([s*.8,side*.3,t*.8]);
         Geo.vert(g,p,n,[(s+1)/2,(1-t)/2])}
       for(let b=0;b<N;b++)for(let a=0;a<N;a++){const i=s0+b*(N+1)+a,j=i+N+1;side>0?g.i.push(i,j,i+1,i+1,j,j+1):g.i.push(i,i+1,j,i+1,j+1,j)}}
     return g},
+
+  /* Anneau plat posé au sol (repère de sélection) ; r0 = 0 donne un disque */
+  ring(r0,r1,seg=48){const g=Geo.make();
+    for(let j=0;j<=seg;j++){const a=j/seg*Math.PI*2,c=Math.cos(a),s=Math.sin(a);Geo.vert(g,[r0*c,0,r0*s],[0,1,0],[0,0]);Geo.vert(g,[r1*c,0,r1*s],[0,1,0],[1,1])}
+    for(let j=0;j<seg;j++){const i=j*2;g.i.push(i,i+2,i+1,i+1,i+2,i+3)}return g},
 
   /* Boîte centrée ; texture en mètres (répétée par le matériau) */
   box(sx,sy,sz){const g=Geo.make(),h=[sx/2,sy/2,sz/2];
@@ -2416,14 +2445,20 @@ const Paint={
     c.globalCompositeOperation='multiply';for(let i=0;i<1400;i++){c.fillStyle=`rgba(200,180,150,${R()*.2})`;c.fillRect(R()*w,R()*h,1+R()*2,1+R()*3)}
     c.globalCompositeOperation='source-over'},
 
-  /* Toile de sac (gris, teintée ensuite) : tissage, couture et piqûres */
-  canvasBag(c,w,h,R){c.fillStyle='#c9c9c9';c.fillRect(0,0,w,h);
-    for(let y=0;y<h;y+=3){c.fillStyle=`rgba(0,0,0,${.05+R()*.04})`;c.fillRect(0,y,w,1)}
-    for(let x=0;x<w;x+=3){c.fillStyle=`rgba(255,255,255,${.05+R()*.05})`;c.fillRect(x,0,1,h)}
-    for(let i=0;i<3000;i++){c.fillStyle=`rgba(${R()<.5?0:255},${R()<.5?0:255},${R()<.5?0:255},${R()*.05})`;c.fillRect(R()*w,R()*h,2,2)}
-    const e=w*.035;c.strokeStyle='rgba(0,0,0,.28)';c.lineWidth=w*.012;c.strokeRect(e,e,w-2*e,h-2*e);
-    c.strokeStyle='rgba(255,255,255,.55)';c.lineWidth=w*.006;c.setLineDash([w*.018,w*.012]);c.strokeRect(e*2,e*2,w-4*e,h-4*e);c.setLineDash([]);
-    const g=c.createRadialGradient(w/2,h/2,w*.25,w/2,h/2,w*.72);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,.25)');c.fillStyle=g;c.fillRect(0,0,w,h)}
+  /* Toile d'un sac : tissage serré, couture piquée au fil clair, chevron ARROW brodé.
+     Renvoie un peintre pour les couleurs données (toile, fil, broderie). */
+  bag:(base,thread,logo)=>(c,w,h,R)=>{c.fillStyle=base;c.fillRect(0,0,w,h);
+    for(let y=0;y<h;y+=2){c.fillStyle=`rgba(0,0,0,${.05+R()*.07})`;c.fillRect(0,y,w,1)}
+    for(let x=0;x<w;x+=2){c.fillStyle=`rgba(255,255,255,${.03+R()*.05})`;c.fillRect(x,0,1,h)}
+    for(let i=0;i<5000;i++){c.fillStyle=R()<.5?`rgba(0,0,0,${R()*.09})`:`rgba(255,255,255,${R()*.06})`;c.fillRect(R()*w,R()*h,2,2)}
+    /* le ventre est un peu plus clair que la bordure */
+    const g=c.createRadialGradient(w/2,h/2,w*.1,w/2,h/2,w*.62);g.addColorStop(0,'rgba(255,255,255,.07)');g.addColorStop(1,'rgba(0,0,0,.22)');c.fillStyle=g;c.fillRect(0,0,w,h);
+    const m=w*.07;c.strokeStyle='rgba(0,0,0,.4)';c.lineWidth=w*.012;c.strokeRect(m,m,w-2*m,h-2*m);
+    c.strokeStyle=thread;c.lineWidth=w*.007;c.lineCap='round';c.setLineDash([w*.02,w*.014]);c.strokeRect(m*.55,m*.55,w-m*1.1,h-m*1.1);c.setLineDash([]);
+    /* chevron brodé (rappel du logo) */
+    c.strokeStyle=logo;c.lineJoin='miter';c.lineCap='butt';c.globalAlpha=.9;
+    for(const [k,lw] of [[.15,.03],[.075,.018]]){c.lineWidth=w*lw;c.beginPath();c.moveTo(w/2-w*k,h/2+w*k*.85);c.lineTo(w/2,h/2-w*k*.95);c.lineTo(w/2+w*k,h/2+w*k*.85);c.stroke()}
+    c.globalAlpha=1}
 };
 
 /* ---------------- Shaders ---------------- */
@@ -2439,7 +2474,7 @@ in vec3 vW,vN,vLoc;in vec2 vT;in vec4 vL;
 uniform sampler2D uTex;uniform sampler2DShadow uShadow;
 uniform vec3 uTint,uSun,uSunCol,uSky,uGnd,uEye,uFog;
 uniform vec4 uUv,uHole;uniform vec2 uFogR;
-uniform float uShine,uSpec,uSheen,uAlpha,uMacro,uStripe,uExpo,uTexel;
+uniform float uShine,uSpec,uSheen,uAlpha,uMacro,uStripe,uExpo,uTexel;uniform vec3 uEmis;
 uniform vec4 uOccA[24],uOccB[24];uniform int uOccN;
 out vec4 oC;
 float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
@@ -2463,7 +2498,7 @@ void main(){
   vec3 amb=mix(uGnd,uSky,N.y*.5+.5)*ao;
   float sp=pow(max(dot(N,H),0.),uShine)*uSpec*(uShine+8.)/25.;
   float fr=pow(1.-nv,5.);
-  vec3 c=base*(amb+uSunCol*nl*sh)+uSunCol*sp*nl*sh+amb*fr*uSpec*.6+base*amb*uSheen*pow(1.-nv,2.);
+  vec3 c=base*(amb+uSunCol*nl*sh)+uSunCol*sp*nl*sh+amb*fr*uSpec*.6+base*amb*uSheen*pow(1.-nv,2.)+uEmis;
   c=pow(aces(c*uExpo),vec3(1./2.2));
   c=mix(c,uFog,smoothstep(uFogR.x,uFogR.y,length(uEye-vW)));
   oC=vec4(c,uAlpha);}`;
@@ -2558,7 +2593,7 @@ const G3={
   ray(sx,sy){const I=M4.inv(this.view.VP),x=sx/this.w*2-1,y=1-sy/this.h*2,a=M4.apply(I,[x,y,-1]),b=M4.apply(I,[x,y,1]);return {o:a,d:V3.norm(V3.sub(b,a))}},
 
   /* Dessine une image. v = {cam, env, items, occ, shadowBox:{c,r}}
-     item = {mesh, tex, M, tint, uv, shine, spec, sheen, alpha, macro, stripe, hole, noShadow} */
+     item = {mesh, tex, M, tint, uv, shine, spec, sheen, emis (lumière propre), alpha, macro, stripe, hole, noShadow} */
   render(v){const gl=this.gl;if(!gl||gl.isContextLost())return;this.setup();
     const VP=M4.mul(M4.persp(v.cam.fov,this.w/this.h,.05,40),M4.look(v.cam.eye,v.cam.at,[0,1,0]));this.view={VP};
     const E=v.env,sun=V3.norm(E.sun),sb=v.shadowBox,lv=M4.look(V3.add(sb.c,V3.mul(sun,sb.r*3)),sb.c,Math.abs(sun[1])>.99?[0,0,1]:[0,1,0]);
@@ -2591,7 +2626,7 @@ const G3={
       gl.uniformMatrix4fv(u.uM,false,it.M);gl.uniformMatrix3fv(u.uNM,false,it.NM);gl.bindTexture(gl.TEXTURE_2D,it.tex);
       gl.uniform3fv(u.uTint,it.tint||[1,1,1]);gl.uniform4fv(u.uUv,it.uv||[1,1,0,0]);gl.uniform4fv(u.uHole,hole(it));
       gl.uniform1f(u.uShine,it.shine||20);gl.uniform1f(u.uSpec,it.spec??.15);gl.uniform1f(u.uSheen,it.sheen||0);gl.uniform1f(u.uAlpha,it.alpha??1);
-      gl.uniform1f(u.uMacro,it.macro||0);gl.uniform1f(u.uStripe,it.stripe||0);
+      gl.uniform3fv(u.uEmis,it.emis||[0,0,0]);gl.uniform1f(u.uMacro,it.macro||0);gl.uniform1f(u.uStripe,it.stripe||0);
       gl.bindVertexArray(it.mesh.vao);gl.drawElements(gl.TRIANGLES,it.mesh.count,gl.UNSIGNED_SHORT,0);
       if(tr){gl.disable(gl.BLEND);gl.depthMask(true)}}
     gl.bindVertexArray(null)},
@@ -2613,9 +2648,9 @@ const sRGB=h=>[1,3,5].map(i=>Math.pow(parseInt(h.slice(i,i+2),16)/255,2.2));
    Liens avec le reste de l'appli :
    - other.js écrit <canvas id="mkCv"> ou <canvas id="chCv"> dans la page,
      puis appelle MK3.mount() ou CH3.mount() ;
-   - mkSel (quilles tombées) et chDraft (sacs de la manche) sont l'état de
-     saisie, déclaré dans other.js ; app.js appelle MK3.throwStick(),
-     CH3.draw(), chEnsureBags() et chTeam().
+   - mkSel (quilles sélectionnées), mkMiss (raté sur la pelouse) et chDraft
+     (sacs de la manche) sont l'état de saisie, déclaré dans other.js ;
+     app.js appelle MK3.throwStick(), CH3.draw(), chEnsureBags() et chTeam().
    Si l'appareil ne sait pas faire de 3D, la scène est masquée et la saisie
    par boutons (« Saisir par numéro » / « Saisir sans la planche ») s'ouvre.
    ========================================================= */
@@ -2632,118 +2667,163 @@ const lerp3=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t];
 function lawnItem(){return {mesh:G3.mesh('lawn',()=>Geo.plane(-6,6,-8,4)),tex:G3.tex('grass',512,512,Paint.grass,3),
   M:M4.id(),uv:[1/.4,1/.4,0,0],macro:.3,stripe:.12,shine:8,spec:.04,noShadow:true}}
 
-/* ---------------- Mölkky ---------------- */
+/* ---------------- Mölkky ----------------
+   Déroulé : on touche les quilles tombées (elles s'allument, sans bouger) ou la
+   pelouse pour un raté ; « Valider » lance le bâton, qui renverse les quilles
+   choisies ; elles se relèvent ensuite pour le joueur suivant. */
 /* Dimensions réelles (m) : rayon, hauteur au centre du biseau, pente du biseau,
    chanfrein, écart entre quilles (gauche-droite, avant-arrière) */
 const MK={R:.029,H:.128,TB:.62,CH:.0035,SX:.112,SZ:.1};
-const MK3={pins:{},stick:null,cam:null,
+/* Durées du lancer (ms) : vol du bâton, chute, quilles au sol, relevage */
+const MK_SHOT={fly:460,fall:520,hold:800,rise:420};
+const MK3={pins:{},shot:null,cam:null,
 
-  /* Position de départ des 12 quilles (MK_LAYOUT : rangées du fond vers l'avant, dans other.js) */
+  /* Position des 12 quilles (MK_LAYOUT : rangées du fond vers l'avant, dans other.js) */
   layout(){const P={},rows=MK_LAYOUT.length;
     MK_LAYOUT.forEach((row,ri)=>row.forEach((n,i)=>{const R=seeded(n*97);
-      P[n]={n,x:(i-(row.length-1)/2)*MK.SX+(R()-.5)*.008,z:-(rows-1-ri)*MK.SZ+(R()-.5)*.008,
-        a:0,to:0,dir:0,yaw:(R()-.5)*.25,tone:.92+R()*.12,uo:R()}}));
+      P[n]={n,x:(i-(row.length-1)/2)*MK.SX+(R()-.5)*.008,z:-(rows-1-ri)*MK.SZ+(R()-.5)*.008,yaw:(R()-.5)*.25,tone:.92+R()*.12,uo:R()}}));
     return P},
 
   mount(){if(!G3.attach('mkCv',.72,this))return;
-    const old=this.pins,now=performance.now();let moving=false;this.pins=this.layout();
-    for(const n in this.pins){const p=this.pins[n],o=old[n],down=mkSel.includes(+n);
-      p.dir=o?o.dir:(Math.random()-.5)*1.4;p.a=o?o.a:(down?1:0);p.to=down?1:0;
-      if(p.a!==p.to){p.from=p.a;p.t0=now+(this.stick?380:120);p.dur=480;moving=true}}
-    const pts=[];for(const p of Object.values(this.pins))pts.push([p.x-.07,0,p.z+.06],[p.x+.07,0,p.z-.1],[p.x,MK.H+.03,p.z]);
+    this.pins=this.layout();
+    const pts=[];for(const p of Object.values(this.pins))pts.push([p.x-.09,0,p.z+.08],[p.x+.09,0,p.z-.1],[p.x,MK.H+.03,p.z]);
     this.cam=G3.frame([0,.06,-.15],V3.norm([0,1.05,1]),.5,pts,.9,.8,-.1);
-    if(moving||this.stick)this.animate();else this.draw()},
+    if(this.shot&&performance.now()>this.shot.end)this.shot=null;
+    if(this.shot)this.animate();else this.draw()},
 
-  /* Une quille tombe (down = true) ou se relève */
-  set(n,down){const p=this.pins[n];if(!p)return;if(down)p.dir=(Math.random()-.5)*1.4;
-    p.from=p.a;p.to=down?1:0;p.t0=performance.now();p.dur=down?560:420;this.animate()},
-  throwStick(){if(reducedMotion())return;this.stick={t0:performance.now(),dur:520};this.animate()},
+  /* Lance le bâton vers les quilles validées (ou vers le point de pelouse d'un raté) */
+  throwStick(pins,miss){if(reducedMotion()||!Object.keys(this.pins).length)return;
+    const hit=pins.map(n=>this.pins[n]).filter(Boolean);let target=miss?[miss.x,miss.z]:[.3,-.1];
+    if(hit.length)target=[hit.reduce((s,p)=>s+p.x,0)/hit.length,hit.reduce((s,p)=>s+p.z,0)/hit.length];
+    /* chaque quille tombe en s'écartant du point d'impact, les plus proches d'abord */
+    const fall={};let last=0;
+    for(const p of hit){const delay=Math.hypot(p.x-target[0],p.z-target[1])*900;last=Math.max(last,delay);
+      fall[p.n]={delay,dir:Math.max(-1.1,Math.min(1.1,(p.x-target[0])*9))+(Math.random()-.5)*.5}}
+    const t0=performance.now(),rise=MK_SHOT.fly+last+MK_SHOT.fall+MK_SHOT.hold;
+    this.shot={t0,target,fall,hit:hit.length>0,rise,end:t0+(hit.length?rise+MK_SHOT.rise:MK_SHOT.fly+900),from:[target[0]*.4+.08,.3,.75]}},
 
-  animate(){if(reducedMotion()){for(const p of Object.values(this.pins))p.a=p.to;this.stick=null;this.draw();return}
-    G3.play(now=>{let busy=false;
-      for(const p of Object.values(this.pins)){if(p.a===p.to)continue;busy=true;if(now<p.t0)continue;
-        const t=Math.min(1,(now-p.t0)/p.dur);p.a=p.from+(p.to-p.from)*(p.to>p.from?ease.fall(t):ease.inout(t));if(t>=1)p.a=p.to}
-      if(this.stick&&now-this.stick.t0>this.stick.dur)this.stick=null;
-      this.draw(now);return busy||!!this.stick})},
+  animate(){G3.play(now=>{const s=this.shot;if(!s)return false;
+    if(s.hit&&!s.knocked&&now-s.t0>=MK_SHOT.fly){s.knocked=true;woodKnock()}
+    if(now>s.end)this.shot=null;
+    this.draw(now);return !!this.shot})},
+
+  /* Angle de chute d'une quille à l'instant now : 0 = debout, 1 = couchée */
+  fallen(p,now){const s=this.shot,f=s&&s.fall[p.n];if(!f)return 0;
+    const t=now-s.t0-MK_SHOT.fly-f.delay,r=now-s.t0-s.rise;
+    if(t<=0)return 0;if(r>=MK_SHOT.rise)return 0;if(r>0)return 1-ease.inout(r/MK_SHOT.rise);
+    return t<MK_SHOT.fall?ease.fall(t/MK_SHOT.fall):1},
 
   /* Position d'une quille : elle pivote sur le bord de son pied, dans la direction de chute */
-  matrix(p){const f=[Math.sin(p.dir),0,-Math.cos(p.dir)],ax=V3.norm(V3.cross([0,1,0],f)),r=MK.R;
-    return M4.mul(M4.move(p.x+f[0]*r,0,p.z+f[2]*r),M4.rot(ax,p.a*Math.PI/2),M4.move(-f[0]*r,0,-f[2]*r),M4.rotY(p.yaw))},
+  matrix(p,now){const a=this.fallen(p,now||performance.now()),dir=a?this.shot.fall[p.n].dir:0;
+    const f=[Math.sin(dir),0,-Math.cos(dir)],ax=V3.norm(V3.cross([0,1,0],f)),r=MK.R;
+    return M4.mul(M4.move(p.x+f[0]*r,0,p.z+f[2]*r),M4.rot(ax,a*Math.PI/2),M4.move(-f[0]*r,0,-f[2]*r),M4.rotY(p.yaw))},
 
-  /* Quille touchée : on teste l'axe de chaque quille à l'écran, de la plus proche à la plus lointaine */
-  tap(sx,sy){const n=this.hit(sx,sy);if(n)mkToggle(n)},
+  /* Bâton : vol en tournant, puis il roule un peu sur la pelouse et s'efface */
+  stickItem(now,birch){const s=this.shot,t=now-s.t0,k=Math.min(1,t/MK_SHOT.fly),[tx,tz]=s.target;
+    const impact=[tx,s.hit?.075:.022,tz+(s.hit?.04:0)],rest=[tx+.04,.022,tz-(s.hit?.2:.07)];
+    let pos=V3.add(lerp3(s.from,impact,k),[0,.12*Math.sin(Math.PI*k),0]),yaw=0;
+    if(k>=1){const e=ease.out(Math.min(1,(t-MK_SHOT.fly)/420));pos=lerp3(impact,rest,e);yaw=e*.9}
+    return {mesh:G3.mesh('stick',()=>Geo.stick(.225,.022)),tex:birch,tint:[.8,.68,.52],shine:30,spec:.2,
+      M:M4.mul(M4.move(...pos),M4.rotY(yaw),M4.rotX(-k*Math.PI*4),M4.rotY(Math.PI/2)),
+      alpha:Math.min(1,Math.max(0,(s.end-now)/280))}},
+
+  /* Point de pelouse (y = 0) sous le doigt */
+  ground(sx,sy){const r=G3.ray(sx,sy);if(r.d[1]>=-1e-6)return null;const t=-r.o[1]/r.d[1];return {x:r.o[0]+r.d[0]*t,z:r.o[2]+r.d[2]*t}},
+
+  /* Toucher : une quille → sélection ; la pelouse → repère de raté (retoucher le repère l'enlève) */
+  tap(sx,sy){if(!g2||g2.finishedAt)return;this.shot=null;
+    const n=this.hit(sx,sy);if(n){mkToggle(n);return}
+    const g=this.ground(sx,sy);if(!g)return;
+    if(mkMiss&&Math.hypot(mkMiss.x-g.x,mkMiss.z-g.z)<.07)mkMiss=null;
+    else{mkMiss={x:Math.max(-.6,Math.min(.6,g.x)),z:Math.max(-.7,Math.min(.3,g.z))};mkSel=[]}
+    mkUpdate();this.draw()},
+  /* Quille sous le doigt : on teste l'axe de chaque quille à l'écran, de la plus proche à la plus lointaine */
   hit(sx,sy){const list=Object.values(this.pins).map(p=>{const M=this.matrix(p),mid=M4.apply(M,[0,MK.H/2,0]),C=G3.project(mid),E=G3.project(V3.add(mid,[MK.R,0,0]));
       return {p,B:G3.project(M4.apply(M,[0,0,0])),T:G3.project(M4.apply(M,[0,MK.H,0])),C,rad:Math.hypot(E.x-C.x,E.y-C.y)}}).sort((a,b)=>a.C.z-b.C.z);
     for(const g of list){const vx=g.T.x-g.B.x,vy=g.T.y-g.B.y,l2=vx*vx+vy*vy||1,k=Math.max(0,Math.min(1,((sx-g.B.x)*vx+(sy-g.B.y)*vy)/l2));
-      if(Math.hypot(sx-g.B.x-vx*k,sy-g.B.y-vy*k)<g.rad*1.25+4)return g.p.n}
-    let best=null,bd=1e9;for(const g of list){const d=Math.hypot(sx-g.C.x,sy-g.C.y);if(d<bd){bd=d;best=g.p.n}}
-    return bd<Math.max(26,G3.w*.07)?best:null},
+      if(Math.hypot(sx-g.B.x-vx*k,sy-g.B.y-vy*k)<g.rad*1.3+5)return g.p.n}
+    return null},
 
   draw(now){if(G3.scene!==this||!this.cam)return;now=now||performance.now();
     const geo=()=>this.geo||(this.geo=Geo.pin(MK.R,MK.H,MK.TB,MK.CH));
     const body=G3.mesh('pinBody',()=>geo().body),cap=G3.mesh('pinCap',()=>geo().cap);
     const birch=G3.tex('birch',512,512,Paint.birch,11),caps=G3.tex('caps',1024,768,Paint.caps,5);
+    const mark=(name,r0,r1,x,z,emis)=>({mesh:G3.mesh(name,()=>Geo.ring(r0,r1)),tex:birch,M:M4.move(x,.004,z),tint:[0,0,0],emis,spec:0,alpha:.92,noShadow:true});
     const items=[lawnItem()],occ=[];
-    for(const p of Object.values(this.pins)){const M=this.matrix(p),i=p.n-1,tone=[p.tone,p.tone*.985,p.tone*.96];
-      items.push({mesh:body,tex:birch,M,tint:tone,uv:[1,1,p.uo,0],shine:28,spec:.16});
-      items.push({mesh:cap,tex:caps,M,tint:tone,uv:[.25,1/3,(i%4)/4,1-(Math.floor(i/4)+1)/3],shine:18,spec:.1});
+    for(const p of Object.values(this.pins)){const M=this.matrix(p,now),i=p.n-1,tone=[p.tone,p.tone*.985,p.tone*.96];
+      /* quille sélectionnée : reflet bronze et anneau champagne au pied */
+      const sel=mkSel.includes(p.n),emis=sel?[.2,.1,.02]:null;
+      items.push({mesh:body,tex:birch,M,tint:tone,uv:[1,1,p.uo,0],shine:28,spec:.16,emis});
+      items.push({mesh:cap,tex:caps,M,tint:tone,uv:[.25,1/3,(i%4)/4,1-(Math.floor(i/4)+1)/3],shine:18,spec:.1,emis});
+      if(sel)items.push(mark('mkRing',MK.R+.008,MK.R+.02,p.x,p.z,[1.5,1.05,.55]));
       occ.push({a:M4.apply(M,[0,MK.R*.6,0]),b:M4.apply(M,[0,MK.H-.01,0]),r:MK.R,k:1.1})}
-    /* bâton lancé : il arrive du joueur en tournant sur lui-même */
-    if(this.stick){const t=Math.min(1,(now-this.stick.t0)/this.stick.dur),e=ease.out(t);
-      const pos=V3.add(lerp3([.1,.32,.7],[0,.1,-.08],e),[0,.16*Math.sin(Math.PI*e),0]);
-      items.push({mesh:G3.mesh('stick',()=>Geo.stick(.225,.022)),tex:birch,M:M4.mul(M4.move(...pos),M4.rotX(-t*11),M4.rotY(Math.PI/2+.3)),
-        tint:[.82,.7,.55],shine:30,spec:.2,alpha:1-Math.max(0,(t-.72)*3.6)})}
+    /* repère de raté : cible rouge clair sur la pelouse */
+    if(mkMiss&&!this.shot)items.push(mark('mkMissRing',.034,.044,mkMiss.x,mkMiss.z,[1.6,.5,.38]),mark('mkMissDot',0,.012,mkMiss.x,mkMiss.z,[1.6,.5,.38]));
+    if(this.shot)items.push(this.stickItem(now,birch));
     G3.render({cam:this.cam,env:G3_ENV,items,occ,shadowBox:{c:[0,.05,-.15],r:.6}})}
 };
 function mkToggle(n){if(!g2||g2.finishedAt)return;const i=mkSel.indexOf(n);if(i>=0)mkSel.splice(i,1);else mkSel.push(n);
-  MK3.set(n,i<0);if(i<0)woodKnock();mkUpdate()}
-function mkLabel(){return mkSel.length===0?'Raté (aucune quille)':mkSel.length===1?'Valider : '+mkSel[0]+' point'+(mkSel[0]>1?'s':''):'Valider : '+mkSel.length+' quilles = '+mkSel.length+' points'}
+  mkMiss=null;MK3.shot=null;MK3.draw();mkUpdate()}
+function mkLabel(){return mkSel.length===0?(mkMiss?'Valider : raté':'Raté (aucune quille)'):mkSel.length===1?'Valider : '+mkSel[0]+' point'+(mkSel[0]>1?'s':''):'Valider : '+mkSel.length+' quilles = '+mkSel.length+' points'}
 function mkUpdate(){const b=document.querySelector('[data-act="mkval"]');if(b)b.textContent=mkLabel();
   document.querySelectorAll('.pin[data-act="mkpin"]').forEach(x=>x.setAttribute('aria-pressed',mkSel.includes(+x.dataset.v)))}
 
-/* ---------------- Cornhole ---------------- */
+/* ---------------- Cornhole ----------------
+   Règle officielle : les deux équipes lancent un sac à tour de rôle (4 chacune) ;
+   l'équipe qui a marqué la manche précédente commence. L'appli alterne donc
+   toute seule ; les boutons « Sacs … » permettent de corriger. Un sac touché
+   sur le gazon est un raté : il vaut 0 mais compte parmi les 4. */
 /* Planche réglementaire (m) : largeur, longueur, hauteur de l'avant, montée jusqu'à
    l'arrière, épaisseur du cadre ; trou : u (gauche-droite), v (0 = avant, 1 = fond), rayon */
 const CH={W:.61,L:1.22,a:.07,rise:.23,depth:.07,hole:{u:0,v:.81,r:.076}};
 CH.slope=Math.asin(CH.rise/CH.L);
-const BAG={half:.075,top:.019,bot:.004,col:{a:'#c98a5e',b:'#6f93bd'}};
+/* Sacs : demi-côté, épaisseur dessus/dessous ; couleurs par équipe : toile, fil, broderie */
+const BAG={half:.076,top:.027,bot:.003,col:{a:['#a8562a','#f1dfc0','#13233b'],b:['#23406c','#f1dfc0','#d9a47e']}};
 const CH3={cam:null,team:'a',
   /* Repère de la planche : origine au milieu du bord avant, y perpendiculaire au plateau, −z vers le fond */
   board(){return M4.mul(M4.move(0,CH.a,0),M4.rotX(CH.slope))},
   at(u,v,y=0){return M4.apply(this.board(),[u,y,-v*CH.L])},
 
   mount(){if(!G3.attach('chCv',1,this))return;chEnsureBags();
+    if(!chDraft.bags.length)chTeam(chFirst());
     const pts=[];for(const u of [-1,1])for(const v of [0,1])pts.push(this.at(u*(CH.W/2+.05),v),[u*(CH.W/2+.05),0,-v*CH.L*Math.cos(CH.slope)-.02]);
-    this.cam=G3.frame([0,.15,-.6],V3.norm([0,1,1.05]),.45,pts,.86,.84,-.04);this.draw()},
+    this.cam=G3.frame([0,.15,-.6],V3.norm([0,1,1.05]),.45,pts,.74,.8,-.04);this.draw()},
 
-  /* Coordonnées (u, v) de la planche sous le doigt */
+  /* Coordonnées (u, v) de la planche sous le doigt, et point de gazon sous le doigt */
   uv(sx,sy){const I=M4.inv(this.board()),r=G3.ray(sx,sy),o=M4.apply(I,r.o),d=V3.sub(M4.apply(I,V3.add(r.o,r.d)),o);
     if(Math.abs(d[1])<1e-6)return null;const t=-o[1]/d[1];if(t<=0)return null;return {u:o[0]+d[0]*t,v:-(o[2]+d[2]*t)/CH.L}},
+  ground:(sx,sy)=>MK3.ground(sx,sy),
 
-  tap(sx,sy){if(!g2||g2.finishedAt)return;const q=this.uv(sx,sy),bags=chDraft.bags;
-    /* toucher un sac déjà posé l'enlève */
-    if(q)for(let i=bags.length-1;i>=0;i--){const b=bags[i];if(!b.hole&&Math.abs(b.u-q.u)<.085&&Math.abs(b.v-q.v)<.075){bags.splice(i,1);chSync();this.draw();return}}
-    if(!q||Math.abs(q.u)>CH.W/2+.02||q.v<-.02||q.v>1.02){toastMsg('Hors de la planche : 0 point');return}
-    const t=this.team,mine=bags.filter(b=>b.t===t).length;if(mine>=4){toastMsg(`${g2.teams[t==='a'?0:1].name} a déjà ses 4 sacs`);return}
-    const hole=Math.hypot(q.u-CH.hole.u,(q.v-CH.hole.v)*CH.L)<CH.hole.r*1.15;
-    const b={t,u:hole?CH.hole.u:Math.max(-CH.W/2+.07,Math.min(CH.W/2-.07,q.u)),v:hole?CH.hole.v:Math.max(.06,Math.min(.96,q.v)),rot:(Math.random()-.5)*.9,hole};
+  tap(sx,sy){if(!g2||g2.finishedAt)return;const q=this.uv(sx,sy),g=this.ground(sx,sy),bags=chDraft.bags;
+    const onBoard=q&&Math.abs(q.u)<=CH.W/2+.02&&q.v>=-.02&&q.v<=1.02;if(!onBoard&&!g)return;
+    /* toucher le milieu d'un sac déjà posé l'enlève ; c'est alors à son équipe de relancer */
+    for(let i=bags.length-1;i>=0;i--){const b=bags[i];
+      const on=b.miss?!onBoard&&Math.hypot(b.gx-g.x,b.gz-g.z)<.08:onBoard&&!b.hole&&Math.hypot(b.u-q.u,(b.v-q.v)*CH.L)<.05;
+      if(on){bags.splice(i,1);chTeam(b.t);chSync();this.draw();return}}
+    const t=this.team,other=t==='a'?'b':'a',count=x=>bags.filter(b=>b.t===x).length;
+    if(count(t)>=4){toastMsg(`${g2.teams[t==='a'?0:1].name} a déjà ses 4 sacs`);return}
+    const b={t,rot:(Math.random()-.5)*.9,hole:false,look:1+Math.floor(Math.random()*3)};
+    if(!onBoard){b.miss=true;b.gx=Math.max(-.85,Math.min(.85,g.x));b.gz=Math.max(-1.7,Math.min(.45,g.z))}
+    else{b.hole=Math.hypot(q.u-CH.hole.u,(q.v-CH.hole.v)*CH.L)<CH.hole.r*1.15;
+      b.u=b.hole?CH.hole.u:Math.max(-CH.W/2+.07,Math.min(CH.W/2-.07,q.u));b.v=b.hole?CH.hole.v:Math.max(.06,Math.min(.96,q.v))}
     bags.push(b);chSync();Sound.unlock();
-    if(reducedMotion())this.draw();else{b.anim={t0:performance.now(),dur:hole?760:560};this.animate()}
-    if(t==='a'&&mine+1>=4&&chDraft.bags.filter(x=>x.t==='b').length<4)setTimeout(()=>chTeam('b'),500)},
+    if(count(other)<4)chTeam(other);
+    if(reducedMotion())this.draw();else{b.anim={t0:performance.now(),dur:b.hole?760:560};this.animate()}},
 
   animate(){G3.play(now=>{let busy=false;
-    for(const b of chDraft.bags)if(b.anim){if(now-b.anim.t0>=b.anim.dur){delete b.anim;Sound.play(b.hole?'big':'mid')}else busy=true}
+    for(const b of chDraft.bags)if(b.anim){if(now-b.anim.t0>=b.anim.dur){delete b.anim;if(!b.miss)Sound.play(b.hole?'big':'mid')}else busy=true}
     this.draw(now);return busy})},
 
-  /* Position d'un sac : posé (avec empilement), en vol, ou en train de tomber dans le trou */
-  bagMatrix(b,lift,now){const B=this.board(),rest=M4.mul(M4.move(0,BAG.bot+lift,0),M4.rotY(b.rot));
-    if(!b.anim)return {M:M4.mul(B,M4.move(b.u,0,-b.v*CH.L),rest),alpha:1};
+  /* Position d'un sac : posé (planche avec empilement, ou gazon), en vol, ou en train de tomber dans le trou */
+  bagMatrix(b,lift,now){const B=this.board(),turn=M4.rotY(b.rot);
+    const rest=b.miss?M4.mul(M4.move(b.gx,BAG.bot,b.gz),turn):M4.mul(B,M4.move(b.u,BAG.bot+lift,-b.v*CH.L),turn);
+    if(!b.anim)return {M:rest,alpha:1};
     const t=Math.min(1,(now-b.anim.t0)/b.anim.dur),fly=b.hole?Math.min(1,t/.62):t,e=Math.sin(fly*Math.PI/2);
     if(b.hole&&t>.62){const k=(t-.62)/.38;
-      return {M:M4.mul(B,M4.move(b.u,-k*.1,-b.v*CH.L),M4.scale(.86,1,.86),rest),alpha:1-Math.max(0,(k-.55)/.45)}}
-    const end=this.at(b.u,b.v,BAG.bot+lift),start=[b.t==='a'?-.2:.2,.38,.55];
+      return {M:M4.mul(B,M4.move(b.u,BAG.bot-k*.1,-b.v*CH.L),M4.scale(.86,1,.86),turn),alpha:1-Math.max(0,(k-.55)/.45)}}
+    const end=M4.apply(rest,[0,0,0]),start=[b.t==='a'?-.2:.2,.38,.55];
     const pos=V3.add(lerp3(start,end,e),[0,.32*Math.sin(Math.PI*e),0]);
-    return {M:M4.mul(M4.move(...pos),M4.rotX((1-e)*5.5),M4.rotZ((1-e)*1.6),M4.rotX(CH.slope),rest),alpha:1}},
+    return {M:M4.mul(M4.move(...pos),M4.rotX((1-e)*5.5),M4.rotZ((1-e)*1.6),M4.rotX(b.miss?0:CH.slope),turn),alpha:1}},
 
   draw(now){if(G3.scene!==this||!this.cam)return;now=now||performance.now();
     const B=this.board(),ply=G3.tex('ply',512,512,Paint.ply,9),navy=sRGB('#1d3150').map(x=>x*3.2);
@@ -2762,12 +2842,13 @@ const CH3={cam:null,team:'a',
     for(const s of [-1,1]){const P=M4.apply(B,[s*(CH.W/2-.045),-CH.depth,-CH.L+.07]);
       items.push({mesh:box('chLeg',.035,1,.08),tex:ply,M:M4.mul(M4.move(P[0],P[1]/2,P[2]),M4.scale(1,P[1],1)),tint:[.9,.8,.66],uv:[3,3,0,0]})}
     const occ=[{a:M4.apply(B,[0,-.045,-.15]),b:M4.apply(B,[0,-.045,-CH.L+.15]),r:.2,k:.9}];
-    /* sacs : ceux qui se chevauchent s'empilent */
-    const bagMesh=G3.mesh('bag',()=>Geo.bag(BAG.half,BAG.top,BAG.bot)),cloth=G3.tex('cloth',512,512,Paint.canvasBag,21),laid=[];
+    /* sacs : sur la planche, ceux qui se chevauchent s'empilent */
+    const laid=[];
     for(const b of chDraft.bags){if(b.hole&&!b.anim)continue;
-      const lift=b.hole?0:laid.filter(o=>Math.hypot(o.u-b.u,(o.v-b.v)*CH.L)<.12).length*.017;if(!b.hole)laid.push(b);
-      const {M,alpha}=this.bagMatrix(b,lift,now),tint=sRGB(BAG.col[b.t]).map(x=>x*1.75);
-      items.push({mesh:bagMesh,tex:cloth,M,tint,sheen:.6,shine:6,spec:.04,alpha:alpha<1?alpha:undefined});
+      const lift=b.hole||b.miss?0:laid.filter(o=>Math.hypot(o.u-b.u,(o.v-b.v)*CH.L)<.12).length*.02;if(!b.hole&&!b.miss)laid.push(b);
+      const {M,alpha}=this.bagMatrix(b,lift,now),look=b.look||1;
+      items.push({mesh:G3.mesh('bag'+look,()=>Geo.bag(BAG.half,BAG.top,BAG.bot,look)),tex:G3.tex('bag-'+b.t,512,512,Paint.bag(...BAG.col[b.t]),21),
+        M,sheen:.3,shine:10,spec:.05,alpha:alpha<1?alpha:undefined});
       occ.push({a:M4.apply(M,[0,.008,0]),b:M4.apply(M,[0,.008,0]),r:.065,k:.8})}
     G3.render({cam:this.cam,env:G3_ENV,items,occ,shadowBox:{c:[0,.15,-.6],r:.95}});
     this.badges()},
@@ -2780,12 +2861,16 @@ const CH3={cam:null,team:'a',
       if(!el){el=document.createElement('span');el.className='ch-badge '+t;el.setAttribute('aria-hidden','true');box.appendChild(el)}
       const p=G3.project(this.at((i?1:-1)*(CH.W/2+.07),CH.hole.v,.02));el.style.left=p.x+'px';el.style.top=p.y+'px';el.textContent='×'+cnt[t]})}
 };
-/* Les sacs dessinés et les compteurs restent d'accord */
-function chEnsureBags(){if(!chDraft.bags)chDraft.bags=[];const want={a:chDraft.a,b:chDraft.b};
-  for(const t of ['a','b'])for(const [j,hole] of [[0,true],[1,false]]){const have=chDraft.bags.filter(b=>b.t===t&&b.hole===hole);
-    while(have.length>want[t][j])chDraft.bags.splice(chDraft.bags.lastIndexOf(have.pop()),1);
-    while(have.length<want[t][j]){const b={t,hole,rot:(Math.random()-.5)*.9,u:hole?CH.hole.u:(Math.random()-.5)*.42,v:hole?CH.hole.v:.18+Math.random()*.5};chDraft.bags.push(b);have.push(b)}}}
-function chSync(){for(const t of ['a','b'])chDraft[t]=[chDraft.bags.filter(b=>b.t===t&&b.hole).length,chDraft.bags.filter(b=>b.t===t&&!b.hole).length];chUpdate()}
+/* Équipe qui lance en premier : celle qui a marqué la dernière manche (sinon, pas de changement) */
+function chFirst(){let f='a';if(g2)for(const e of g2.events){const a=e.a[0]*3+e.a[1],b=e.b[0]*3+e.b[1];if(a>b)f='a';else if(b>a)f='b'}return f}
+/* Les sacs dessinés et les compteurs (saisie par boutons) restent d'accord ; jamais plus de 4 sacs par équipe */
+function chEnsureBags(){if(!chDraft.bags)chDraft.bags=[];const want={a:chDraft.a,b:chDraft.b},drop=b=>chDraft.bags.splice(chDraft.bags.lastIndexOf(b),1);
+  for(const t of ['a','b']){
+    for(const [j,hole] of [[0,true],[1,false]]){const have=chDraft.bags.filter(b=>b.t===t&&!b.miss&&b.hole===hole);
+      while(have.length>want[t][j])drop(have.pop());
+      while(have.length<want[t][j]){const b={t,hole,rot:(Math.random()-.5)*.9,look:1+Math.floor(Math.random()*3),u:hole?CH.hole.u:(Math.random()-.5)*.42,v:hole?CH.hole.v:.18+Math.random()*.5};chDraft.bags.push(b);have.push(b)}}
+    const out=chDraft.bags.filter(b=>b.t===t&&b.miss);while(out.length&&chDraft.bags.filter(b=>b.t===t).length>4)drop(out.pop())}}
+function chSync(){for(const t of ['a','b'])chDraft[t]=[chDraft.bags.filter(b=>b.t===t&&b.hole).length,chDraft.bags.filter(b=>b.t===t&&!b.hole&&!b.miss).length];chUpdate()}
 function chTeam(t){CH3.team=t;document.querySelectorAll('[data-act="chteam"]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===t))}
 
 /* Petit « toc » de bois quand une quille tombe */
@@ -2795,7 +2880,7 @@ function woodKnock(){if(!prefs.sounds||prefs.muted)return;Sound.unlock();if(!Sou
 window.addEventListener('resize',()=>{clearTimeout(window._scT);window._scT=setTimeout(()=>{if(screen!=='mplay')return;
   if(document.getElementById('mkCv'))MK3.mount();if(document.getElementById('chCv'))CH3.mount()},200)});
 
-const VERSION='2.3 · 12 novembre 2026';
+const VERSION='2.5 · 12 novembre 2026';
 function sendButtons(g){const o=owner();const l=g.players.map(pl=>profById(pl.id)).filter(pr=>pr&&pr.code&&(!o||pr.code!==o.code)&&pendingFor(pr.code));
   return l.length?`<section class="card"><h2 class="sec-title">Envoyer les statistiques</h2><div class="stack">${l.map(pr=>`<button class="btn btn-ghost" data-act="sendstats" data-v="${pr.code}">${I.share} Envoyer à ${esc(pr.name)} (${pendingFor(pr.code)} partie${pendingFor(pr.code)>1?'s':''})</button>`).join('')}</div></section>`:''}
 /* =========================================================
@@ -2826,6 +2911,7 @@ const I={
   up:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 15l6-6 6 6"/></svg>',
   next:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>',
   x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>',
   undo:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-3"/></svg>',
   list:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>',
   snd:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 010 7M18.5 5.5a9 9 0 010 13"/></svg>',
@@ -3007,13 +3093,15 @@ const ART={
 function famArt(k){if(k==='darts')return `<div class="fam-logo">${logoSVG('h',false)}</div>`;
   return `<svg class="fam-art" viewBox="0 0 100 90" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ART[k]}</svg>`}
 const QUICK=[['x01:501','501'],['x01:301','301'],['cricket','Cricket'],['atc','Horloge'],['killer','Killer'],['all','Tous les jeux']];
+/* Carte « Reprendre la partie » suivie de son bouton de suppression (which : 'darts' ou 'other') */
+function resumeRow(card,which){return `<div class="resume-row">${card}<button class="icon-btn" data-act="delask" data-v="${which}" aria-label="Supprimer la partie en cours">${I.trash}</button></div>`}
 function curFam(){return FAMS.some(f=>f[0]===prefs.fam)?prefs.fam:'darts'}
 function renderHome(){
   const fam=curFam(),isD=fam==='darts';
   const g=game&&!game.finishedAt?game:null,o2=g2&&!g2.finishedAt&&g2.kind===fam?g2:null;let res='';
   if(isD&&g){const m=GAMES[g.type||'x01'],S=m.run(g);const pl=g.players[S.p];
-    res=`<button class="card resume" data-act="resume"><div class="big">${g.type==='x01'?g.start:esc(m.short)}</div><div class="meta"><b>Reprendre la partie</b><span>${g.players.map(p=>esc(p.name)).join(' · ')}</span><span>Au tour de ${esc(pl.name)}</span></div>${I.next}</button>`}
-  if(o2)res=`<button class="card resume" data-act="mresume"><div class="big">${esc(OTHER[fam].name.split(' ')[0].slice(0,4))}</div><div class="meta"><b>Reprendre la partie</b><span>${o2.teams.map(t=>esc(t.name)).join(' · ')}</span></div>${I.next}</button>`;
+    res=resumeRow(`<button class="card resume" data-act="resume"><div class="big">${g.type==='x01'?g.start:esc(m.short)}</div><div class="meta"><b>Reprendre la partie</b><span>${g.players.map(p=>esc(p.name)).join(' · ')}</span><span>Au tour de ${esc(pl.name)}</span></div>${I.next}</button>`,'darts')}
+  if(o2)res=resumeRow(`<button class="card resume" data-act="mresume"><div class="big">${esc(OTHER[fam].name.split(' ')[0].slice(0,4))}</div><div class="meta"><b>Reprendre la partie</b><span>${o2.teams.map(t=>esc(t.name)).join(' · ')}</span></div>${I.next}</button>`,'other');
   const name=isD?'Fléchettes':OTHER[fam].name,sub=isD?'18 jeux, de 501 au Killer':OTHER[fam].sub;
   const recent=isD?gameHistory().filter(x=>!x.imported).slice(0,3).map(x=>{const m=GAMES[x.type||'x01'];let w='';try{const S=m.run(x);w=S.winner!=null?x.players[S.winner].name:'Égalité'}catch(e){}
       return `<button class="hrow" data-act="hgame" data-v="${x.id}"><span class="hr-date">${new Date(x.finishedAt||x.created).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}</span><span class="hr-main"><b>${esc(x.type==='x01'?String(x.start):m.short)}</b> · ${x.players.map(p=>esc(p.name)).join(', ')}</span><span class="hr-win">${esc(w)}</span></button>`})
@@ -3389,12 +3477,20 @@ function openHist(){
     <div id="sheetHist">${histList(S,30)}</div>
     <div class="row2"><button class="btn btn-ghost" data-act="undoturn">Annuler toute la volée</button><button class="btn btn-ghost" data-act="absent">Joueur absent : passer sa volée</button></div>`,'Historique');
 }
-function openQuit(){
+/* which : 'darts' (fléchettes) ou 'other' (autres jeux) */
+function openQuit(which){
   openSheet(`<div class="sheet-head"><h2>Quitter la partie ?</h2><button class="icon-btn" data-act="closesheet" aria-label="Fermer">${I.x}</button></div>
     <p>La partie est enregistrée : vous pourrez la reprendre depuis l'accueil.</p>
     <button class="btn btn-primary" data-act="pause">Mettre en pause et quitter</button>
-    <button class="btn btn-danger" data-act="abandon">Abandonner la partie</button>
+    <button class="btn btn-danger" data-act="abandon" data-v="${which}">Supprimer la partie</button>
     <button class="btn btn-ghost" data-act="closesheet">Continuer à jouer</button>`,'Quitter');
+}
+/* Demande de confirmation avant de supprimer la partie en cours depuis l'accueil */
+function openDelete(which){
+  openSheet(`<div class="sheet-head"><h2>Supprimer la partie en cours ?</h2><button class="icon-btn" data-act="closesheet" aria-label="Fermer">${I.x}</button></div>
+    <p>Elle sera effacée et ne comptera pas dans les statistiques.</p>
+    <button class="btn btn-danger" data-act="abandon" data-v="${which}">Supprimer la partie</button>
+    <button class="btn btn-ghost" data-act="closesheet">Garder la partie</button>`,'Supprimer');
 }
 
 /* ---------- Écran toujours allumé pendant la partie ---------- */
@@ -3423,6 +3519,7 @@ document.addEventListener('click',e=>{
     case 'mresume':go('mplay');break;
     case 'mnew':odraft=newODraft(v);go('mset');break;
     case 'mopt':odraft.opts[b.dataset.k]=JSON.parse(v);renderOSetup();break;
+    case 'mofficial':OTHER[odraft.kind].opts.forEach(o=>odraft.opts[o.k]=o.def);renderOSetup();break;
     case 'mtadd':odraft.teams.push({name:'Joueur '+(odraft.teams.length+1)});renderOSetup();break;
     case 'mtprof':odraft.teams.push({name:v});renderOSetup();break;
     case 'mtdel':odraft.teams.splice(+v,1);renderOSetup();break;
@@ -3431,18 +3528,18 @@ document.addEventListener('click',e=>{
     case 'mstart':{const d=odraft;const D=OTHER[d.kind];
       d.teams.forEach((t,i)=>{t.name=(t.name||'').trim()||(D.kind==='molkky'?'Joueur '+(i+1):'Équipe '+(i+1));if(D.kind==='molkky')ensureProfile(t.name)});
       g2={id:uid(),kind:d.kind,opts:Object.assign({},d.opts),teams:JSON.parse(JSON.stringify(d.teams)),events:[],created:Date.now()};
-      const lo=store.get('lastOther',{});lo[d.kind]={opts:d.opts};store.set('lastOther',lo);chDraft={a:[0,0],b:[0,0]};mkSel=[];saveG2();Sound.unlock();Voice.warm();go('mplay');sayGame('start',600);Pack.preload(['jeux']);break}
+      const lo=store.get('lastOther',{});lo[d.kind]={opts:d.opts};store.set('lastOther',lo);resetOtherDraft();saveG2();Sound.unlock();Voice.warm();go('mplay');sayGame('start',600);Pack.preload(['jeux']);break}
     case 'mpt':{if(g2.finishedAt)break;const [t,pts]=v.split('|').map(Number);g2.events.push({t,pts});saveG2();renderOPlay();o2react(pts,OTHER[g2.kind].max(g2.opts),t);break}
     case 'chs':{const [k,j,d]=v.split('|');const a=chDraft[k];const nv=Math.max(0,Math.min(4,a[+j]+(+d)));if(nv+a[1-(+j)]<=4)a[+j]=nv;chEnsureBags();CH3.draw();chUpdate();break}
-    case 'chval':{if(g2.finishedAt)break;const e={a:chDraft.a.slice(),b:chDraft.b.slice()};g2.events.push(e);chDraft={a:[0,0],b:[0,0]};CH3.team='a';saveG2();renderOPlay();
+    case 'chval':{if(g2.finishedAt)break;const e={a:chDraft.a.slice(),b:chDraft.b.slice()};g2.events.push(e);resetOtherDraft();saveG2();renderOPlay();
       const S=run2(g2),l=S.log[S.log.length-1];o2react(Math.max(l.pa,l.pb),9,l.pa>=l.pb?0:1);break}
     case 'mkpin':mkToggle(+v);break;
     case 'chteam':chTeam(v);break;
-    case 'mkval':{if(g2.finishedAt)break;g2.events.push({pins:mkSel.slice().sort((a,b)=>a-b)});mkSel=[];saveG2();MK3.throwStick();renderOPlay();const S=run2(g2),l=S.log[S.log.length-1];o2react(l.pts,12,-1);break}
+    case 'mkval':{if(g2.finishedAt)break;const pins=mkSel.slice().sort((a,b)=>a-b);g2.events.push({pins});MK3.throwStick(pins,mkMiss);resetOtherDraft();saveG2();renderOPlay();const S=run2(g2),l=S.log[S.log.length-1];o2react(l.pts,12,-1);break}
     case 'mundo':{if(!g2||!g2.events.length)break;if(g2.finishedAt){store.set('history2',store.get('history2',[]).filter(h=>h.id!==g2.id));delete g2.finishedAt;delete g2.endPhrase}
-      g2.events.pop();saveG2();renderOPlay();break}
+      g2.events.pop();resetOtherDraft();saveG2();renderOPlay();break}
     case 'mrematch':{const t=JSON.parse(JSON.stringify(g2.teams));if(OTHER[g2.kind].kind==='molkky')t.push(t.shift());else t.reverse();
-      g2={id:uid(),kind:g2.kind,opts:g2.opts,teams:t,events:[],created:Date.now()};chDraft={a:[0,0],b:[0,0]};mkSel=[];saveG2();go('mplay');break}
+      g2={id:uid(),kind:g2.kind,opts:g2.opts,teams:t,events:[],created:Date.now()};resetOtherDraft();saveG2();go('mplay');break}
     case 'iam':{const pr=profById(v);if(pr){makeOwner(pr);go('home')}break}
     case 'copycode':{const o=owner();try{navigator.clipboard.writeText(o.code).then(()=>toastMsg('Code copié : '+o.code),()=>toastMsg('Votre code : '+o.code))}catch(e){toastMsg('Votre code : '+o.code)}break}
     case 'sendstats':sendStats(v);break;
@@ -3482,10 +3579,12 @@ document.addEventListener('click',e=>{
     case 'tdelyes':tomb(curTid);saveTournaments(tournaments().filter(x=>x.id!==curTid));go('tournaments');break;
     case 'settings':go('settings');break;
     case 'quit':
-      if(screen==='game'&&game&&!game.finishedAt&&game.darts.length)openQuit();
+      if(screen==='game'&&game&&!game.finishedAt&&game.darts.length)openQuit('darts');
+      else if(screen==='mplay'&&g2&&!g2.finishedAt&&g2.events.length)openQuit('other');
       else go('home');break;
+    case 'delask':openDelete(v);break;
     case 'pause':closeSheet();go('home');break;
-    case 'abandon':game=null;saveGame();closeSheet();go('home');break;
+    case 'abandon':if(v==='other'){g2=null;saveG2();resetOtherDraft()}else{game=null;saveGame()}closeSheet();go('home');break;
     case 'new':draft=newDraft();go('setup');break;
     case 'resume':go('game');break;
     case 'gtype':draft.type=v;draft.opts=Object.assign(defaultOpts(v),(store.get('lastSetup',{}).opts||{})[v]||{});closeSheet();renderSetup();break;
