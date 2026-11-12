@@ -1,6 +1,6 @@
 # ARROW by Elmagination
 
-Application de fléchettes (PWA) : cible réaliste, 18 jeux, ambiances, voix et animations.
+Application (PWA) qui compte les points : fléchettes (cible réaliste, 18 jeux, tournois, statistiques, ambiances, voix et animations), pétanque, palet, Mölkky et cornhole en 3D, Tossit.
 
 ## Mise en ligne avec GitHub Pages (gratuit)
 
