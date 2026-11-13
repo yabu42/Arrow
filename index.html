@@ -128,6 +128,21 @@ a.btn{text-decoration:none}
 .hc-txt span{font-size:13px;color:var(--silver-2)}
 .hc-txt .hc-free{color:var(--copper);font-weight:600;font-size:12px;margin-top:2px}
 .hcard>svg:last-child{width:20px;height:20px;flex:none;color:var(--silver-2)}
+/* message court (toastMsg) */
+.note-toast{position:fixed;left:50%;top:76px;z-index:80;transform:translate(-50%,-8px);opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;background:rgba(7,13,26,.9);border:1px solid var(--line-2);border-radius:14px;padding:9px 16px;max-width:min(88vw,420px);text-align:center;font-size:14px;font-weight:600;color:var(--champagne);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.note-toast.show{opacity:1;transform:translate(-50%,0)}
+.appbar.flashing .bar-title{opacity:0}
+.sflash{position:absolute;top:0;bottom:0;left:50%;width:calc(100% - 236px);margin-left:calc(-50% + 118px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;white-space:nowrap;opacity:0;transform:translateY(6px) scale(.96);transition:opacity .2s,transform .25s cubic-bezier(.2,1.4,.4,1);pointer-events:none;color:#fff;min-width:0;z-index:2}
+.sflash.show{opacity:1;transform:none}
+.sflash .sf-top{display:flex;gap:6px;align-items:baseline;max-width:100%;overflow:hidden;text-overflow:ellipsis;font-family:var(--ff-ui);font-size:11px;line-height:1.1}
+.sflash .sf-name{flex:none;max-width:65%;font-weight:700;color:var(--silver-2);overflow:hidden;text-overflow:ellipsis}
+.sflash .sf-tag{min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:9.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--copper-hi)}
+.sflash .sf-val{font-family:var(--ff-num);font-weight:500;font-size:26px;line-height:1;color:#fff}
+.sflash.bad .sf-val{color:var(--danger);font-size:21px}
+.resume .big .fam-art{width:52px;height:auto;color:var(--silver-2)}
+.row-link.flat{background:none;border:0;padding:10px 0;width:100%}
+.row-link.flat+.row-link.flat{border-top:1px solid var(--line)}
+textarea.tin{min-height:140px;padding-top:12px;resize:vertical;font:inherit;line-height:1.5}
 .resume-row{display:flex;align-items:center;gap:8px}
 .resume-row .resume{flex:1;min-width:0}
 .resume-row .icon-btn{flex:none;color:#ffc7bf}
@@ -251,14 +266,6 @@ select{width:100%;height:46px;border-radius:12px;border:1px solid var(--line-2);
 .pad-bull button{min-height:48px;font-family:var(--ff-ui);font-size:15px;font-weight:800}
 .pad-bull .b25{color:#7fd3a0}
 .pad-bull .b50{color:#ff8f86}
-.toast{position:absolute;left:50%;top:0;transform:translate(-50%,-8px);opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;background:rgba(7,13,26,.82);border:1px solid var(--line-2);border-radius:14px;padding:6px 14px 7px;text-align:center;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);width:max-content;max-width:min(94%,380px);z-index:5}
-.toast.show{opacity:1;transform:translate(-50%,0)}
-.toast .t-head{display:flex;align-items:baseline;justify-content:center;gap:8px;line-height:1.1}
-.toast .t-name{font-size:12px;font-weight:700;color:var(--silver-2)}
-.toast .t-val{font-family:var(--ff-num);font-weight:500;font-size:26px;line-height:1;color:#fff}
-.toast .t-tag{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--copper-hi)}
-.toast .t-say{font-family:var(--ff-mark);font-style:italic;font-size:14px;color:var(--champagne);margin-top:2px;text-wrap:balance;line-height:1.25}
-.toast.bust .t-val{color:var(--danger)}
 .g-ctrl{grid-area:ctrl;display:flex;gap:8px;align-items:stretch}
 .g-ctrl .seg{flex:1.4}
 .g-ctrl .seg button{min-height:48px}
@@ -332,13 +339,11 @@ table.stats{border-collapse:collapse;width:100%;font-size:14px;min-width:420px}
 .ctab td.m3{color:var(--copper-hi)}
 .ctab tr.pts td{font-family:var(--ff-num);font-size:18px;color:#fff}
 .g-table{display:none;padding:12px 14px}
-.toast .t-val.sm{font-size:19px}
 .pad-nums button.tgt{border-color:var(--copper-hi);box-shadow:inset 0 0 0 1px var(--copper-hi);color:var(--copper-hi)}
 /* ---------- Ambiance par joueur ---------- */
 .amb{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:start}
 .amb-players{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .pchip[aria-pressed="true"]{background:var(--copper);border-color:var(--copper);color:var(--on-copper)}
-.end-say{font-family:var(--ff-mark);font-style:italic;font-size:18px;color:var(--champagne)!important;margin-top:6px!important;text-wrap:balance}
 /* ---------- Cibles ---------- */
 .skins{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
 .skin{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 8px;border-radius:var(--r-md);border:1px solid var(--line-2);background:rgba(255,255,255,.02);text-align:center}
@@ -1910,6 +1915,7 @@ function niceCloud(e){const c=(e&&e.code)||'';
     rate:'Trop de demandes d\'un coup. Réessayez dans un quart d\'heure.',
     mail_failed:'L\'e-mail n\'a pas pu partir. Réessayez un peu plus tard.',
     reset_expired:'Ce lien a expiré ou a déjà servi. Refaites une demande de mot de passe oublié.',
+    rate:'Trop de messages d\'un coup : réessayez dans un quart d\'heure.',mail_failed:'Le message n\'a pas pu partir. Réessayez plus tard.',
     code_invalid:'Ce code n\'est pas valable, ou il a déjà servi.',forbidden:'Cette action est réservée au studio.',
     nosession:'Votre session a expiré : reconnectez-vous.'})[c]||'Le service ne répond pas pour le moment. Réessayez dans un instant.'}
 
@@ -2054,9 +2060,9 @@ function renderAccount(){if(!Cloud.session()){go('auth');return}
    Le compte du studio (owner) crée ces codes ici et voit lesquels ont servi. */
 const fmtCode=c=>'ARW-'+c.slice(0,5)+'-'+c.slice(5);
 function premiumCardHTML(acc){
-  const mine=acc.premium?`<p class="form-msg ok" style="margin:0">Premium actif sur ce compte : tous les jeux, sans limite, même hors ligne.</p>`
+  const mine=acc.premium?`<p class="form-msg ok" style="margin:0 0 12px">Premium actif sur ce compte : tous les jeux, sans limite, même hors ligne.</p>${supportBtnHTML('btn-ghost')}`
     :`<p class="note" style="margin-top:0">Compte gratuit : le 501 à 2 joueurs sans limite, et ${FREE_LIMIT} parties pour chaque autre jeu, avec une connexion internet. Le premium ouvre tout, sans limite, même hors ligne.</p>
-      ${premiumOfferHTML()}
+      ${supportBtnHTML()}
       <form data-form="redeem" class="stack" novalidate><label class="fld"><span>J'ai un code premium</span><input class="tin" id="pCode" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ARW-XXXXX-XXXXX"></label>
         <p class="form-msg" id="pErr" role="alert"></p><button class="btn btn-ghost" type="submit">Activer le premium</button></form>`;
   const studio=acc.owner?`<div class="codes"><h2 class="sec-title" style="margin-top:16px">Codes à distribuer</h2>
@@ -2095,7 +2101,7 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-act]
   }});
 function formBusy(f,on){const btn=f.querySelector('button[type=submit]');if(btn){btn.disabled=on;if(on){btn.dataset.t=btn.textContent;btn.textContent='Un instant…'}else if(btn.dataset.t)btn.textContent=btn.dataset.t}}
 function formErr(t){const el=document.getElementById('aErr');if(el){el.textContent=t;el.classList.toggle('ok',false)}}
-document.addEventListener('submit',async e=>{const f=e.target,k=f.dataset&&f.dataset.form;if(!['auth','forgot','reset','chpw','redeem'].includes(k))return;e.preventDefault();
+document.addEventListener('submit',async e=>{const f=e.target,k=f.dataset&&f.dataset.form;if(!['auth','forgot','reset','chpw','redeem','contact'].includes(k))return;e.preventDefault();
   const val=id=>(document.getElementById(id)||{}).value||'';
   if(k==='auth'){const up=authMode==='signup',name=val('aName').trim(),mail=val('aMail').trim().toLowerCase(),pw=val('aPw');
     if(up&&!name)return formErr('Indiquez votre prénom ou pseudo.');
@@ -2108,6 +2114,14 @@ document.addEventListener('submit',async e=>{const f=e.target,k=f.dataset&&f.dat
     formBusy(f,true);try{await Auth.recover(mail);f.innerHTML='<p class="form-msg ok">Si un compte existe pour cette adresse, un e-mail vient de partir. Ouvrez le lien qu\'il contient sur ce téléphone.</p>'}catch(err){formBusy(f,false);formErr(niceCloud(err))}}
   if(k==='reset'){const pw=val('rPw');if(pw.length<8)return formErr('Le mot de passe doit faire au moins 8 caractères.');
     formBusy(f,true);try{await Auth.reset(resetToken,pw);resetToken=null;toastMsg('Mot de passe enregistré');go('home')}catch(err){formBusy(f,false);formErr(niceCloud(err))}}
+  if(k==='contact'){const msg=t=>{const el=document.getElementById('cErr');if(el)el.textContent=t};
+    const mail=val('cMail').trim(),text=val('cMsg').trim();
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail))return msg('Indiquez une adresse e-mail valable pour la réponse.');
+    if(text.length<5)return msg('Écrivez votre message.');
+    formBusy(f,true);msg('');
+    try{await Cloud.call('contact',{kind:contactKind,email:mail,message:text,version:VERSION,device:navigator.userAgent.slice(0,160)});
+      f.innerHTML='<p class="form-msg ok">Merci, votre message est parti. Le studio vous répond par e-mail.</p>'}
+    catch(err){formBusy(f,false);msg(niceCloud(err))}}
   if(k==='redeem'){const msg=t=>{const el=document.getElementById('pErr');if(el)el.textContent=t};
     formBusy(f,true);msg('');
     try{const j=await Cloud.call('redeem',{code:val('pCode')});store.set('account',j.user);toastMsg('Premium activé, merci !');render()}
@@ -2128,14 +2142,14 @@ const OTHER={
     rules:o=>`Deux équipes lancent leurs boules le plus près possible du cochonnet. À chaque mène, seule l'équipe la mieux placée marque : un point par boule plus proche que la meilleure boule adverse (jusqu'à ${o.max} points). La première équipe à ${o.target} points gagne. ${o.target} à 0, c'est « fanny » !`,
     opts:[{k:'format',label:'Formule',vals:[['tat','Tête-à-tête'],['dbl','Doublette'],['tri','Triplette']],def:'dbl',help:v=>({tat:'1 contre 1, 3 boules chacun : jusqu\'à 3 points par mène.',dbl:'2 contre 2, 3 boules chacun : jusqu\'à 6 points par mène.',tri:'3 contre 3, 2 boules chacun : jusqu\'à 6 points par mène.'})[v]},
           {k:'target',label:'Partie en',vals:[[11,'11'],[13,'13'],[15,'15'],[21,'21']],def:13}],
-    max:o=>o.format==='tat'?3:6,fanny:true,unit:'mène',
-    field:{pieces:'Boules',aria:'Terrain de pétanque : touchez pour placer le cochonnet puis chaque boule',hint:'Posez cochonnet et boules · après un tir, touchez la boule déplacée'}},
+    max:o=>o.format==='tat'?3:6,fanny:true,unit:'mène'},
   palet:{name:'Palet breton',sub:'Palets sur planche en bois',kind:'menes',
     rules:o=>`Sur une planche en bois, chaque équipe lance ses palets en fonte au plus près du petit palet, le « maître ». À chaque mène, l'équipe la mieux placée marque un point par palet plus proche que le meilleur palet adverse. Un palet tombé de la planche ne compte pas. La première équipe à ${o.target} points gagne.`,
     opts:[{k:'max',label:'Palets par équipe',vals:[[4,'4'],[6,'6'],[8,'8'],[12,'12']],def:6,help:()=>'C\'est aussi le nombre maximal de points d\'une mène.'},
           {k:'target',label:'Partie en',vals:[[11,'11'],[12,'12'],[13,'13'],[21,'21']],def:12}],
     max:o=>o.max,fanny:true,unit:'mène',
-    field:{pieces:'Palets',aria:'Planche de palet : touchez pour placer le maître puis chaque palet',hint:'Posez maître et palets (à côté = raté) · touchez un palet pour le déplacer'}},
+    /* field : saisie sur la planche en 3D (scene.js, PL3) en plus du pavé */
+    field:{pieces:'Palets',aria:'Planche de palet : gardez le doigt appuyé pour viser, relâchez pour poser le maître puis chaque palet',hint:'Doigt appuyé pour viser, relâché pour poser · à côté de la planche = raté'}},
   tossit:{name:'Tossit',sub:'Fléchettes à ventouse et Jack',kind:'menes',
     rules:o=>`Comme à la pétanque, avec des fléchettes à ventouse : on lance d'abord le Jack, puis chacun tente de coller ses Tossit au plus près. Tant qu'une équipe est la plus proche, l'autre continue de lancer. À la fin de la manche, l'équipe la mieux placée marque un point par Tossit plus proche que le meilleur adverse. La première à ${o.target} points gagne.`,
     opts:[{k:'max',label:'Tossit par équipe',vals:[[3,'3'],[6,'6']],def:3},{k:'target',label:'Partie en',vals:[[11,'11'],[13,'13'],[21,'21']],def:13}],
@@ -2189,9 +2203,11 @@ function run2(g){const D=OTHER[g.kind],o=g.opts,n=g.teams.length;
    mkSel = quilles sélectionnées, mkMiss = point de pelouse touché pour un raté ({x,z}) ;
    chDraft = sacs de la manche : a/b = [dans le trou, sur la planche], bags = sacs dessinés. */
 let g2=store.get('current2',null),odraft=null,mkSel=[],mkMiss=null,chDraft={a:[0,0],b:[0,0]};
-/* tgDraft (pétanque, palet en 3D) : jack = cochonnet ou maître {x,z}, pieces = boules ou palets posés */
-let tgDraft={jack:null,pieces:[]};
-function resetOtherDraft(){mkSel=[];mkMiss=null;chDraft={a:[0,0],b:[0,0]};tgDraft={jack:null,pieces:[]};if(typeof TG3!=='undefined')TG3.sel=null}
+/* plDraft (palet en 3D) : jack = maître {x,z,out}, pieces = palets posés {t,x,z,out} */
+let plDraft={jack:null,pieces:[]};
+function resetOtherDraft(){mkSel=[];mkMiss=null;chDraft={a:[0,0],b:[0,0]};plDraft={jack:null,pieces:[]};
+  /* l'historique « Annuler le dernier sac / palet » repart de zéro */
+  if(typeof CH3!=='undefined'){CH3.hist=[];CH3.pending=null}if(typeof PL3!=='undefined'){PL3.hist=[];PL3.moving=PL3.pending=null}}
 function saveG2(){if(g2)store.set('current2',g2);else store.del('current2')}
 function newODraft(kind){const D=OTHER[kind],o={};D.opts.forEach(x=>o[x.k]=x.def);const last=store.get('lastOther',{})[kind];
   const P=profilesByRecent().map(p=>p.name);
@@ -2227,18 +2243,20 @@ function renderOPlay(){
     body=`<div class="mteams">${g2.teams.map((t,i)=>`<section class="mteam ${S.winner===i?'win':''}" id="mt${i}"><div class="mt-name">${esc(t.name)}</div>${t.members&&t.members.length?`<div class="mt-mem">${t.members.map(esc).join(', ')}</div>`:''}
       <div class="mt-score">${S.sc[i]}</div><div class="mt-bar"><i style="width:${Math.min(100,S.sc[i]/o.target*100)}%"></i></div>
       ${over||D.field?'':pad(i)}</section>`).join('')}</div>
-      ${over||!D.field?'':`<div class="ch-teams" role="group" aria-label="À quelle équipe ?">${[0,1].map(i=>`<button class="chip" data-act="tgteam" data-v="${i}" aria-pressed="${TG3.team===i}"><i class="bagdot ${i?'b':'a'}"></i>${D.field.pieces} ${esc(g2.teams[i].name)}</button>`).join('')}</div>
-      <div class="scene tg-scene"><canvas id="tgCv" aria-label="${D.field.aria}"></canvas><span class="scene-hint">${D.field.hint}</span></div>
-      <p class="ch-sum" id="tgSum"></p>
-      <button class="btn btn-primary" data-act="tgval">Valider la ${D.unit}</button>
+      ${over||!D.field?'':`<div class="ch-teams" role="group" aria-label="À quelle équipe ?">${[0,1].map(i=>`<button class="chip" data-act="plteam" data-v="${i}" aria-pressed="${PL3.team===i}"><i class="bagdot ${i?'b':'a'}"></i>${D.field.pieces} ${esc(g2.teams[i].name)}</button>`).join('')}</div>
+      <div class="scene pl-scene"><canvas id="plCv" aria-label="${D.field.aria}"></canvas><span class="scene-hint">${D.field.hint}</span></div>
+      <p class="ch-sum" id="plSum"></p>
+      <div class="row2"><button class="btn btn-ghost" data-act="plundo" ${PL3.hist.length?'':'disabled'}>${I.undo} Annuler le dernier palet</button></div>
+      <button class="btn btn-primary" data-act="plval">Valider la ${D.unit}</button>
       <details class="mk-alt"><summary>Saisir les points sans le terrain</summary>${g2.teams.map((t,i)=>`<p class="cat-lbl">${esc(t.name)}</p>${pad(i)}`).join('')}</details>`}
-      <p class="note center">Objectif ${o.target} points · ${D.field?'placez les '+D.field.pieces.toLowerCase()+' comme sur le terrain : les points sont comptés tout seuls.':'touchez les points gagnés par l\'équipe à la fin de la '+D.unit+'.'}</p>`}
+      <p class="note center">Objectif ${o.target} points · ${D.field?'placez les '+D.field.pieces.toLowerCase()+' comme sur la planche : les points sont comptés tout seuls.':'touchez les points gagnés par l\'équipe à la fin de la '+D.unit+'.'}</p>`}
   if(D.kind==='cornhole'){
     const side=i=>`<section class="mteam ${S.winner===i?'win':''}" id="mt${i}"><div class="mt-name"><i class="bagdot ${i?'b':'a'}"></i>${esc(g2.teams[i].name)}</div><div class="mt-score">${S.sc[i]}</div><div class="mt-bar"><i style="width:${Math.min(100,S.sc[i]/o.target*100)}%"></i></div></section>`;
     body=`<div class="mteams">${side(0)}${side(1)}</div>
       ${over?'':`<div class="ch-teams" role="group" aria-label="Sacs de quelle équipe ?">${['a','b'].map((t,i)=>`<button class="chip" data-act="chteam" data-v="${t}" aria-pressed="${CH3.team===t}"><i class="bagdot ${t}"></i>Sacs ${esc(g2.teams[i].name)}</button>`).join('')}</div>
-      <div class="scene ch-scene"><canvas id="chCv" aria-label="Planche de cornhole : touchez l'endroit où chaque sac s'est arrêté, ou le trou"></canvas><span class="scene-hint">Touchez où le sac est tombé, même sur le gazon · retouchez un sac pour l'enlever</span></div>
+      <div class="scene ch-scene"><canvas id="chCv" aria-label="Planche de cornhole : gardez le doigt appuyé pour viser, relâchez pour poser le sac là où il s'est arrêté"></canvas><span class="scene-hint">Doigt appuyé pour viser, relâché pour poser · sur le gazon = raté</span></div>
       <p class="ch-sum" id="chSum"></p>
+      <div class="row2"><button class="btn btn-ghost" data-act="chundo" ${CH3.hist.length?'':'disabled'}>${I.undo} Annuler le dernier sac</button></div>
       <button class="btn btn-primary" data-act="chval">${chLabel()}</button>
       <details class="mk-alt"><summary>Saisir sans la planche</summary>${['a','b'].map((k,i)=>`<p class="cat-lbl">${esc(g2.teams[i].name)}</p><div class="ch-row"><span>Dans le trou <small>3 pts</small></span>${stepper(k,0)}</div><div class="ch-row"><span>Sur la planche <small>1 pt</small></span>${stepper(k,1)}</div>`).join('')}</details>`}
       <p class="note center">Objectif ${o.target} points · 4 sacs par équipe et par manche, lancés à tour de rôle.</p>`}
@@ -2251,20 +2269,21 @@ function renderOPlay(){
   const hist=histOther(D,S);
   const wname=over?g2.teams[S.winner].name:'';
   frame(esc(D.name)+`<small>${D.kind==='molkky'?'50 points':o.target+' points'}</small>`,`<div class="col" id="oplay">
-    ${over?`<div class="win ow"><span class="crown">${S.fanny?'Fanny !':'Victoire'}</span><h1>${esc(wname)} gagne</h1><p>${D.kind==='molkky'?'':S.sc.join(' à ')}</p>${g2.endPhrase?`<p class="end-say">« ${esc(g2.endPhrase)} »</p>`:''}</div>`:''}
+    ${over?`<div class="win ow"><span class="crown">${S.fanny?'Fanny !':'Victoire'}</span><h1>${esc(wname)} gagne</h1><p>${D.kind==='molkky'?'':S.sc.join(' à ')}</p></div>`:''}
     ${body}
     ${over?`<div class="stack"><button class="btn btn-primary" data-act="mrematch">Revanche</button><button class="btn btn-silver" data-act="more">Autres jeux</button></div>`:''}
     <section><h2 class="sec-title">Historique</h2>${hist}
       <div class="row2" style="margin-top:8px">${g2.events.length?'<button class="btn btn-ghost" data-act="mundo">'+I.undo+' Annuler la dernière saisie</button>':''}<button class="btn btn-ghost" data-act="mute" aria-pressed="${prefs.muted}">${prefs.muted?I.mute+' Remettre le son':I.snd+' Couper le son'}</button></div></section>
   </div>`);
   if(!over&&D.kind==='molkky')MK3.mount();if(!over&&D.kind==='cornhole'){CH3.mount();chUpdate()}
-  if(!over&&D.field)TG3.mount();
+  if(!over&&D.field)PL3.mount();
 }
 function chLabel(){const o=g2.opts,a=chDraft.a,b=chDraft.b,pa=a[0]*3+a[1],pb=b[0]*3+b[1],na=o.cancel?Math.max(0,pa-pb):pa,nb=o.cancel?Math.max(0,pb-pa):pb;
   return 'Valider la manche · '+(o.cancel?(na?g2.teams[0].name+' +'+na:nb?g2.teams[1].name+' +'+nb:'aucun point'):'+'+pa+' / +'+pb)}
 function chUpdate(){const sum=document.getElementById('chSum');if(!sum)return;
   sum.innerHTML=['a','b'].map((t,i)=>{const [h,bd]=chDraft[t];const out=(chDraft.bags||[]).filter(b=>b.t===t&&b.miss).length;return `<span><i class="bagdot ${t}"></i><b>${esc(g2.teams[i].name)}</b> ${h} trou · ${bd} planche${out?' · '+out+' dehors':''} = <b>${h*3+bd} pts</b></span>`}).join('');
   const v=document.querySelector('[data-act="chval"]');if(v)v.textContent=chLabel();
+  const u=document.querySelector('[data-act="chundo"]');if(u)u.disabled=!CH3.hist.length;
   document.querySelectorAll('.stepper output').forEach((x,i)=>{const t=i<2?'a':'b';x.textContent=chDraft[t][i%2]})}
 function stepper(k,j){const v=chDraft[k][j];return `<div class="stepper"><button data-act="chs" data-v="${k}|${j}|-1" aria-label="Moins">−</button><output>${v}</output><button data-act="chs" data-v="${k}|${j}|1" aria-label="Plus">+</button></div>`}
 function histOther(D,S){const ev=g2.events;if(!ev.length)return '<p class="empty">Les scores apparaîtront ici.</p>';
@@ -2282,6 +2301,10 @@ function sayGame(cat,delay=450){const L=GAME_LINES[cat];if(!L||!L.length)return 
   if(prefs.voice&&!prefs.muted&&prefs.voiceMode!=='scores')setTimeout(()=>{if(rec.length)Pack.play(`jeux_${cat}_${i+1}`,ok=>{if(!ok)Voice.say(txt,'standard')});else Voice.say(txt,'standard')},delay);
   return txt}
 function o2react(pts,max,teamIdx){const S=run2(g2),D=OTHER[g2.kind];
+  /* score de la mène (ou du lancer au Mölkky) en haut de l'écran */
+  if(D.kind==='molkky'){const l=S.log[S.log.length-1];scoreFlash(g2.teams[l.p].name,l.pts?'+'+l.pts:'Raté',l.note||'',l.pts?'':'bad')}
+  else if(teamIdx>=0&&pts>0)scoreFlash(g2.teams[teamIdx].name,'+'+pts,pts>1?'points':'point');
+  else scoreFlash('',D.kind==='cornhole'?'Manche nulle':'Mène blanche','','bad');
   const cat=S.winner!=null?'checkout':pts>=max?'huge':pts>=Math.ceil(max/2)?'big':pts>0?'mid':'zero';
   Sound.play(cat);
   if(prefs.fx&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){const el=document.getElementById('mt'+teamIdx)||document.querySelector('.mkp.on');
@@ -2436,11 +2459,6 @@ const Geo={
     for(let j=0;j<=seg;j++){const a=j/seg*Math.PI*2,c=Math.cos(a),s=Math.sin(a);Geo.vert(g,[r0*c,0,r0*s],[0,1,0],[0,0]);Geo.vert(g,[r1*c,0,r1*s],[0,1,0],[1,1])}
     for(let j=0;j<seg;j++){const i=j*2;g.i.push(i,i+2,i+1,i+1,i+2,i+3)}return g},
 
-  /* Boule (pétanque, cochonnet) : u = tour, v = du bas vers le haut */
-  sphere(r,seg=36,rings=22){const g=Geo.make(),ring=k=>{const a=k/rings*Math.PI,y=-Math.cos(a),rr=Math.sin(a),o=[];
-      for(let j=0;j<=seg;j++){const b=j/seg*Math.PI*2,n=[rr*Math.cos(b),y,rr*Math.sin(b)];o.push({p:V3.mul(n,r),n,t:[j/seg,k/rings]})}return o};
-    for(let k=0;k<rings;k++)Geo.band(g,ring(k),ring(k+1));return g},
-
   /* Palet : disque épais aux arêtes adoucies, posé sur y = 0. Deux morceaux : tranche + dessous, et face du dessus */
   puck(r,h,ch,seg=44){const body=Geo.make(),top=Geo.make();
     const ring=(rad,y,nf)=>{const o=[];for(let j=0;j<=seg;j++){const a=j/seg*Math.PI*2,c=Math.cos(a),s=Math.sin(a);o.push({p:[rad*c,y,rad*s],n:nf(c,s),t:[j/seg*4,y/h]})}return o};
@@ -2526,19 +2544,6 @@ const Paint={
     /* légère usure de la peinture */
     c.globalCompositeOperation='multiply';for(let i=0;i<1400;i++){c.fillStyle=`rgba(200,180,150,${R()*.2})`;c.fillRect(R()*w,R()*h,1+R()*2,1+R()*3)}
     c.globalCompositeOperation='source-over'},
-
-  /* Terrain de pétanque : sable stabilisé et petits graviers */
-  gravel(c,w,h,R){c.fillStyle='#9c8563';c.fillRect(0,0,w,h);
-    const dot=(x,y,r,col)=>{c.fillStyle=col;for(const dx of [-w,0,w])for(const dy of [-h,0,h]){if(x+dx<-r||x+dx>w+r||y+dy<-r||y+dy>h+r)continue;c.beginPath();c.ellipse(x+dx,y+dy,r,r*(.6+R()*.4),R()*3,0,7);c.fill()}};
-    for(let i=0;i<9000;i++)dot(R()*w,R()*h,.6+R()*1.6,`hsla(${26+R()*16},${14+R()*24}%,${26+R()*42}%,${.4+R()*.45})`);
-    for(let i=0;i<700;i++){const x=R()*w,y=R()*h,r=2+R()*3.5;dot(x+1.2,y+1.6,r,'rgba(40,30,20,.35)');dot(x,y,r,`hsl(${24+R()*20},${8+R()*18}%,${40+R()*30}%)`)}},
-
-  /* Acier d'une boule : métal brossé avec des stries (fines = 1 trait, doubles = 2 traits) pour distinguer les équipes */
-  steel:double=>(c,w,h,R)=>{c.fillStyle='#8f949b';c.fillRect(0,0,w,h);
-    for(let y=0;y<h;y++){c.fillStyle=`rgba(${R()<.5?255:0},${R()<.5?255:0},${R()<.5?255:0},${R()*.07})`;c.fillRect(0,y,w,1)}
-    c.fillStyle='rgba(20,22,28,.6)';
-    for(const v of (double?[.3,.34,.48,.52,.66,.7]:[.25,.38,.5,.62,.75]))c.fillRect(0,v*h-1.5,w,3);
-    for(let i=0;i<600;i++){c.fillStyle=`rgba(255,255,255,${R()*.12})`;c.fillRect(R()*w,R()*h,1+R()*5,1)}},
 
   /* Dessus d'un palet en fonte : métal sombre grenu, anneau de couleur d'équipe */
   paletTop:col=>(c,w,h,R)=>{c.fillStyle='#3a3d44';c.fillRect(0,0,w,h);
@@ -2634,7 +2639,16 @@ const G3={
     this.cv=cv;this.gl=gl;this.ok=true;
     cv.addEventListener('webglcontextlost',e=>{e.preventDefault();cancelAnimationFrame(this.raf);this.prog=null;this.meshes={};this.texs={}});
     cv.addEventListener('webglcontextrestored',()=>this.scene&&this.scene.draw());
-    cv.addEventListener('pointerdown',e=>{if(!this.scene)return;const r=cv.getBoundingClientRect();e.preventDefault();this.scene.tap(e.clientX-r.left,e.clientY-r.top)});
+    /* Toucher. Une scène qui vise (aim / aimEnd) montre une loupe tant que le doigt reste posé
+       et pose à l'endroit où il se relève ; les autres reçoivent un simple toucher (tap). */
+    let aiming=null;
+    const inside=e=>{const r=cv.getBoundingClientRect();return e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom};
+    cv.addEventListener('pointerdown',e=>{const s=this.scene;if(!s||e.button>0)return;e.preventDefault();
+      if(!s.aim){const r=cv.getBoundingClientRect();s.tap(e.clientX-r.left,e.clientY-r.top);return}
+      cv.setPointerCapture(e.pointerId);aiming=e.pointerId;this.aimAt(e)});
+    cv.addEventListener('pointermove',e=>{if(e.pointerId===aiming)this.aimAt(e)});
+    cv.addEventListener('pointerup',e=>{if(e.pointerId!==aiming)return;aiming=null;Loupe.hide();this.scene.aimEnd(inside(e))});
+    cv.addEventListener('pointercancel',()=>{if(aiming==null)return;aiming=null;Loupe.hide();if(this.scene)this.scene.aimEnd(false)});
     /* les numéros et la marque sont redessinés quand les polices Jost/Figtree arrivent */
     if(document.fonts)document.fonts.ready.then(()=>{this.dropTex(['caps','boardTop']);if(this.scene&&this.cv.isConnected)this.scene.draw()});
     return true},
@@ -2682,9 +2696,13 @@ const G3={
     const w=this.cv.parentElement.clientWidth||320,h=Math.round(w*ratio),dpr=Math.min(2,window.devicePixelRatio||1);
     this.w=w;this.h=h;this.dpr=dpr;this.cv.style.width=w+'px';this.cv.style.height=h+'px';
     if(this.cv.width!==Math.round(w*dpr)||this.cv.height!==Math.round(h*dpr)){this.cv.width=Math.round(w*dpr);this.cv.height=Math.round(h*dpr)}
-    this.scene=scene;
+    this.scene=scene;this.cv.style.touchAction=scene.aim?'none':'manipulation';
     try{this.setup()}catch(e){console.error(e);this.ok=false;return this.attach(id,ratio,scene)}
     return true},
+
+  /* Visée : la scène dessine le point visé, puis la loupe recopie l'image (même instant, sinon WebGL l'a déjà effacée) */
+  aimAt(e){const r=this.cv.getBoundingClientRect(),label=this.scene.aim(e.clientX-r.left,e.clientY-r.top);
+    if(label===false)Loupe.hide();else Loupe.show(this.cv,e.clientX,e.clientY,label)},
 
   /* Caméra qui cadre automatiquement une liste de points.
      dir : direction cible → œil ; mx/my : marge (1 = bord de l'image) ; oy : décalage vertical */
@@ -2751,14 +2769,14 @@ const G3_ENV={sun:[-.5,.85,-.42],sunCol:[2.8,2.25,1.6],sky:[.4,.44,.54],gnd:[.14
 const sRGB=h=>[1,3,5].map(i=>Math.pow(parseInt(h.slice(i,i+2),16)/255,2.2));
 
 /* =========================================================
-   Scènes 3D : Mölkky (quilles sur la pelouse), Cornhole (planche inclinée),
-   pétanque (terrain en gravier) et palet (planche en bois)
+   Scènes 3D : Mölkky (quilles sur la pelouse), Cornhole (planche inclinée)
+   et palet breton (planche en bois)
    Dessinées par le moteur gl3d.js. On touche directement les quilles ou la
    planche ; tout s'anime (chute des quilles, lancer du bâton, vol des sacs).
 
    Liens avec le reste de l'appli :
    - other.js écrit <canvas id="mkCv"> ou <canvas id="chCv"> dans la page,
-     (ou "tgCv" pour la pétanque et le palet), puis appelle MK3.mount(), CH3.mount() ou TG3.mount() ;
+     (ou "plCv" pour le palet), puis appelle MK3.mount(), CH3.mount() ou PL3.mount() ;
    - mkSel (quilles sélectionnées), mkMiss (raté sur la pelouse) et chDraft
      (sacs de la manche) sont l'état de saisie, déclaré dans other.js ;
      app.js appelle MK3.throwStick(), CH3.draw(), chEnsureBags() et chTeam().
@@ -2883,14 +2901,16 @@ function mkUpdate(){const b=document.querySelector('[data-act="mkval"]');if(b)b.
    Règle officielle : les deux équipes lancent un sac à tour de rôle (4 chacune) ;
    l'équipe qui a marqué la manche précédente commence. L'appli alterne donc
    toute seule ; les boutons « Sacs … » permettent de corriger. Un sac touché
-   sur le gazon est un raté : il vaut 0 mais compte parmi les 4. */
+   sur le gazon est un raté : il vaut 0 mais compte parmi les 4.
+   Saisie : doigt posé = loupe et sac fantôme, doigt relevé = sac posé (il s'empile
+   s'il tombe sur un autre). « Annuler le dernier sac » revient en arrière. */
 /* Planche réglementaire (m) : largeur, longueur, hauteur de l'avant, montée jusqu'à
    l'arrière, épaisseur du cadre ; trou : u (gauche-droite), v (0 = avant, 1 = fond), rayon */
 const CH={W:.61,L:1.22,a:.07,rise:.23,depth:.07,hole:{u:0,v:.81,r:.076}};
 CH.slope=Math.asin(CH.rise/CH.L);
 /* Sacs : demi-côté, épaisseur dessus/dessous ; couleurs par équipe : toile, fil, broderie */
 const BAG={half:.076,top:.027,bot:.003,col:{a:['#a8562a','#f1dfc0','#13233b'],b:['#23406c','#f1dfc0','#d9a47e']}};
-const CH3={cam:null,team:'a',
+const CH3={cam:null,team:'a',hist:[],aimPt:null,pending:null,
   /* Repère de la planche : origine au milieu du bord avant, y perpendiculaire au plateau, −z vers le fond */
   board(){return M4.mul(M4.move(0,CH.a,0),M4.rotX(CH.slope))},
   at(u,v,y=0){return M4.apply(this.board(),[u,y,-v*CH.L])},
@@ -2905,25 +2925,54 @@ const CH3={cam:null,team:'a',
     if(Math.abs(d[1])<1e-6)return null;const t=-o[1]/d[1];if(t<=0)return null;return {u:o[0]+d[0]*t,v:-(o[2]+d[2]*t)/CH.L}},
   ground:(sx,sy)=>MK3.ground(sx,sy),
 
-  tap(sx,sy){if(!g2||g2.finishedAt)return;const q=this.uv(sx,sy),g=this.ground(sx,sy),bags=chDraft.bags;
-    const onBoard=q&&Math.abs(q.u)<=CH.W/2+.02&&q.v>=-.02&&q.v<=1.02;if(!onBoard&&!g)return;
-    /* toucher le milieu d'un sac déjà posé l'enlève ; c'est alors à son équipe de relancer */
-    for(let i=bags.length-1;i>=0;i--){const b=bags[i];
-      const on=b.miss?!onBoard&&Math.hypot(b.gx-g.x,b.gz-g.z)<.08:onBoard&&!b.hole&&Math.hypot(b.u-q.u,(b.v-q.v)*CH.L)<.05;
-      if(on){bags.splice(i,1);chTeam(b.t);chSync();this.draw();return}}
-    const t=this.team,other=t==='a'?'b':'a',count=x=>bags.filter(b=>b.t===x).length;
-    if(count(t)>=4){toastMsg(`${g2.teams[t==='a'?0:1].name} a déjà ses 4 sacs`);return}
-    const b={t,rot:(Math.random()-.5)*.9,hole:false,look:1+Math.floor(Math.random()*3)};
-    if(!onBoard){b.miss=true;b.gx=Math.max(-.85,Math.min(.85,g.x));b.gz=Math.max(-1.7,Math.min(.45,g.z))}
-    else{b.hole=Math.hypot(q.u-CH.hole.u,(q.v-CH.hole.v)*CH.L)<CH.hole.r*1.15;
-      b.u=b.hole?CH.hole.u:Math.max(-CH.W/2+.07,Math.min(CH.W/2-.07,q.u));b.v=b.hole?CH.hole.v:Math.max(.06,Math.min(.96,q.v))}
+  /* Point visé sous le doigt : {u,v} sur la planche, {hole} dans le trou, ou {miss,gx,gz} sur le gazon */
+  target(sx,sy){const q=this.uv(sx,sy),g=this.ground(sx,sy),cl=(x,a,b)=>Math.max(a,Math.min(b,x));
+    const onBoard=q&&Math.abs(q.u)<=CH.W/2+.02&&q.v>=-.02&&q.v<=1.02;
+    if(!onBoard)return g?{miss:true,gx:cl(g.x,-.85,.85),gz:cl(g.z,-1.7,.45)}:null;
+    if(Math.hypot(q.u-CH.hole.u,(q.v-CH.hole.v)*CH.L)<CH.hole.r*1.15)return {hole:true,u:CH.hole.u,v:CH.hole.v};
+    return {u:cl(q.u,-CH.W/2+.07,CH.W/2-.07),v:cl(q.v,.06,.96)}},
+  /* Doigt posé ou qui glisse : sac fantôme à l'endroit visé ; renvoie l'étiquette de la loupe */
+  aim(sx,sy){if(!g2||g2.finishedAt)return false;this.pending=null;this.aimPt=this.target(sx,sy);this.draw();
+    const p=this.aimPt;return !p?'':p.miss?'Gazon · 0 point':p.hole?'Dans le trou · 3 points':'Sur la planche · 1 point'},
+  /* Doigt relevé : on pose le sac (ok = relevé sur la planche, pas ailleurs) */
+  aimEnd(ok){const p=this.aimPt;this.aimPt=null;if(ok&&p)this.place(p);else this.draw()},
+
+  /* Pose d'un sac. Toucher un sac déjà posé pose le nouveau dessus (ils s'empilent).
+     S'il en touche un près du bord ou du trou, on demande si l'autre est tombé. */
+  place(p){const bags=chDraft.bags,t=this.team,other=t==='a'?'b':'a',count=x=>bags.filter(b=>b.t===x).length;
+    if(count(t)>=4){toastMsg(`${g2.teams[t==='a'?0:1].name} a déjà ses 4 sacs`);this.draw();return}
+    this.hist.push(chSnap());
+    const b=Object.assign({t,rot:(Math.random()-.5)*.9,hole:false,look:1+Math.floor(Math.random()*3)},p);
     bags.push(b);chSync();Sound.unlock();
     if(count(other)<4)chTeam(other);
-    if(reducedMotion()){Sound.fx(b.miss?'bagGrass':b.hole?'bagHole':'bagBoard');this.draw()}else{b.anim={t0:performance.now(),dur:b.hole?760:560};this.animate()}},
+    if(reducedMotion()){Sound.fx(b.miss?'bagGrass':b.hole?'bagHole':'bagBoard');this.draw()}else{b.anim={t0:performance.now(),dur:b.hole?760:560};this.animate()}
+    if(!b.hole&&!b.miss){const n=this.touched(b);if(n)this.ask(n)}},
+  /* Sac déjà posé que le nouveau touche, s'il est près du bord ou du trou : {o, edge, hole} */
+  touched(b){let best=null,bd=1e9;
+    for(const o of chDraft.bags){if(o===b||o.hole||o.miss)continue;const d=Math.hypot(o.u-b.u,(o.v-b.v)*CH.L);if(d>BAG.half*2+.01||d>=bd)continue;
+      const edge=Math.abs(o.u)>CH.W/2-.11||o.v<.12||o.v>.9,hole=Math.hypot(o.u-CH.hole.u,(o.v-CH.hole.v)*CH.L)<CH.hole.r+.12;
+      if(edge||hole){best={o,edge,hole};bd=d}}
+    return best},
+  ask(n){this.pending=n;const who=g2.teams[n.o.t==='a'?0:1].name;
+    openSheet(`<div class="sheet-head"><h2>Le sac en a touché un autre</h2><button class="icon-btn" data-act="chpush" data-v="stay" aria-label="Fermer">${I.x}</button></div>
+      <p>Le sac de ${esc(who)} ${n.hole?'était près du trou':'était près du bord'}. A-t-il bougé ?</p>
+      <button class="btn btn-ghost" data-act="chpush" data-v="stay">Non, il est resté sur la planche</button>
+      ${n.hole?'<button class="btn btn-ghost" data-act="chpush" data-v="hole">Il est tombé dans le trou · 3 points</button>':''}
+      ${n.edge?'<button class="btn btn-ghost" data-act="chpush" data-v="out">Il est tombé de la planche · 0 point</button>':''}`,'Sac poussé')},
+  /* Réponse : le sac poussé glisse dans le trou ou tombe à côté de la planche */
+  resolve(v){const n=this.pending;this.pending=null;closeSheet();if(!n||v==='stay')return;
+    const o=n.o,t0=performance.now(),from=this.at(o.u,o.v,BAG.bot+.02);
+    if(v==='hole'){o.hole=true;o.u=CH.hole.u;o.v=CH.hole.v;o.anim={t0,dur:700,from}}
+    else{let u=o.u,v2=o.v;const side=CH.W/2-Math.abs(o.u),end=Math.min(o.v,1-o.v)*CH.L;
+      if(side<end)u=Math.sign(o.u||1)*(CH.W/2+.12);else v2=o.v<.5?-.09:1.07;
+      const w=this.at(u,v2);o.miss=true;o.gx=w[0];o.gz=w[2];o.anim={t0,dur:480,from}}
+    chSync();if(reducedMotion()){delete o.anim;this.draw()}else this.animate()},
+  /* Annuler le dernier sac (et ce qu'il a fait tomber) */
+  undo(){const s=this.hist.pop();if(!s)return;const o=JSON.parse(s);chDraft.bags=o.bags;chTeam(o.team);this.pending=null;chSync();this.draw()},
 
   animate(){G3.play(now=>{let busy=false;
     for(const b of chDraft.bags)if(b.anim){const t=now-b.anim.t0;
-      /* le bruit part à l'impact : fin du vol (62 % du temps pour un sac qui tombe ensuite dans le trou) */
+      /* le bruit part à l'impact : fin du vol (60 % du temps pour un sac qui tombe ensuite dans le trou) */
       if(!b.anim.heard&&t>=b.anim.dur*(b.hole?.6:.97)){b.anim.heard=true;Sound.fx(b.miss?'bagGrass':b.hole?'bagHole':'bagBoard')}
       if(t>=b.anim.dur)delete b.anim;else busy=true}
     this.draw(now);return busy})},
@@ -2935,9 +2984,10 @@ const CH3={cam:null,team:'a',
     const t=Math.min(1,(now-b.anim.t0)/b.anim.dur),fly=b.hole?Math.min(1,t/.62):t,e=Math.sin(fly*Math.PI/2);
     if(b.hole&&t>.62){const k=(t-.62)/.38;
       return {M:M4.mul(B,M4.move(b.u,BAG.bot-k*.1,-b.v*CH.L),M4.scale(.86,1,.86),turn),alpha:1-Math.max(0,(k-.55)/.45)}}
-    const end=M4.apply(rest,[0,0,0]),start=[b.t==='a'?-.2:.2,.38,.55];
-    const pos=V3.add(lerp3(start,end,e),[0,.32*Math.sin(Math.PI*e),0]);
-    return {M:M4.mul(M4.move(...pos),M4.rotX((1-e)*5.5),M4.rotZ((1-e)*1.6),M4.rotX(b.miss?0:CH.slope),turn),alpha:1}},
+    /* lancé depuis le joueur (vol en tournant), ou poussé par un autre sac (glissade depuis sa place) */
+    const pushed=!!b.anim.from,end=b.hole?this.at(b.u,b.v,BAG.bot):M4.apply(rest,[0,0,0]),start=b.anim.from||[b.t==='a'?-.2:.2,.38,.55];
+    const pos=V3.add(lerp3(start,end,e),[0,(pushed?.04:.32)*Math.sin(Math.PI*e),0]),spin=pushed?0:1-e,tilt=b.miss?(pushed?CH.slope*(1-e):0):CH.slope;
+    return {M:M4.mul(M4.move(...pos),M4.rotX(spin*5.5),M4.rotZ(spin*1.6),M4.rotX(tilt),turn),alpha:1}},
 
   draw(now){if(G3.scene!==this||!this.cam)return;now=now||performance.now();
     const B=this.board(),ply=G3.tex('ply',512,512,Paint.ply,9),navy=sRGB('#1d3150').map(x=>x*3.2);
@@ -2964,6 +3014,9 @@ const CH3={cam:null,team:'a',
       items.push({mesh:G3.mesh('bag'+look,()=>Geo.bag(BAG.half,BAG.top,BAG.bot,look)),tex:G3.tex('bag-'+b.t,512,512,Paint.bag(...BAG.col[b.t]),21),
         M,sheen:.3,shine:10,spec:.05,alpha:alpha<1?alpha:undefined});
       occ.push({a:M4.apply(M,[0,.008,0]),b:M4.apply(M,[0,.008,0]),r:.065,k:.8})}
+    if(this.aimPt){const p=this.aimPt,lift=p.miss||p.hole?0:laid.filter(o=>Math.hypot(o.u-p.u,(o.v-p.v)*CH.L)<.12).length*.02;
+      const M=p.miss?M4.move(p.gx,BAG.bot,p.gz):M4.mul(B,M4.move(p.u,BAG.bot+lift+.004,-p.v*CH.L));
+      items.push({mesh:G3.mesh('bag1',()=>Geo.bag(BAG.half,BAG.top,BAG.bot,1)),tex:G3.tex('bag-'+this.team,512,512,Paint.bag(...BAG.col[this.team]),21),M,sheen:.3,shine:10,spec:.05,alpha:.55})}
     G3.render({cam:this.cam,env:G3_ENV,items,occ,shadowBox:{c:[0,.15,-.6],r:.95}});
     this.badges()},
 
@@ -2985,150 +3038,152 @@ function chEnsureBags(){if(!chDraft.bags)chDraft.bags=[];const want={a:chDraft.a
       while(have.length<want[t][j]){const b={t,hole,rot:(Math.random()-.5)*.9,look:1+Math.floor(Math.random()*3),u:hole?CH.hole.u:(Math.random()-.5)*.42,v:hole?CH.hole.v:.18+Math.random()*.5};chDraft.bags.push(b);have.push(b)}}
     const out=chDraft.bags.filter(b=>b.t===t&&b.miss);while(out.length&&chDraft.bags.filter(b=>b.t===t).length>4)drop(out.pop())}}
 function chSync(){for(const t of ['a','b'])chDraft[t]=[chDraft.bags.filter(b=>b.t===t&&b.hole).length,chDraft.bags.filter(b=>b.t===t&&!b.hole&&!b.miss).length];chUpdate()}
+/* Photo de la manche en cours, pour « Annuler le dernier sac » */
+function chSnap(){return JSON.stringify({bags:chDraft.bags.map(({anim,...b})=>b),team:CH3.team})}
 function chTeam(t){CH3.team=t;document.querySelectorAll('[data-act="chteam"]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===t))}
 
-/* ---------------- Pétanque et palet ----------------
-   On pose le cochonnet (ou le maître), puis chaque boule (ou palet) là où elle
-   s'est arrêtée. L'appli compte toute seule : l'équipe la plus proche marque un
-   point par pièce plus proche que la meilleure pièce adverse. Elle propose aussi
-   l'équipe qui doit jouer : celle qui n'a pas le point (règle officielle).
-   Après un tir : toucher la pièce déplacée (elle s'allume) puis sa nouvelle place ;
-   la retoucher l'enlève ; à la pétanque, toucher le bois du fond l'annule.
-   État de saisie : tgDraft (other.js). La partie enregistre {t, pts}, comme le pavé. */
-const TG_CFG={
-  /* r = rayon d'une pièce, jr = rayon du but (m) ; zone = partie du terrain que l'on peut toucher ;
-     wood = planche de fond : une boule qui la touche est annulée */
-  petanque:{r:.037,jr:.015,zone:{x:.43,z0:-.8,z1:.06},wood:true,fxPiece:'boule',fxJack:'jack',fxHit:'clack',jackName:'cochonnet'},
-  /* planche de 70 cm ; h = épaisseur du palet, bh = épaisseur de la planche */
-  palet:{r:.0275,jr:.019,h:.007,bh:.022,half:.35,zone:{x:.47,z0:-.47,z1:.47},fxPiece:'paletBoard',fxJack:'paletBoard',fxHit:'paletBoard',jackName:'maître'}
-};
-const TG3={cam:null,team:0,sel:null,
-  cfg(){return TG_CFG[g2.kind]},
-  max(){return OTHER[g2.kind].max(g2.opts)},
-  onBoard(p){const c=this.cfg();return !c.half||(Math.abs(p.x)<=c.half&&Math.abs(p.z)<=c.half)},
-  /* hauteur du centre d'une boule, ou du dessous d'un palet */
-  yOf(p){const c=this.cfg();return c.h?(p.out?0:c.bh):(p===tgDraft.jack?c.jr:c.r)},
+/* ---------------- Palet breton ----------------
+   Planche de 70 cm. On pose le maître, puis chaque palet là où il s'est arrêté :
+   doigt posé = loupe et palet fantôme, doigt relevé = palet posé. Un palet qui
+   tombe sur un autre s'empile. S'il touche un autre palet ou le maître, l'appli
+   demande ce qu'il s'est passé : rien bougé, déplacé (on touche alors sa nouvelle
+   place) ou sorti de la planche. Maître sorti de la planche : la mène est nulle
+   et se rejoue. L'appli compte toute seule (palets plus proches du maître que le
+   meilleur palet adverse) et propose l'équipe qui doit jouer : celle qui n'a pas
+   le point. « Annuler le dernier palet » revient en arrière d'un lancer.
+   État de saisie : plDraft (other.js). La partie enregistre {t, pts}, comme le pavé. */
+/* Dimensions (m) : rayon d'un palet, du maître, épaisseur d'un palet, de la planche, demi-côté de la planche, zone touchable */
+const PL={r:.0275,jr:.019,h:.007,bh:.022,half:.35,zone:.42};
+const PL3={cam:null,team:0,hist:[],aimPt:null,pending:null,moving:null,
+  max(){return OTHER.palet.max(g2.opts)},
+  onBoard(p){return Math.abs(p.x)<=PL.half&&Math.abs(p.z)<=PL.half},
+  rOf(o){return o===plDraft.jack?PL.jr:PL.r},
 
-  mount(){if(!G3.attach('tgCv',1,this))return;const c=this.cfg(),z=c.zone,back=z.z0-(c.wood?.14:0);
-    if(!tgDraft.jack&&!tgDraft.pieces.length)this.team=g2.events.length?g2.events[g2.events.length-1].t:0;
-    if(this.sel!==tgDraft.jack&&!tgDraft.pieces.includes(this.sel))this.sel=null;
-    const pts=[];for(const x of [-z.x,z.x])for(const zz of [back,z.z1])pts.push([x,0,zz],[x,.09,zz]);
-    this.cam=G3.frame([0,0,(back+z.z1)/2],V3.norm([0,1.7,1]),.42,pts,.96,.9,0);
-    this.setTeam(this.team);this.draw();tgUpdate()},
-  setTeam(t){this.team=t;document.querySelectorAll('[data-act="tgteam"]').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.v===t))},
+  mount(){if(!G3.attach('plCv',1,this))return;const z=PL.zone,pts=[];
+    if(!plDraft.jack&&!plDraft.pieces.length)this.team=g2.events.length?g2.events[g2.events.length-1].t:0;
+    for(const x of [-z,z])for(const zz of [-z,z])pts.push([x,0,zz],[x,.05,zz]);
+    this.cam=G3.frame([0,0,0],V3.norm([0,1.7,1]),.42,pts,.96,.9,0);
+    this.setTeam(this.team);this.draw();plUpdate()},
+  setTeam(t){this.team=t;document.querySelectorAll('[data-act="plteam"]').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.v===t))},
 
-  /* Pièces qui comptent, triées de la plus proche à la plus lointaine du but */
-  ranked(){const j=tgDraft.jack;if(!j)return [];
-    return tgDraft.pieces.filter(p=>!p.out&&!p.dead).map(p=>({p,d:Math.hypot(p.x-j.x,p.z-j.z)})).sort((a,b)=>a.d-b.d)},
-  /* Résultat de la mène : {t: équipe, pts, win: pièces qui marquent}, ou null si rien à compter */
+  /* Étage de chaque pièce : posée sur une autre, elle monte d'une épaisseur */
+  levels(){const D=plDraft,all=[...(D.jack?[D.jack]:[]),...D.pieces],lv=new Map();
+    all.forEach((a,i)=>{let l=0;if(!a.out)for(let j=0;j<i;j++){const b=all[j];
+      if(!b.out&&Math.hypot(a.x-b.x,a.z-b.z)<(this.rOf(a)+this.rOf(b))*.8)l=Math.max(l,lv.get(b)+1)}lv.set(a,l)});
+    return lv},
+  yOf(o,lv){return o.out?0:PL.bh+(lv.get(o)||0)*PL.h},
+
+  /* Palets qui comptent, triés du plus proche au plus loin du maître */
+  ranked(){const j=plDraft.jack;if(!j||j.out)return [];
+    return plDraft.pieces.filter(p=>!p.out).map(p=>({p,d:Math.hypot(p.x-j.x,p.z-j.z)})).sort((a,b)=>a.d-b.d)},
+  /* Résultat de la mène : {t: équipe, pts, win: palets qui marquent}, ou null */
   score(){const R=this.ranked();if(!R.length)return null;
     const t=R[0].p.t,k=R.findIndex(r=>r.p.t!==t),win=(k<0?R:R.slice(0,k)).map(r=>r.p);
     return {t,pts:win.length,win}},
-  /* Équipe qui doit jouer : celle qui n'a pas le point, s'il lui reste des pièces */
-  next(){const n=t=>tgDraft.pieces.filter(p=>p.t===t).length,max=this.max(),s=this.score();
-    let t=s?1-s.t:tgDraft.pieces.length?1-tgDraft.pieces[tgDraft.pieces.length-1].t:this.team;
+  /* Équipe qui doit jouer : celle qui n'a pas le point, s'il lui reste des palets */
+  next(){const n=t=>plDraft.pieces.filter(p=>p.t===t).length,max=this.max(),s=this.score();
+    let t=s?1-s.t:plDraft.pieces.length?1-plDraft.pieces[plDraft.pieces.length-1].t:this.team;
     if(n(t)>=max&&n(1-t)<max)t=1-t;return t},
 
-  /* Pièce ou but sous le doigt (test à l'écran) */
-  pick(sx,sy,o,r){const y=this.yOf(o),c=G3.project([o.x,y,o.z]),e=G3.project([o.x+r,y,o.z]);return Math.hypot(sx-c.x,sy-c.y)<Math.abs(e.x-c.x)*1.15+4},
-  /* Deux pièces ne se superposent pas : pos est décalée juste à côté des autres (skip = la pièce déplacée) */
-  free(pos,skip){const c=this.cfg(),D=tgDraft,all=[...D.pieces.filter(p=>!p.dead).map(p=>({o:p,r:c.r})),...(D.jack?[{o:D.jack,r:c.jr}]:[])].filter(a=>a.o!==skip),mine=skip===D.jack?c.jr:c.r;
-    for(let k=0;k<4;k++)for(const a of all){const dx=pos.x-a.o.x,dz=pos.z-a.o.z,d=Math.hypot(dx,dz)||1e-4,min=mine+a.r+.002;if(d<min){pos.x=a.o.x+dx/d*min;pos.z=a.o.z+dz/d*min}}},
-  /* Glissade d'une pièce de sa place actuelle vers (x, z) : c'est l'effet d'un tir */
-  slide(o,x,z){const c=this.cfg();o.anim={t0:performance.now(),dur:430,from:{x:o.x,z:o.z}};o.x=x;o.z=z;Sound.fx(c.fxHit);
-    if(reducedMotion()){delete o.anim;this.draw()}else this.animate()},
+  /* Point visé sous le doigt (à hauteur du dessus de la planche) */
+  target(sx,sy){const r=G3.ray(sx,sy);if(r.d[1]>=-1e-6)return null;const k=(PL.bh-r.o[1])/r.d[1],z=PL.zone;
+    const p={x:Math.max(-z,Math.min(z,r.o[0]+r.d[0]*k)),z:Math.max(-z,Math.min(z,r.o[2]+r.d[2]*k))};p.out=!this.onBoard(p);return p},
+  aim(sx,sy){if(!g2||g2.finishedAt)return false;this.pending=null;const p=this.aimPt=this.target(sx,sy);this.draw();if(!p)return '';
+    if(this.moving)return p.out?'Hors de la planche':'Nouvelle place';
+    if(!plDraft.jack)return p.out?'Hors de la planche':'Maître';
+    return p.out?'À côté · raté':'Palet '+g2.teams[this.team].name},
+  aimEnd(ok){const p=this.aimPt;this.aimPt=null;if(!ok||!p){this.draw();return}
+    if(this.moving)this.moveTo(p);else this.place(p)},
 
-  tap(sx,sy){if(!g2||g2.finishedAt)return;const c=this.cfg(),z=c.zone,D=tgDraft;
-    /* 1. une pièce (ou le but) sous le doigt : on la sélectionne ; la retoucher l'enlève */
-    let hit=null;for(let i=D.pieces.length-1;i>=0&&!hit;i--)if(this.pick(sx,sy,D.pieces[i],c.r))hit=D.pieces[i];
-    if(!hit&&D.jack&&this.pick(sx,sy,D.jack,c.jr*1.6))hit=D.jack;
-    if(hit){if(this.sel!==hit)this.sel=hit;
-      else{this.sel=null;if(hit===D.jack)D.jack=null;else{D.pieces.splice(D.pieces.indexOf(hit),1);this.setTeam(hit.t)}}
-      this.draw();tgUpdate();return}
-    const g=MK3.ground(sx,sy);if(!g)return;
-    const wood=!!c.wood&&g.z<z.z0,pos={x:Math.max(-z.x,Math.min(z.x,g.x)),z:Math.max(z.z0+c.r,Math.min(z.z1,g.z))};
-    Sound.unlock();
-    /* 2. une pièce est sélectionnée : elle part à sa nouvelle place, ou contre le bois du fond (annulée) */
-    if(this.sel){const o=this.sel,isJack=o===D.jack;
-      if(isJack&&(wood||!this.onBoard(pos))){toastMsg(`Le ${c.jackName} doit rester ${c.half?'sur la planche':'sur le terrain'}`);return}
-      this.sel=null;
-      if(wood){o.dead=true;this.slide(o,o.x,z.z0+c.r)}
-      else{this.free(pos,o);if(!isJack){o.dead=false;o.out=!this.onBoard(pos)}this.slide(o,pos.x,pos.z)}
-      this.setTeam(this.next());tgUpdate();return}
-    /* 3. sinon on pose : d'abord le but, puis une pièce de l'équipe en cours */
-    if(!D.jack){if(wood)return;if(!this.onBoard(pos)){toastMsg('Le maître doit être sur la planche');return}
-      D.jack=pos;Sound.fx(c.fxJack);this.draw();tgUpdate();return}
+  place(p){const D=plDraft;
+    if(!D.jack){if(p.out){toastMsg('Le maître doit être sur la planche');this.draw();return}
+      this.hist.push(plSnap());D.jack={x:p.x,z:p.z,rot:0};Sound.unlock();Sound.fx('paletBoard');this.draw();plUpdate();return}
+    if(D.jack.out){toastMsg('Le maître est sorti : la mène se rejoue');this.draw();return}
     const t=this.team;
-    if(D.pieces.filter(p=>p.t===t).length>=this.max()){toastMsg(`${g2.teams[t].name} a déjà joué ses ${this.max()} ${OTHER[g2.kind].field.pieces.toLowerCase()}`);return}
-    if(!wood)this.free(pos);
-    const p={t,x:pos.x,z:wood?z.z0+c.r:pos.z,rot:Math.random()*6.28,out:!this.onBoard(pos),dead:wood};
-    D.pieces.push(p);this.setTeam(this.next());tgUpdate();
-    if(reducedMotion()){this.landed(p);this.draw()}else{p.anim={t0:performance.now(),dur:520};this.animate()}},
-  /* Bruit d'arrivée d'une pièce lancée */
-  landed(p){Sound.fx(p.out?'paletGround':p.dead?'jack':this.cfg().fxPiece)},
+    if(D.pieces.filter(q=>q.t===t).length>=this.max()){toastMsg(`${g2.teams[t].name} a déjà joué ses ${this.max()} palets`);this.draw();return}
+    this.hist.push(plSnap());
+    const piece={t,x:p.x,z:p.z,rot:Math.random()*6.28,out:p.out},hit=p.out?null:this.touching(piece);
+    D.pieces.push(piece);this.setTeam(this.next());plUpdate();Sound.unlock();
+    if(reducedMotion()){this.landed(piece);this.draw()}else{piece.anim={t0:performance.now(),dur:520};this.animate()}
+    if(hit)this.ask(hit)},
+  /* Pièce (maître ou palet) que le nouveau palet touche, la plus proche */
+  touching(n){let best=null,bd=1e9;const D=plDraft;
+    for(const o of [D.jack,...D.pieces]){if(!o||o.out)continue;const d=Math.hypot(o.x-n.x,o.z-n.z);if(d<this.rOf(o)+PL.r+.004&&d<bd){best=o;bd=d}}
+    return best},
+  ask(o){this.pending={o};const jack=o===plDraft.jack,what=jack?'le maître':'un palet de '+esc(g2.teams[o.t].name),It=jack?'Le maître':'Ce palet';
+    openSheet(`<div class="sheet-head"><h2>Le palet a touché ${what}</h2><button class="icon-btn" data-act="plpush" data-v="stay" aria-label="Fermer">${I.x}</button></div>
+      <p>Que s'est-il passé ?</p>
+      <button class="btn btn-ghost" data-act="plpush" data-v="stay">Rien n'a bougé</button>
+      <button class="btn btn-ghost" data-act="plpush" data-v="move">${It} a bougé sur la planche</button>
+      <button class="btn btn-ghost" data-act="plpush" data-v="out">${It} est sorti de la planche${jack?' · mène nulle':''}</button>`,'Palet touché')},
+  resolve(v){const n=this.pending;this.pending=null;closeSheet();if(!n||v==='stay')return;const o=n.o;
+    if(v==='move'){this.moving=o;this.draw();plUpdate();return}
+    /* sorti : il glisse juste au-delà du bord le plus proche */
+    let x=o.x,z=o.z;if(PL.half-Math.abs(o.x)<PL.half-Math.abs(o.z))x=Math.sign(o.x||1)*(PL.half+.06);else z=Math.sign(o.z||1)*(PL.half+.06);
+    o.out=true;this.slide(o,x,z);this.setTeam(this.next());plUpdate()},
+  /* Nouvelle place d'une pièce déplacée par le palet */
+  moveTo(p){const o=this.moving;this.moving=null;o.out=p.out;this.slide(o,p.x,p.z);this.setTeam(this.next());plUpdate()},
+  slide(o,x,z){o.anim={t0:performance.now(),dur:430,from:{x:o.x,z:o.z}};o.x=x;o.z=z;Sound.fx(o.out?'paletGround':'paletBoard');
+    if(reducedMotion()){delete o.anim;this.draw()}else this.animate()},
+  undo(){const s=this.hist.pop();if(!s)return;const o=JSON.parse(s);plDraft=o.d;this.setTeam(o.team);this.moving=this.pending=null;this.draw();plUpdate()},
+  /* Bruit d'arrivée d'un palet lancé */
+  landed(p){Sound.fx(p.out?'paletGround':'paletBoard')},
 
   animate(){G3.play(now=>{let busy=false;
-    for(const o of [...tgDraft.pieces,tgDraft.jack])if(o&&o.anim){
+    for(const o of [...plDraft.pieces,plDraft.jack])if(o&&o.anim){
       if(now-o.anim.t0>=o.anim.dur){const thrown=!o.anim.from;delete o.anim;if(thrown)this.landed(o)}else busy=true}
     this.draw(now);return busy})},
 
-  /* Position d'une pièce : posée, en vol depuis le joueur, ou en train de glisser après un tir */
-  place(p,now){const c=this.cfg(),y=this.yOf(p),end=[p.x,y,p.z],rot=p.rot||0;
-    if(!p.anim)return M4.mul(M4.move(...end),M4.rotY(rot));
-    const k=Math.min(1,(now-p.anim.t0)/p.anim.dur);
-    if(p.anim.from){const e=ease.out(k),f=p.anim.from,d=Math.hypot(end[0]-f.x,end[2]-f.z);
-      return M4.mul(M4.move(...lerp3([f.x,y,f.z],end,e)),M4.rotY(rot),c.h?M4.rotY((1-e)*4):M4.rotX(-(1-e)*d/c.r))}
-    const e=Math.sin(k*Math.PI/2),start=[p.x*.4+(p.t?.12:-.12),.3,c.zone.z1+.5];
-    const pos=V3.add(lerp3(start,end,e),[0,.22*Math.sin(Math.PI*e),0]);
-    return M4.mul(M4.move(...pos),M4.rotY(rot+(1-e)*(c.h?9:0)),M4.rotX(c.h?(1-e)*.5:-(1-e)*7))},
+  /* Position d'une pièce : posée, en vol depuis le joueur, ou en train de glisser */
+  place3d(o,now,lv){const y=this.yOf(o,lv),end=[o.x,y,o.z],rot=o.rot||0;
+    if(!o.anim)return M4.mul(M4.move(...end),M4.rotY(rot));
+    const k=Math.min(1,(now-o.anim.t0)/o.anim.dur);
+    if(o.anim.from){const e=ease.out(k),f=o.anim.from;return M4.mul(M4.move(...lerp3([f.x,o.out?PL.bh:y,f.z],end,e)),M4.rotY(rot+(1-e)*4))}
+    const e=Math.sin(k*Math.PI/2),start=[o.x*.4+(o.t?.12:-.12),.3,PL.zone+.5],pos=V3.add(lerp3(start,end,e),[0,.22*Math.sin(Math.PI*e),0]);
+    return M4.mul(M4.move(...pos),M4.rotY(rot+(1-e)*9),M4.rotX((1-e)*.5))},
 
   draw(now){if(G3.scene!==this||!this.cam)return;now=now||performance.now();
-    const c=this.cfg(),D=tgDraft,z=c.zone,pal=!!c.h,top=c.bh||0,items=[],occ=[],birch=G3.tex('birch',512,512,Paint.birch,11);
-    const s=this.score(),win=s?s.win:[],planks=()=>G3.tex('planks',512,512,Paint.planks,17);
-    const ring=(o,r,emis)=>({mesh:G3.mesh('tgRing'+r,()=>Geo.ring(r+.004,r+.011)),tex:birch,M:M4.move(o.x,(o.out?0:top)+.0015,o.z),tint:[0,0,0],emis,spec:0,alpha:.95,noShadow:true});
-    const SEL=[.55,.9,1.7],WIN=[1.5,1.05,.55],glow=o=>this.sel===o?[.1,.17,.34]:null;
-    if(pal){items.push(lawnItem(),
-        {mesh:G3.mesh('plBox',()=>Geo.box(c.half*2,c.bh,c.half*2)),tex:planks(),M:M4.move(0,c.bh/2-.0004,0),tint:[.8,.7,.56],uv:[1.4,1.4,0,0]},
-        {mesh:G3.mesh('plTop',()=>Geo.plane(-c.half,c.half,-c.half,c.half,true)),tex:planks(),M:M4.move(0,c.bh,0),tint:[.82,.8,.78],shine:30,spec:.1});
-      occ.push({a:[-c.half+.1,-.2,0],b:[c.half-.1,-.2,0],r:.23,k:.5})}
-    else{items.push({mesh:G3.mesh('lawn',()=>Geo.plane(-6,6,-8,4)),tex:G3.tex('gravel',512,512,Paint.gravel,31),M:M4.id(),uv:[1/.32,1/.32,0,0],macro:.28,shine:8,spec:.03,noShadow:true},
-        /* planche de fond du terrain */
-        {mesh:G3.mesh('tgWood',()=>Geo.box(3,.11,.07)),tex:planks(),M:M4.move(0,.055,z.z0-.036),tint:[.5,.36,.23],uv:[1.2,1.2,0,0],shine:20,spec:.08});
-      occ.push({a:[-1.2,.03,z.z0-.03],b:[1.2,.03,z.z0-.03],r:.05,k:.9})}
-    /* le but : cochonnet en bois clair, ou maître (petit palet en laiton) */
-    if(D.jack){const j=D.jack,M=this.place(j,now);
-      if(pal){const g=()=>this.jg||(this.jg=Geo.puck(c.jr,c.h,.0012));
-        items.push({mesh:G3.mesh('mtBody',()=>g().body),tex:birch,M,tint:[.9,.62,.2],shine:50,spec:.5,emis:glow(j)},
-          {mesh:G3.mesh('mtTop',()=>g().top),tex:birch,M,tint:[1.15,.8,.28],shine:60,spec:.6,emis:glow(j)})}
-      else items.push({mesh:G3.mesh('jack',()=>Geo.sphere(c.jr,24,14)),tex:birch,M,tint:[1.5,.62,.16],shine:30,spec:.25,emis:glow(j)});
-      if(!j.anim){if(this.sel===j)items.push(ring(j,c.jr,SEL));occ.push({a:[j.x,top+c.jr*.6,j.z],b:[j.x,top+c.jr*.6,j.z],r:c.jr,k:1})}}
-    /* les pièces : anneau champagne = marque le point, anneau bleu = sélectionnée, sombre = annulée */
-    const pg=()=>this.pg||(this.pg=Geo.puck(c.r,c.h,.0016)),ink=['#e08a45','#5a93e0'],iron=[.55,.55,.6];
-    for(const p of D.pieces){const M=this.place(p,now),y=this.yOf(p),k=p.dead?.42:1,emis=glow(p);
-      if(pal){const tex=G3.tex('palet'+p.t,256,256,Paint.paletTop(ink[p.t]),41);
-        items.push({mesh:G3.mesh('paletBody',()=>pg().body),tex,M,tint:iron,uv:[.02,.02,.02,.02],shine:36,spec:.35,emis},{mesh:G3.mesh('paletTop',()=>pg().top),tex,M,tint:iron,shine:36,spec:.3,emis})}
-      else items.push({mesh:G3.mesh('boule',()=>Geo.sphere(c.r)),tex:G3.tex('steel'+p.t,256,256,Paint.steel(!!p.t),43),M,tint:(p.t?[.4,.47,.6]:[.7,.46,.22]).map(v=>v*k),shine:70,spec:1.5*k,emis});
-      if(!p.anim){if(this.sel===p)items.push(ring(p,c.r,SEL));else if(win.includes(p))items.push(ring(p,c.r,WIN));
-        occ.push({a:[p.x,y+c.r*.5,p.z],b:[p.x,y+c.r*.5,p.z],r:c.r,k:1})}}
-    G3.render({cam:this.cam,env:G3_ENV,items,occ:occ.slice(0,24),shadowBox:{c:[0,.05,(z.z0+z.z1)/2],r:Math.max(z.x,(z.z1-z.z0)/2)+(c.wood?.75:.2)}})}
+    const D=plDraft,lv=this.levels(),items=[lawnItem()],occ=[],birch=G3.tex('birch',512,512,Paint.birch,11),planks=G3.tex('planks',512,512,Paint.planks,17);
+    const s=this.score(),win=s?s.win:[],ink=['#e08a45','#5a93e0'],iron=[.55,.55,.6];
+    const ring=(o,emis)=>({mesh:G3.mesh('plRing'+this.rOf(o),()=>Geo.ring(this.rOf(o)+.004,this.rOf(o)+.011)),tex:birch,M:M4.move(o.x,this.yOf(o,lv)+.0015,o.z),tint:[0,0,0],emis,spec:0,alpha:.95,noShadow:true});
+    const jg=()=>this.jg||(this.jg=Geo.puck(PL.jr,PL.h,.0012)),pg=()=>this.pg||(this.pg=Geo.puck(PL.r,PL.h,.0016));
+    const jackItems=(M,alpha)=>[{mesh:G3.mesh('mtBody',()=>jg().body),tex:birch,M,tint:[.9,.62,.2],shine:50,spec:.5,alpha},{mesh:G3.mesh('mtTop',()=>jg().top),tex:birch,M,tint:[1.15,.8,.28],shine:60,spec:.6,alpha}];
+    const paletItems=(t,M,alpha)=>{const tex=G3.tex('palet'+t,256,256,Paint.paletTop(ink[t]),41);
+      return [{mesh:G3.mesh('paletBody',()=>pg().body),tex,M,tint:iron,uv:[.02,.02,.02,.02],shine:36,spec:.35,alpha},{mesh:G3.mesh('paletTop',()=>pg().top),tex,M,tint:iron,shine:36,spec:.3,alpha}]};
+    items.push({mesh:G3.mesh('plBox',()=>Geo.box(PL.half*2,PL.bh,PL.half*2)),tex:planks,M:M4.move(0,PL.bh/2-.0004,0),tint:[.8,.7,.56],uv:[1.4,1.4,0,0]},
+      {mesh:G3.mesh('plTop',()=>Geo.plane(-PL.half,PL.half,-PL.half,PL.half,true)),tex:planks,M:M4.move(0,PL.bh,0),tint:[.82,.8,.78],shine:30,spec:.1});
+    occ.push({a:[-PL.half+.1,-.2,0],b:[PL.half-.1,-.2,0],r:.23,k:.5});
+    /* anneau champagne = palet qui marque, anneau bleu = pièce à déplacer */
+    const SEL=[.55,.9,1.7],WIN=[1.5,1.05,.55];
+    if(D.jack){items.push(...jackItems(this.place3d(D.jack,now,lv)));if(!D.jack.anim&&this.moving===D.jack)items.push(ring(D.jack,SEL))}
+    for(const p of D.pieces){const M=this.place3d(p,now,lv);items.push(...paletItems(p.t,M));
+      if(!p.anim){if(this.moving===p)items.push(ring(p,SEL));else if(win.includes(p))items.push(ring(p,WIN));
+        const y=this.yOf(p,lv);occ.push({a:[p.x,y+PL.r*.5,p.z],b:[p.x,y+PL.r*.5,p.z],r:PL.r,k:1})}}
+    /* pièce fantôme à l'endroit visé */
+    if(this.aimPt){const p=this.aimPt,o=this.moving,M=M4.move(p.x,p.out?0:PL.bh+.0005,p.z);
+      if(o?o===D.jack:!D.jack)items.push(...jackItems(M,.55));else items.push(...paletItems(o?o.t:this.team,M,.55))}
+    G3.render({cam:this.cam,env:G3_ENV,items,occ:occ.slice(0,24),shadowBox:{c:[0,.05,0],r:PL.zone+.2}})}
 };
-/* Résumé sous le terrain et libellé du bouton de validation */
-function tgUpdate(){const sum=document.getElementById('tgSum'),btn=document.querySelector('[data-act="tgval"]');if(!sum||!btn)return;
-  const c=TG3.cfg(),F=OTHER[g2.kind].field,U=OTHER[g2.kind].unit,max=TG3.max(),s=TG3.score(),what=F.pieces.toLowerCase();
-  const line=i=>{const mine=tgDraft.pieces.filter(p=>p.t===i),out=mine.filter(p=>p.out).length,dead=mine.filter(p=>p.dead).length;
-    return `<span><i class="bagdot ${i?'b':'a'}"></i><b>${esc(g2.teams[i].name)}</b> ${mine.length}/${max} ${what}${out?' · '+out+' à côté':''}${dead?' · '+dead+' annulée'+(dead>1?'s':''):''}${s&&s.t===i?' · <b>'+s.pts+' point'+(s.pts>1?'s':'')+'</b>':''}</span>`};
-  sum.innerHTML=TG3.sel?`<span><b>Sélection :</b> touchez sa nouvelle place${c.wood&&TG3.sel!==tgDraft.jack?', le bois du fond pour l\'annuler,':''} ou retouchez-la pour l'enlever.</span>`
-    :tgDraft.jack?line(0)+line(1):`<span>Touchez ${c.half?'la planche':'le terrain'} pour placer le ${c.jackName}.</span>`;
-  btn.disabled=!s;btn.textContent=s?`Valider la ${U} · ${g2.teams[s.t].name} +${s.pts}`:`Valider la ${U}`}
+/* Photo de la mène en cours, pour « Annuler le dernier palet » */
+function plSnap(){return JSON.stringify({d:{jack:plDraft.jack&&(({anim,...j})=>j)(plDraft.jack),pieces:plDraft.pieces.map(({anim,...p})=>p)},team:PL3.team})}
+/* Résumé sous la planche, bouton de validation et bouton d'annulation */
+function plUpdate(){const sum=document.getElementById('plSum'),btn=document.querySelector('[data-act="plval"]');if(!sum||!btn)return;
+  const D=plDraft,max=PL3.max(),s=PL3.score(),u=document.querySelector('[data-act="plundo"]');if(u)u.disabled=!PL3.hist.length;
+  const line=i=>{const mine=D.pieces.filter(p=>p.t===i),out=mine.filter(p=>p.out).length;
+    return `<span><i class="bagdot ${i?'b':'a'}"></i><b>${esc(g2.teams[i].name)}</b> ${mine.length}/${max} palets${out?' · '+out+' hors planche':''}${s&&s.t===i?' · <b>'+s.pts+' point'+(s.pts>1?'s':'')+'</b>':''}</span>`};
+  if(D.jack&&D.jack.out){sum.innerHTML='<span><b>Le maître est sorti de la planche :</b> la mène est nulle et se rejoue.</span>';btn.disabled=false;btn.textContent='Mène nulle · la rejouer';return}
+  sum.innerHTML=PL3.moving?`<span><b>Touchez la nouvelle place ${PL3.moving===D.jack?'du maître':'de ce palet'}</b> (hors de la planche s'il est tombé).</span>`
+    :D.jack?line(0)+line(1):'<span>Touchez la planche pour placer le maître.</span>';
+  btn.disabled=!s||!!PL3.moving;btn.textContent=s?`Valider la mène · ${g2.teams[s.t].name} +${s.pts}`:'Valider la mène'}
 
 /* Petit « toc » de bois quand une quille tombe */
 function woodKnock(){if(!prefs.sounds||prefs.muted)return;Sound.unlock();if(!Sound.ctx)return;const t=Sound.ctx.currentTime;
   Sound.note(240,t,.09,{type:'triangle',g:.28,slide:110});Sound.note(820,t+.005,.04,{g:.07})}
 /* Rotation de l'écran : on recadre la scène affichée */
 window.addEventListener('resize',()=>{clearTimeout(window._scT);window._scT=setTimeout(()=>{if(screen!=='mplay')return;
-  if(document.getElementById('mkCv'))MK3.mount();if(document.getElementById('chCv'))CH3.mount();if(document.getElementById('tgCv'))TG3.mount()},200)});
+  if(document.getElementById('mkCv'))MK3.mount();if(document.getElementById('chCv'))CH3.mount();if(document.getElementById('plCv'))PL3.mount()},200)});
 
-const VERSION='3.0 · 13 novembre 2026';
+const VERSION='3.1 · 13 novembre 2026';
 function sendButtons(g){const o=owner();const l=g.players.map(pl=>profById(pl.id)).filter(pr=>pr&&pr.code&&(!o||pr.code!==o.code)&&pendingFor(pr.code));
   return l.length?`<section class="card"><h2 class="sec-title">Envoyer les statistiques</h2><div class="stack">${l.map(pr=>`<button class="btn btn-ghost" data-act="sendstats" data-v="${pr.code}">${I.share} Envoyer à ${esc(pr.name)} (${pendingFor(pr.code)} partie${pendingFor(pr.code)>1?'s':''})</button>`).join('')}</div></section>`:''}
 /* =========================================================
@@ -3159,6 +3214,8 @@ const I={
   up:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 15l6-6 6 6"/></svg>',
   next:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>',
   x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  heart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z"/></svg>',
+  mail:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M4 7l8 6 8-6"/></svg>',
   trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>',
   undo:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-3"/></svg>',
   list:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>',
@@ -3186,7 +3243,7 @@ const Sound={ctx:null,out:null,
   /* Bruits de jeu (coupés par « Sons » ou par le bouton muet) :
      dart = fléchette dans la cible, dartMiss = fléchette à côté,
      bagBoard / bagHole / bagGrass = sac de cornhole sur la planche, dans le trou, sur le gazon,
-     boule / jack = boule et cochonnet sur le gravier, clack = boule frappée par un tir, paletBoard / paletGround = palet sur la planche ou à côté */
+     paletBoard / paletGround = palet sur la planche ou à côté */
   fx(kind){if(!prefs.sounds||prefs.muted)return;this.unlock();if(!this.ctx)return;
     const c=this.ctx,t=c.currentTime+.01;this.out.gain.setValueAtTime(Math.max(.0001,prefs.volume),c.currentTime);
     switch(kind){
@@ -3196,11 +3253,8 @@ const Sound={ctx:null,out:null,
         this.note(84,t+.085,.1,{g:.16,slide:50,a:.003});this.noise(t+.085,.05,{f:300,type:'lowpass',g:.12});break;
       case 'bagHole':this.noise(t,.05,{f:700,q:1,g:.22});this.note(140,t,.06,{type:'triangle',g:.2,slide:80,a:.002});
         this.noise(t+.05,.2,{f:2200,q:.6,g:.05});this.note(72,t+.2,.18,{g:.4,slide:40,a:.004});this.noise(t+.2,.1,{f:260,type:'lowpass',g:.3});break;
-      case 'boule':this.noise(t,.11,{f:1500,q:.6,g:.22});this.note(86,t,.12,{g:.45,slide:48,a:.003});this.noise(t,.07,{f:300,type:'lowpass',g:.3});break;
-      case 'jack':this.note(520,t,.05,{type:'triangle',g:.14,slide:300,a:.002});this.noise(t,.05,{f:1800,q:.8,g:.1});break;
       case 'paletBoard':this.noise(t,.02,{f:5200,type:'highpass',g:.3});this.note(1870,t,.16,{g:.12,a:.001});this.note(2930,t,.1,{g:.07,a:.001});this.note(4100,t,.06,{g:.04,a:.001});
         this.note(150,t,.1,{type:'triangle',g:.45,slide:80,a:.002});this.noise(t,.06,{f:600,q:.8,g:.3});this.note(1870,t+.07,.07,{g:.04,a:.001});this.noise(t+.07,.03,{f:700,q:.8,g:.1});break;
-      case 'clack':this.noise(t,.012,{f:5000,type:'highpass',g:.35});this.note(2350,t,.07,{g:.2,a:.001});this.note(3720,t,.05,{g:.12,a:.001});this.note(5300,t,.03,{g:.06,a:.001});break;
       case 'paletGround':this.noise(t,.1,{f:260,type:'lowpass',g:.35});this.note(78,t,.1,{g:.25,slide:46,a:.004});break;
       case 'bagGrass':this.noise(t,.13,{f:240,type:'lowpass',g:.4});this.note(70,t,.11,{g:.25,slide:44,a:.004});this.noise(t,.08,{f:3000,q:.5,g:.03});break;
     }},
@@ -3308,7 +3362,7 @@ const TAGS={c180:'Cent quatre-vingts',checkout:'Partie gagnée',huge:'Très gros
    ========================================================= */
 const ROOTS=['home','players','history','settings'];
 const GAME_SCREENS=['game','mplay'];
-const PARENT={fam:'home',setup:'fam',ambiance:'setup',end:'home',player:'players',tournaments:'fam',tnew:'tournaments',tournament:'tournaments',import:'home',more:'home',mset:'fam',account:'settings',auth:'home',forgot:'auth',reset:'home',welcome:'auth'};
+const PARENT={fam:'home',contact:'settings',setup:'fam',ambiance:'setup',end:'home',player:'players',tournaments:'fam',tnew:'tournaments',tournament:'tournaments',import:'home',more:'home',mset:'fam',account:'settings',auth:'home',forgot:'auth',reset:'home',welcome:'auth'};
 let lastFrame=null;
 const NAV=[['home','Jouer','<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>'],['players','Joueurs','<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.3-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18.5 14.8c1.6.8 2.6 2.5 3 5.2"/>'],
   ['new','Partie',''],['history','Historique','<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'],['settings','Réglages','<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>']];
@@ -3334,7 +3388,7 @@ const OPEN_SCREENS=['auth','forgot','reset'];
 function go(s){if(!Cloud.session()&&!OPEN_SCREENS.includes(s))s='auth';screen=s;lastFrame=null;closeSheet();render()}
 function render(){
   if(screen!=='game')releaseWake();
-  ({home:renderHome,fam:renderFam,setup:renderSetup,ambiance:renderAmbiance,game:renderGameShell,end:renderEnd,settings:renderSettings,players:renderPlayers,player:renderPlayer,history:renderHistory,tournaments:renderTournaments,tnew:renderTNew,tournament:renderTournament,welcome:renderWelcome,import:renderImport,mset:renderOSetup,mplay:renderOPlay,auth:renderAuth,forgot:renderForgot,reset:renderReset,account:renderAccount}[screen]||renderHome)();
+  ({home:renderHome,fam:renderFam,contact:renderContact,setup:renderSetup,ambiance:renderAmbiance,game:renderGameShell,end:renderEnd,settings:renderSettings,players:renderPlayers,player:renderPlayer,history:renderHistory,tournaments:renderTournaments,tnew:renderTNew,tournament:renderTournament,welcome:renderWelcome,import:renderImport,mset:renderOSetup,mplay:renderOPlay,auth:renderAuth,forgot:renderForgot,reset:renderReset,account:renderAccount}[screen]||renderHome)();
 }
 /* Retour : ferme d'abord une fenêtre ouverte, sinon remonte d'un écran */
 function back(){
@@ -3377,7 +3431,7 @@ function resumeHTML(fam){let out='';
   const g=game&&!game.finishedAt?game:null,o2=g2&&!g2.finishedAt&&(!fam||g2.kind===fam)?g2:null;
   if(g&&(!fam||fam==='darts')){const m=GAMES[g.type||'x01'],S=m.run(g),pl=g.players[S.p];
     out+=resumeRow(`<button class="card resume" data-act="resume"><div class="big">${g.type==='x01'?g.start:esc(m.short)}</div><div class="meta"><b>Reprendre la partie</b><span>${g.players.map(p=>esc(p.name)).join(' · ')}</span><span>Au tour de ${esc(pl.name)}</span></div>${I.next}</button>`,'darts')}
-  if(o2&&fam!=='darts')out+=resumeRow(`<button class="card resume" data-act="mresume"><div class="big">${esc(OTHER[o2.kind].name.split(' ')[0].slice(0,4))}</div><div class="meta"><b>Reprendre la partie</b><span>${o2.teams.map(t=>esc(t.name)).join(' · ')}</span></div>${I.next}</button>`,'other');
+  if(o2&&fam!=='darts')out+=resumeRow(`<button class="card resume" data-act="mresume"><div class="big">${famArt(o2.kind)}</div><div class="meta"><b>Reprendre la partie</b><span>${o2.teams.map(t=>esc(t.name)).join(' · ')}</span></div>${I.next}</button>`,'other');
   return out}
 const famName=k=>k==='darts'?'Fléchettes':OTHER[k].name,famSub=k=>k==='darts'?'18 jeux, de 501 au Killer':OTHER[k].sub;
 /* Accueil : la liste des jeux */
@@ -3387,9 +3441,8 @@ function renderHome(){
   const left=k=>isPremium()?'':`<span class="hc-free">${k==='darts'?'501 à 2 joueurs : gratuit':Math.max(0,FREE_LIMIT-(plays[k]||0))+' / '+FREE_LIMIT+' parties gratuites'}</span>`;
   frame('',`<div class="col home">
     <section class="home-head"><span class="eyebrow">Compteur de points</span><h1>Choisissez un jeu</h1></section>
-    ${resumeHTML()}
     <div class="hcards">${FAMS.map(([k])=>`<button class="card hcard" data-act="fam" data-v="${k}">${famArt(k)}<span class="hc-txt"><b>${famName(k)}</b><span>${famSub(k)}</span>${left(k)}</span>${I.next}</button>`).join('')}</div>
-    ${isPremium()?'':`<button class="card row-link" data-act="account"><span class="rl-txt"><b>Passer en premium · ${PREMIUM.price}</b><span>Tous les jeux, sans limite, même hors ligne</span></span>${I.next}</button>`}
+    <button class="card row-link" data-act="support"><span class="rl-ico">${I.heart}</span><span class="rl-txt">${isPremium()?'<b>Nous soutenir</b><span>ARROW vous plaît ? Un don, du montant de votre choix</span>':`<b>Devenir premium</b><span>Prix libre, conseillé ${PREMIUM.suggested} · tous les jeux, même hors ligne</span>`}</span>${I.next}</button>
   </div>`)}
 /* Page d'un jeu : nouvelle partie, reprise, raccourcis, dernières parties */
 function renderFam(){
@@ -3413,7 +3466,8 @@ function renderFam(){
    Compte gratuit : 501 à 2 joueurs sans limite (FREE_GAME) et FREE_LIMIT parties commencées pour
    chaque autre jeu ; il faut du réseau, car c'est le serveur qui compte (action « play »).
    Compte premium : tout, sans limite, même hors ligne. Toute création de partie passe par gate(). */
-const PREMIUM={price:'4,99 €',pay:'https://www.paypal.com/qrcodes/p2pqrc/4EGVCLPA5TTFW'};
+/* Prix libre (montant choisi dans PayPal), prix conseillé affiché ; lien PayPal lu sur le QR code du studio */
+const PREMIUM={suggested:'4,99 €',pay:'https://www.paypal.com/qrcodes/p2pqrc/4EGVCLPA5TTFW'};
 const FREE_GAME='x01:501:duo',FREE_LIMIT=5;
 function isPremium(){const a=Account.get();return !!(a&&(a.premium||a.owner))}
 /* Clé de comptage et nom d'un jeu de fléchettes (les autres jeux utilisent leur nom : petanque, molkky…) */
@@ -3421,8 +3475,16 @@ function dartsKey(type,opts,n){return type!=='x01'?type:(+opts.start===501&&n<=2
 function dartsLabel(type,opts){return type==='x01'?String(opts.start):GAMES[type].name}
 let gateWait=null;
 const sheetHead=t=>`<div class="sheet-head"><h2>${t}</h2><button class="icon-btn" data-act="closesheet" aria-label="Fermer">${I.x}</button></div>`;
-function premiumOfferHTML(){return `<a class="btn btn-primary" href="${PREMIUM.pay}" target="_blank" rel="noopener">Passer en premium · ${PREMIUM.price}</a>
-  <p class="note">Paiement par PayPal. Indiquez l'e-mail de votre compte ARROW dans le message du paiement : le studio vous envoie ensuite votre code premium.</p>`}
+/* Bouton qui ouvre la fenêtre de soutien : « Devenir premium » ou, une fois premium, « Nous soutenir » */
+function supportBtnHTML(cls='btn-primary'){return `<button class="btn ${cls}" data-act="support">${isPremium()?'Nous soutenir':'Devenir premium · prix libre'}</button>`}
+function openSupport(){const a=Account.get()||{},prem=isPremium();
+  openSheet(`${sheetHead(prem?'Nous soutenir':'Devenir premium')}
+    ${prem?`<p>Merci d'utiliser ARROW ! Si l'appli vous plaît, vous pouvez soutenir le studio, du montant de votre choix.</p>`
+      :`<p>Le premium ouvre tous les jeux, sans limite, même hors ligne. <b>Prix libre</b> : vous choisissez le montant, le prix conseillé est de <b>${PREMIUM.suggested}</b>.</p>
+      <p class="note">Dans le message du paiement, indiquez l'e-mail de votre compte ARROW${a.email?` (<b>${esc(a.email)}</b>)`:''} : le studio vous envoie votre code premium.</p>`}
+    <a class="btn btn-primary" href="${PREMIUM.pay}" target="_blank" rel="noopener">${prem?'Faire un don avec PayPal':'Payer avec PayPal'}</a>
+    ${prem?'':'<button class="btn btn-ghost" data-act="account">J\'ai déjà un code premium</button>'}
+    <button class="btn btn-ghost" data-act="closesheet">Fermer</button>`,prem?'Nous soutenir':'Premium')}
 /* Lance start() si la partie est permise ; sinon explique pourquoi */
 function gate(key,label,start){
   if(isPremium()){start();return}
@@ -3434,7 +3496,7 @@ function gate(key,label,start){
     <p>${esc(label)} : il vous reste ${FREE_LIMIT-used} partie${FREE_LIMIT-used>1?'s':''} gratuite${FREE_LIMIT-used>1?'s':''}.</p>
     <p><b>Toute partie commencée est décomptée</b>, même si vous l'arrêtez avant la fin.</p>
     <button class="btn btn-primary" data-act="gatego">Commencer la partie</button>
-    <button class="btn btn-ghost" data-act="account">Passer en premium</button>
+    ${supportBtnHTML('btn-ghost')}
     <button class="btn btn-ghost" data-act="closesheet">Annuler</button>`,'Partie gratuite')}
 async function gateGo(){const w=gateWait;if(!w)return;
   try{const r=await Cloud.call('play',{game:w.key});
@@ -3443,11 +3505,11 @@ async function gateGo(){const w=gateWait;if(!w)return;
     gateWait=null;closeSheet();w.start()}
   catch(e){if(e.code==='offline')openSheet(`${sheetHead('Pas de connexion')}
       <p>Avec un compte gratuit, il faut être connecté à internet pour lancer une partie. Le jeu hors ligne fait partie du premium.</p>
-      ${premiumOfferHTML()}<button class="btn btn-ghost" data-act="closesheet">Fermer</button>`,'Pas de connexion');
+      ${supportBtnHTML()}<button class="btn btn-ghost" data-act="closesheet">Fermer</button>`,'Pas de connexion');
     else toastMsg(niceCloud(e))}}
 function openPaywall(label){openSheet(`${sheetHead('Parties gratuites terminées')}
   <p>Vous avez utilisé vos ${FREE_LIMIT} parties gratuites de ${esc(label)}. Le premium ouvre tous les jeux, sans limite, même hors ligne.</p>
-  ${premiumOfferHTML()}<button class="btn btn-ghost" data-act="account">J'ai un code premium</button>`,'Premium')}
+  ${supportBtnHTML()}<button class="btn btn-ghost" data-act="account">J'ai un code premium</button>`,'Premium')}
 
 /* ---------- Préparation ---------- */
 function newDraft(){
@@ -3544,6 +3606,19 @@ function drawSkinThumbs(){document.querySelectorAll('.skin-cv').forEach(async c=
   const off=document.createElement('canvas');await drawBoard(off,k,192);thumbCache[k]=off;c.getContext('2d').drawImage(off,0,0,96,96)})}
 
 /* ---------- Réglages ---------- */
+/* Écran « Nous contacter » : le message part au studio par la fonction serveur (action « contact ») */
+let contactKind='bug';
+function renderContact(){const a=Account.get()||{};
+  frame('Nous contacter',`<div class="col">
+    <section class="card"><p class="note" style="margin-top:0">Un bug, une idée, une question ? Le message arrive directement à Elmagination App Studio, qui vous répond par e-mail.</p>
+    <form data-form="contact" class="stack" novalidate>
+      <div class="seg" role="group" aria-label="Sujet">${[['bug','Un bug'],['idee','Une idée'],['autre','Autre']].map(([k,l])=>`<button type="button" data-act="ckind" data-v="${k}" aria-pressed="${contactKind===k}">${l}</button>`).join('')}</div>
+      <label class="fld"><span>Votre e-mail, pour la réponse</span><input class="tin" id="cMail" type="email" autocomplete="email" value="${esc(a.email||'')}"></label>
+      <label class="fld"><span>Votre message</span><textarea class="tin" id="cMsg" rows="6" maxlength="3000" placeholder="${contactKind==='bug'?'Ce que vous faisiez, ce qui s\'est passé…':'Votre message'}"></textarea></label>
+      <p class="form-msg" id="cErr" role="alert"></p>
+      <button class="btn btn-primary" type="submit">Envoyer</button>
+    </form></section>
+  </div>`)}
 function renderSettings(){
   const t=prefs.thr.x01;
   const acc=Account.get(),o=owner();
@@ -3567,6 +3642,9 @@ function renderSettings(){
     <section class="card"><h2 class="sec-title">Saisie</h2>
       <div class="seg"><button data-act="pin" data-v="board" aria-pressed="${prefs.input==='board'}">Sur la cible</button><button data-act="pin" data-v="pad" aria-pressed="${prefs.input==='pad'}">Pavé numérique</button></div>
       <div class="set-row" style="margin-top:12px"><div class="txt"><b>Bouton Valider aussi sur la cible</b><span>Sur le pavé, chaque volée se valide toujours avec le bouton</span></div><button class="switch" data-act="tog" data-v="confirmBoard" aria-pressed="${prefs.confirmBoard}" aria-label="Valider sur la cible"></button></div></section>
+    <section class="card"><h2 class="sec-title">Elmagination App Studio</h2>
+      <button class="card row-link flat" data-act="contact"><span class="rl-ico">${I.mail}</span><span class="rl-txt"><b>Nous contacter</b><span>Un bug, une idée, une question</span></span>${I.next}</button>
+      <button class="card row-link flat" data-act="support"><span class="rl-ico">${I.heart}</span><span class="rl-txt"><b>${isPremium()?'Nous soutenir':'Devenir premium'}</b><span>${isPremium()?'Un don, du montant de votre choix':'Prix libre, conseillé '+PREMIUM.suggested}</span></span>${I.next}</button></section>
     <p class="note center">ARROW · version ${VERSION}</p>
   </div>`);
   updateVoiceBox();drawSkinThumbs();drawDecorThumbs();
@@ -3577,8 +3655,8 @@ function demo(amb){
   setTimeout(()=>Voice.say(ph,amb,ok=>{if(!ok){Voice.tested=false;updateVoiceBox()}}),d*600+150);
 }
 function toastMsg(txt){
-  let el=document.getElementById('flash');if(!el){el=document.createElement('div');el.id='flash';el.className='toast';el.style.position='fixed';el.style.top='76px';el.style.zIndex='80';document.body.appendChild(el)}
-  el.innerHTML=`<div class="t-say">${esc(txt)}</div>`;requestAnimationFrame(()=>el.classList.add('show'));clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2200);
+  let el=document.getElementById('flash');if(!el){el=document.createElement('div');el.id='flash';el.className='note-toast';el.setAttribute('role','status');document.body.appendChild(el)}
+  el.textContent=txt;requestAnimationFrame(()=>el.classList.add('show'));clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2200);
 }
 
 /* ---------- Écran de jeu ---------- */
@@ -3591,44 +3669,43 @@ function renderGameShell(){
     <div class="stage" id="gStage"><canvas id="decor" class="decor-layer" aria-hidden="true"></canvas>
       <div class="board" id="board" ${prefs.input==='pad'?'hidden':''}><div class="ph">Préparation de la cible…</div><canvas id="cv" aria-label="Cible de fléchettes, touchez la zone atteinte ; à côté de la cible, dans le carré : raté"></canvas><svg id="marks" viewBox="-225 -225 450 450"><defs>${dartDefs('m')}<filter id="dsh" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2"/></filter><g id="dartSym">${dartMarkup('m')}</g></defs><g id="mk"></g></svg></div>
       <div class="pad" id="pad" ${prefs.input==='board'?'hidden':''}></div>
-      <div class="toast" id="toast"></div>
     </div>
     <footer class="g-ctrl" id="gCtrl"></footer></div>`,{fixed:true});
   if(game.validated==null)game.validated=GAMES[game.type||'x01'].run(game).turns.length;
   setupBoard();updateGame();requestWake();
 }
+/* Loupe de précision (cible de fléchettes, planches 3D) : un rond qui grossit trois fois ce qui
+   est sous le doigt, avec une croix au point exact et une étiquette (zone visée).
+   Elle se place juste au-dessus du doigt ; près du haut de l'écran, sur le côté le plus dégagé ;
+   jamais dessous, où la main la cacherait. */
+const Loupe={c:null,l:null,S:136,Z:3,
+  show(src,cx,cy,label){const S=this.S,dpr=Math.min(window.devicePixelRatio||1,3),W=window.innerWidth;
+    if(!this.c){this.c=document.createElement('canvas');this.l=document.createElement('div');this.c.className='loupe';this.l.className='loupe-lbl';document.body.append(this.c,this.l)}
+    if(this.c.width!==Math.round(S*dpr))this.c.width=this.c.height=Math.round(S*dpr);
+    const gap=64;let lx=cx-S/2,ly=cy-gap-S;
+    if(ly<8){ly=Math.max(8,cy-S/2);lx=cx>W/2?cx-gap-S:cx+gap}
+    lx=Math.max(6,Math.min(W-S-6,lx));this.c.style.left=lx+'px';this.c.style.top=ly+'px';
+    const r=src.getBoundingClientRect(),k=src.width/r.width,sx=(cx-r.left)*k,sy=(cy-r.top)*k,sw=S/this.Z*k,D=this.c.width,c=D/2,ctx=this.c.getContext('2d');
+    ctx.fillStyle='#111';ctx.fillRect(0,0,D,D);
+    ctx.save();ctx.beginPath();ctx.arc(c,c,c,0,7);ctx.clip();ctx.drawImage(src,sx-sw/2,sy-sw/2,sw,sw,0,0,D,D);ctx.restore();
+    const u=dpr;ctx.beginPath();for(const [a,b] of [[-14,-3],[3,14]]){ctx.moveTo(c+a*u,c);ctx.lineTo(c+b*u,c);ctx.moveTo(c,c+a*u);ctx.lineTo(c,c+b*u)}
+    ctx.strokeStyle='rgba(0,0,0,.7)';ctx.lineWidth=3*u/2;ctx.stroke();ctx.strokeStyle='#fff';ctx.lineWidth=u;ctx.stroke();
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(c,c,1.2*u,0,7);ctx.fill();
+    this.l.textContent=label||'';this.l.hidden=!label;this.l.style.left=(lx+S/2)+'px';this.l.style.top=(ly+S+8)+'px'},
+  hide(){if(this.c){this.c.remove();this.l.remove();this.c=this.l=null}}};
 function setupBoard(){
   const cv=document.getElementById('cv');const board=document.getElementById('board');
   const draw=()=>drawBoard(cv).then(()=>{const ph=board.querySelector('.ph');if(ph&&cv.dataset.drawn)ph.remove()});
   let t;const ro=new ResizeObserver(()=>{clearTimeout(t);t=setTimeout(()=>{draw();drawDecor()},90)});ro.observe(board);ro.observe(document.getElementById('gStage'));
-  let lp=null;
   const toMM=e=>{const r=cv.getBoundingClientRect();return {x:(e.clientX-r.left-r.width/2)/(r.width/2)*G.rim,y:(e.clientY-r.top-r.height/2)/(r.height/2)*G.rim,r}};
-  const showLoupe=e=>{
-    const m=toMM(e),hit=hitTest(m.x,m.y);
-    if(!lp){lp={c:document.createElement('canvas'),l:document.createElement('div')};lp.c.className='loupe';lp.l.className='loupe-lbl';document.body.append(lp.c,lp.l)}
-    const S=136,dpr=Math.min(window.devicePixelRatio||1,3);if(lp.c.width!==S*dpr){lp.c.width=lp.c.height=S*dpr}
-    const off=e.pointerType==='mouse'?90:120;
-    let lx=e.clientX-S/2,ly=e.clientY-off-S;if(ly<6)ly=e.clientY+40;lx=Math.max(6,Math.min(window.innerWidth-S-6,lx));
-    lp.c.style.left=lx+'px';lp.c.style.top=ly+'px';
-    const ctx=lp.c.getContext('2d'),z=3,k=cv.width/m.r.width;
-    const sx=(e.clientX-m.r.left)*k,sy=(e.clientY-m.r.top)*k,sw=S/z*k;
-    ctx.fillStyle='#111';ctx.fillRect(0,0,lp.c.width,lp.c.height);
-    ctx.save();ctx.beginPath();ctx.arc(S*dpr/2,S*dpr/2,S*dpr/2,0,7);ctx.clip();
-    ctx.drawImage(cv,sx-sw/2,sy-sw/2,sw,sw,0,0,S*dpr,S*dpr);ctx.restore();
-    const c=S*dpr/2;ctx.strokeStyle='rgba(0,0,0,.7)';ctx.lineWidth=3*dpr/2;ctx.beginPath();ctx.moveTo(c-14*dpr,c);ctx.lineTo(c-3*dpr,c);ctx.moveTo(c+3*dpr,c);ctx.lineTo(c+14*dpr,c);ctx.moveTo(c,c-14*dpr);ctx.lineTo(c,c-3*dpr);ctx.moveTo(c,c+3*dpr);ctx.lineTo(c,c+14*dpr);ctx.stroke();
-    ctx.strokeStyle='#fff';ctx.lineWidth=1*dpr;ctx.stroke();
-    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(c,c,1.2*dpr,0,7);ctx.fill();
-    lp.l.textContent=dLong(hit);lp.l.style.left=(lx+S/2)+'px';lp.l.style.top=(ly+S+8)+'px';
-    return {m,hit};
-  };
-  const hideLoupe=()=>{if(lp){lp.c.remove();lp.l.remove();lp=null}};
+  const aim=e=>{const m=toMM(e),hit=hitTest(m.x,m.y);Loupe.show(cv,e.clientX,e.clientY,dLong(hit));return {m,hit}};
   let active=null;
-  board.addEventListener('pointerdown',e=>{if(!cv.dataset.drawn||e.button>0)return;e.preventDefault();board.setPointerCapture(e.pointerId);active=e.pointerId;showLoupe(e)});
-  board.addEventListener('pointermove',e=>{if(e.pointerId===active)showLoupe(e)});
-  board.addEventListener('pointerup',e=>{if(e.pointerId!==active)return;const {m,hit}=showLoupe(e);hideLoupe();active=null;
+  board.addEventListener('pointerdown',e=>{if(!cv.dataset.drawn||e.button>0)return;e.preventDefault();board.setPointerCapture(e.pointerId);active=e.pointerId;aim(e)});
+  board.addEventListener('pointermove',e=>{if(e.pointerId===active)aim(e)});
+  board.addEventListener('pointerup',e=>{if(e.pointerId!==active)return;const {m,hit}=aim(e);Loupe.hide();active=null;
     const br=board.getBoundingClientRect();if(e.clientX<br.left||e.clientX>br.right||e.clientY<br.top||e.clientY>br.bottom)return; // relâché hors du carré : annulé
     if(hit)addDart({seg:hit.seg,mult:hit.mult,x:+m.x.toFixed(2),y:+m.y.toFixed(2)})});
-  board.addEventListener('pointercancel',()=>{active=null;hideLoupe()});
+  board.addEventListener('pointercancel',()=>{active=null;Loupe.hide()});
   board.addEventListener('contextmenu',e=>e.preventDefault());
 }
 function updateGame(){
@@ -3710,7 +3787,7 @@ function renderPad(tg){
     <div class="pad-bull"><button class="b25" data-act="pb" data-v="1">Bull 25</button><button class="b50" data-act="pb" data-v="2">Bull 50</button><button data-act="miss">Raté · 0</button></div>`;
 }
 
-let toastT=null,endT=null;
+let endT=null;
 function addDart(d){
   if(!game||game.finishedAt)return;
   const m=GAMES[game.type||'x01'];const before=m.run(game);if(before.over&&!pendingTurn(before))return;
@@ -3752,14 +3829,15 @@ function react(t,S){
    enregistré « scores » (clips scores_n_<nombre>) s'il est installé, sinon par la voix du téléphone. */
 function sayScore(txt){if(!prefs.voice||prefs.muted)return;const id='scores_n_'+txt;
   if(/^\d+$/.test(txt)&&Pack.has('scores')&&Pack.files.scores.has(id))Pack.play(id,ok=>{if(!ok)Voice.say(txt,'standard')});else Voice.say(txt,'standard')}
-function showToast(t,cat,phrase,m){
-  const el=document.getElementById('toast');if(!el)return;
-  const tag=TAGS[cat]||'';
-  el.className='toast'+(t.bust?' bust':'');
-  el.innerHTML=`<div class="t-head"><span class="t-name">${esc(game.players[t.p].name)}</span><span class="t-val${m.fmt(t).length>4?' sm':''}">${m.fmt(t)}</span>${tag&&!t.bust?`<span class="t-tag">${tag}</span>`:''}</div><div class="t-say">${esc(phrase)}</div>`;
-  requestAnimationFrame(()=>el.classList.add('show'));
-  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2400);
-}
+/* Score d'une volée ou d'une mène, affiché dans la barre du haut à la place du titre pendant 2,6 s
+   (il ne cache ni la cible, ni le terrain, ni le tableau des scores) */
+function showToast(t,cat,phrase,m){scoreFlash(game.players[t.p].name,m.fmt(t),!t.bust&&TAGS[cat]||'',t.bust?'bad':'')}
+let flashT=0;
+function scoreFlash(name,val,tag,cls=''){const bt=document.querySelector('.appbar');if(!bt)return;
+  let el=bt.querySelector('.sflash');if(!el){el=document.createElement('span');el.setAttribute('role','status');bt.appendChild(el)}
+  el.className='sflash '+cls;el.innerHTML=`${name||tag?`<span class="sf-top">${name?`<span class="sf-name">${esc(name)}</span>`:''}${tag?`<span class="sf-tag">${esc(tag)}</span>`:''}</span>`:''}<span class="sf-val">${esc(val)}</span>`;
+  void el.offsetWidth;el.classList.add('show');bt.classList.add('flashing');
+  clearTimeout(flashT);flashT=setTimeout(()=>{el.classList.remove('show');bt.classList.remove('flashing')},2600)}
 function undoDart(){
   if(!game||!game.darts.length)return;
   clearTimeout(endT);game.darts.pop();
@@ -3794,7 +3872,7 @@ function renderEnd(){
   const head=w!=null?`${esc(game.players[w].name)} ${game.players[w].members?'gagnent':'gagne'}`:`Égalité : ${(S.tie||[]).map(i=>esc(game.players[i].name)).join(' et ')}`;
   frame('Résultats',`<div class="col">
     <div class="win"><span class="crown">${game.type==='x01'?game.start+' · '+OUT_LABEL[game.outRule]:esc(m.name)}</span><h1>${head}</h1>
-      <p>${m.endLine(S,game)}</p>${game.endPhrase?`<p class="end-say">« ${esc(game.endPhrase.text)} »</p>`:''}</div>
+      <p>${m.endLine(S,game)}</p></div>
     <div class="stats-wrap"><table class="stats"><thead><tr><th>#</th><th>Joueur</th>${m.statCols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
       <tbody>${order.map((i,k)=>`<tr class="${i===w?'w':''}"><td>${k+1}</td><td>${esc(game.players[i].name)}</td>${rows[i].map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
     ${m.table?m.table(S,game):''}
@@ -3874,13 +3952,22 @@ document.addEventListener('click',e=>{
       g2={id:uid(),kind:d.kind,opts:Object.assign({},d.opts),teams:JSON.parse(JSON.stringify(d.teams)),events:[],created:Date.now()};
       const lo=store.get('lastOther',{});lo[d.kind]={opts:d.opts};store.set('lastOther',lo);resetOtherDraft();saveG2();Sound.unlock();Voice.warm();go('mplay');sayGame('start',600);Pack.preload(['jeux'])});break}
     case 'mpt':{if(g2.finishedAt)break;const [t,pts]=v.split('|').map(Number);g2.events.push({t,pts});saveG2();renderOPlay();o2react(pts,OTHER[g2.kind].max(g2.opts),t);break}
-    case 'chs':{const [k,j,d]=v.split('|');const a=chDraft[k];const nv=Math.max(0,Math.min(4,a[+j]+(+d)));if(nv+a[1-(+j)]<=4)a[+j]=nv;chEnsureBags();CH3.draw();chUpdate();break}
+    case 'chs':{CH3.hist.push(chSnap());const [k,j,d]=v.split('|');const a=chDraft[k];const nv=Math.max(0,Math.min(4,a[+j]+(+d)));if(nv+a[1-(+j)]<=4)a[+j]=nv;chEnsureBags();CH3.draw();chUpdate();break}
     case 'chval':{if(g2.finishedAt)break;const e={a:chDraft.a.slice(),b:chDraft.b.slice()};g2.events.push(e);resetOtherDraft();saveG2();renderOPlay();
       const S=run2(g2),l=S.log[S.log.length-1];o2react(Math.max(l.pa,l.pb),9,l.pa>=l.pb?0:1);break}
     case 'mkpin':mkToggle(+v);break;
     case 'chteam':chTeam(v);break;
-    case 'tgteam':TG3.setTeam(+v);break;
-    case 'tgval':{if(g2.finishedAt)break;const r=TG3.score();if(!r||!r.pts)break;g2.events.push({t:r.t,pts:r.pts});resetOtherDraft();saveG2();renderOPlay();o2react(r.pts,OTHER[g2.kind].max(g2.opts),r.t);break}
+    case 'plteam':PL3.setTeam(+v);break;
+    case 'plval':{if(g2.finishedAt)break;
+      if(plDraft.jack&&plDraft.jack.out){resetOtherDraft();renderOPlay();scoreFlash('','Mène nulle','on la rejoue','bad');break}
+      const r=PL3.score();if(!r||!r.pts)break;g2.events.push({t:r.t,pts:r.pts});resetOtherDraft();saveG2();renderOPlay();o2react(r.pts,OTHER[g2.kind].max(g2.opts),r.t);break}
+    case 'plundo':PL3.undo();break;
+    case 'plpush':PL3.resolve(v);break;
+    case 'chundo':CH3.undo();break;
+    case 'chpush':CH3.resolve(v);break;
+    case 'support':openSupport();break;
+    case 'contact':go('contact');break;
+    case 'ckind':contactKind=v;document.querySelectorAll('[data-act="ckind"]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===v));break;
     case 'mkval':{if(g2.finishedAt)break;const pins=mkSel.slice().sort((a,b)=>a-b);g2.events.push({pins});MK3.throwStick(pins,mkMiss);resetOtherDraft();saveG2();renderOPlay();const S=run2(g2),l=S.log[S.log.length-1];o2react(l.pts,12,-1);break}
     case 'mundo':{if(!g2||!g2.events.length)break;if(g2.finishedAt){store.set('history2',store.get('history2',[]).filter(h=>h.id!==g2.id));delete g2.finishedAt;delete g2.endPhrase}
       g2.events.pop();resetOtherDraft();saveG2();renderOPlay();break}
