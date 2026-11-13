@@ -131,14 +131,80 @@ a.btn{text-decoration:none}
 /* message court (toastMsg) */
 .note-toast{position:fixed;left:50%;top:76px;z-index:80;transform:translate(-50%,-8px);opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;background:rgba(7,13,26,.9);border:1px solid var(--line-2);border-radius:14px;padding:9px 16px;max-width:min(88vw,420px);text-align:center;font-size:14px;font-weight:600;color:var(--champagne);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .note-toast.show{opacity:1;transform:translate(-50%,0)}
-.appbar.flashing .bar-title{opacity:0}
-.sflash{position:absolute;top:0;bottom:0;left:50%;width:calc(100% - 236px);margin-left:calc(-50% + 118px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;white-space:nowrap;opacity:0;transform:translateY(6px) scale(.96);transition:opacity .2s,transform .25s cubic-bezier(.2,1.4,.4,1);pointer-events:none;color:#fff;min-width:0;z-index:2}
+/* barre du haut : bouton son à côté du compte ou de « Quitter » */
+.bar-right{justify-self:end;display:flex;align-items:center;gap:8px}
+.bar-vol{width:40px;height:40px;display:grid;place-items:center;border-radius:12px;border:1px solid var(--line);color:var(--silver-2)}
+.bar-vol svg{width:20px;height:20px}
+.bar-vol[aria-pressed="true"]{color:#ffc7bf;border-color:rgba(233,134,123,.4)}
+/* encart doré du score, en haut à droite de la cible ou du terrain */
+.sflash{position:absolute;z-index:6;display:flex;flex-direction:column;align-items:flex-end;gap:1px;padding:8px 13px 9px;border-radius:14px;
+  background:linear-gradient(140deg,#fbeccd 0%,#e9c58f 45%,#b9824f 100%);color:#2a1408;box-shadow:0 10px 26px -8px rgba(0,0,0,.65),0 0 0 1px rgba(255,236,200,.7) inset;
+  opacity:0;transform:translateY(-6px) scale(.92);transform-origin:top right;transition:opacity .2s,transform .3s cubic-bezier(.2,1.5,.4,1);pointer-events:none;max-width:62%}
 .sflash.show{opacity:1;transform:none}
-.sflash .sf-top{display:flex;gap:6px;align-items:baseline;max-width:100%;overflow:hidden;text-overflow:ellipsis;font-family:var(--ff-ui);font-size:11px;line-height:1.1}
-.sflash .sf-name{flex:none;max-width:65%;font-weight:700;color:var(--silver-2);overflow:hidden;text-overflow:ellipsis}
-.sflash .sf-tag{min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:9.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--copper-hi)}
-.sflash .sf-val{font-family:var(--ff-num);font-weight:500;font-size:26px;line-height:1;color:#fff}
-.sflash.bad .sf-val{color:var(--danger);font-size:21px}
+.sflash .sf-name{font-size:11.5px;font-weight:800;letter-spacing:.02em;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:.8}
+.sflash .sf-val{font-family:var(--ff-num);font-weight:600;font-size:34px;line-height:1;font-variant-numeric:tabular-nums}
+.sflash .sf-tag{font-size:9.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;opacity:.75}
+.sflash.bad{background:linear-gradient(140deg,#f6d9d2,#d98a7c 55%,#a5503f);color:#2b0b05}
+.sflash.bad .sf-val{font-size:26px}
+/* bouton et ligne « Nous soutenir / Devenir premium » en doré */
+.btn-gold{background:linear-gradient(135deg,#fbeccd 0%,#e9c58f 45%,#b9824f 100%);color:#2a1408;box-shadow:0 8px 26px -8px rgba(233,197,143,.75),inset 0 1px 0 rgba(255,255,255,.6)}
+.btn-gold svg{width:20px;height:20px}
+.row-link.gold{border-color:rgba(233,197,143,.75)!important;background:linear-gradient(135deg,rgba(233,197,143,.22),rgba(185,130,79,.1));box-shadow:0 0 22px -6px rgba(233,197,143,.55)}
+.row-link.gold .rl-ico,.row-link.gold b{color:#f3d9a6}
+/* écran de partie (autres jeux) : tout tient sur l'écran */
+.op{height:100%;display:flex;flex-direction:column;gap:8px;padding-block:8px}
+.op-score{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:none}
+.op-team{position:relative;display:grid;grid-template-columns:1fr auto;grid-template-areas:"name sc" "sub sc" "bar bar";align-items:center;gap:2px 8px;padding:9px 12px 10px;border-radius:16px;border:1px solid var(--line-2);background:linear-gradient(160deg,var(--surface-2),var(--surface));overflow:hidden}
+.op-team::before{content:'';position:absolute;left:0;top:0;right:0;height:3px;background:linear-gradient(90deg,#d58a55,#a8562a)}
+.op-team.b::before{background:linear-gradient(90deg,#4a72ad,#23406c)}
+.op-team.win{border-color:var(--copper)}
+.op-name{grid-area:name;display:flex;align-items:center;gap:6px;font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.op-name .bagdot{flex:none}
+.op-sc{grid-area:sc;font-family:var(--ff-num);font-weight:500;font-size:clamp(34px,10vw,46px);line-height:1;color:#fff;font-variant-numeric:tabular-nums}
+.op-sub{grid-area:sub;font-size:12px;color:var(--silver-2);white-space:nowrap}
+.op-team .mt-bar{grid-area:bar;margin-top:5px;height:4px}
+.op-mk{display:flex;gap:6px;overflow-x:auto;flex:none;padding-bottom:2px;scrollbar-width:none}
+.op-mk .mkp{display:flex;align-items:center;gap:8px;padding:7px 11px;flex:none;grid-template-columns:none}
+.op-mk .mkp-sc{font-size:22px}
+.op-tools{display:flex;align-items:center;gap:8px;min-height:40px;flex:none}
+.op-tools .ch-teams{flex:1;min-width:0;flex-wrap:nowrap;overflow-x:auto}
+.op-tools .ch-teams .chip{height:36px;white-space:nowrap}
+.op-tools .mk-turn,.op-hint{flex:1;min-width:0;margin:0;text-align:left;font-size:13.5px;color:var(--silver-2)}
+.op-tools-r{display:flex;align-items:center;gap:8px;margin-left:auto;flex:none}
+.op-tools .icon-btn{width:40px;height:40px}
+.op-stage{flex:1;min-height:0;position:relative;display:flex;flex-direction:column;overflow:auto}
+.op-stage .scene.fill{flex:1;min-height:0}
+.op-stage .scene.fill canvas{position:absolute;left:0;top:0}
+.op-pads{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-content:start}
+.op-pads .mk-pins{grid-column:1/-1}
+.op-pad{padding:10px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.02)}
+.op-pad .cat-lbl{display:flex;align-items:center;gap:6px;margin:0 0 6px}
+.op-pad .ch-row+.ch-row{margin-top:8px}
+.op .ch-sum{flex:none;flex-direction:row;flex-wrap:wrap;gap:2px 12px;font-size:12.5px}
+.op-actions{display:flex;gap:8px;flex:none}
+.op-actions .btn{min-height:50px}
+.op-actions .btn-primary{flex:1}
+.op-actions .btn-ghost{flex:none;width:56px;padding:0}
+/* interrupteur 3D : on le glisse (ou le touche) pour passer à la saisie */
+.sw3d{display:inline-flex;align-items:center;gap:7px;height:40px;padding:0 10px 0 6px;border-radius:12px;border:1px solid var(--line);font-weight:800;font-size:13px;color:var(--silver-2)}
+.sw3d-track{position:relative;width:38px;height:22px;border-radius:11px;background:var(--bg-deep);border:1px solid var(--line-2);transition:background .2s}
+.sw3d-track i{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--silver-2);transition:transform .2s,background .2s}
+.sw3d[aria-checked="true"]{color:var(--copper-hi)}
+.sw3d[aria-checked="true"] .sw3d-track{background:linear-gradient(135deg,#d9a47e,#9c5d34);border-color:transparent}
+.sw3d[aria-checked="true"] .sw3d-track i{transform:translateX(16px);background:#fff}
+/* réglages : catégories repliables */
+.set-grp>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;min-height:44px;margin:-4px 0}
+.set-grp>summary::-webkit-details-marker{display:none}
+.set-grp>summary .sec-title{margin:0}
+.sg-chev{display:grid;place-items:center;color:var(--silver-2);transition:transform .2s}
+.sg-chev svg{width:20px;height:20px}
+.set-grp[open] .sg-chev{transform:rotate(90deg)}
+.set-grp .sg-body{margin-top:12px}
+.set-grp .sg-body>section.card{padding:0;border:0;background:none;box-shadow:none}
+.set-grp h3.cat-lbl{margin:18px 0 10px;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+.set-grp .sg-body>h3.cat-lbl:first-child,.set-grp .sg-body>p:first-child+h3.cat-lbl{margin-top:4px}
+.skin.locked{opacity:.55;position:relative}
+.skin.locked::after{content:'Premium';position:absolute;top:6px;right:6px;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border-radius:6px;background:linear-gradient(135deg,#fbeccd,#b9824f);color:#2a1408}
 .resume .big .fam-art{width:52px;height:auto;color:var(--silver-2)}
 .row-link.flat{background:none;border:0;padding:10px 0;width:100%}
 .row-link.flat+.row-link.flat{border-top:1px solid var(--line)}
@@ -839,7 +905,7 @@ const SKINS={
   vintage:{name:'Vintage',sub:'Bois, laiton et sisal usé',dark:[60,40,26],light:[232,212,170],r1:[122,31,31],r2:[45,74,45],rim:'#2e1d10',wire:['#f2d48a','#c9a24a','#8a6a24'],num:['#f4e4bf','#c9a86a'],tex:1.2,wear:1.6,holes:1.6,wood:1}
 };
 async function drawBoard(cv,skinKey,fixedPx){
-  const sk=skinKey||(typeof prefs!=='undefined'&&prefs.skin)||'classic',SK=SKINS[sk]||SKINS.classic;
+  const sk=skinKey||(typeof skinNow==='function'?skinNow():typeof prefs!=='undefined'&&prefs.skin)||'classic',SK=SKINS[sk]||SKINS.classic;
   const css=fixedPx||cv.getBoundingClientRect().width; if(!css) return;
   const dpr=fixedPx?1:Math.min(window.devicePixelRatio||1,3);
   const px=Math.min(1600,Math.round(css*dpr));
@@ -1541,12 +1607,12 @@ function decorGeo(stage,cv){const b=document.getElementById('board'),sr=stage.ge
   return {x:cv.width/2,y:cv.height/2,R:Math.min(cv.width,cv.height)/2.4}}
 function drawDecor(){const st=document.getElementById('gStage'),cv=document.getElementById('decor');if(!st||!cv)return;
   const r=st.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,2);cv.width=Math.round(r.width*dpr);cv.height=Math.round(r.height*dpr);
-  paintDecor(cv,prefs.decor,decorGeo(st,cv))}
-function decorPicker(){return `<div class="skins">${Object.entries(DECORS).map(([k,v])=>`<button class="skin decor" data-act="decor" data-v="${k}" aria-pressed="${prefs.decor===k}"><canvas class="decor-cv" data-decor="${k}" width="240" height="160"></canvas><b>${v.name}</b><span>${v.sub}</span></button>`).join('')}</div>`}
-async function drawDecorThumbs(){if(!thumbCache[prefs.skin]){const off=document.createElement('canvas');await drawBoard(off,prefs.skin,192);thumbCache[prefs.skin]=off}
+  paintDecor(cv,decorNow(),decorGeo(st,cv))}
+function decorPicker(){return `<div class="skins">${Object.entries(DECORS).map(([k,v])=>`<button class="skin decor ${k!=='none'&&!isPremium()?'locked':''}" data-act="decor" data-v="${k}" aria-pressed="${decorNow()===k}"><canvas class="decor-cv" data-decor="${k}" width="240" height="160"></canvas><b>${v.name}</b><span>${v.sub}</span></button>`).join('')}</div>`}
+async function drawDecorThumbs(){const sk=skinNow();if(!thumbCache[sk]){const off=document.createElement('canvas');await drawBoard(off,sk,192);thumbCache[sk]=off}
   document.querySelectorAll('.decor-cv').forEach(cv=>{const k=cv.dataset.decor;const g={x:120,y:80,R:52};
   paintDecor(cv,k,g,true);const c=cv.getContext('2d');if(k==='none'){c.fillStyle='#0f1b2e';c.fillRect(0,0,240,160)}
-  const src=thumbCache[prefs.skin];c.save();c.shadowColor='rgba(0,0,0,.6)';c.shadowBlur=14;c.beginPath();c.arc(g.x,g.y,g.R,0,7);c.fillStyle='#151413';c.fill();c.restore();
+  const src=thumbCache[skinNow()];c.save();c.shadowColor='rgba(0,0,0,.6)';c.shadowBlur=14;c.beginPath();c.arc(g.x,g.y,g.R,0,7);c.fillStyle='#151413';c.fill();c.restore();
   if(src)c.drawImage(src,g.x-g.R,g.y-g.R,g.R*2,g.R*2)})}
 
 /* =========================================================
@@ -2234,56 +2300,75 @@ function renderOSetup(){
 }
 
 /* ---------- Écran de score ---------- */
+/* Écran de partie des autres jeux. En cours de partie, tout tient sur l'écran :
+   panneau des scores (couleur d'équipe, pièces jouées), outils (équipe qui lance,
+   interrupteur 3D, historique), terrain 3D ou pavé de saisie, puis les boutons.
+   L'interrupteur 3D (prefs.view3d) est mémorisé d'une partie à l'autre. */
+const HAS3D=k=>k==='molkky'||k==='cornhole'||k==='palet';
+function view3d(){return prefs.view3d!==false&&HAS3D(g2.kind)}
 function renderOPlay(){
-  const D=OTHER[g2.kind],S=run2(g2),o=g2.opts;let body='';
-  const over=S.winner!=null;
-  if(D.kind==='menes'){const max=D.max(o);
-    /* pavé de saisie directe des points d'une équipe */
+  const D=OTHER[g2.kind],S=run2(g2),o=g2.opts,over=S.winner!=null;
+  if(over)return renderOEnd(D,S);
+  const v3=view3d(),tc=i=>i?'b':'a';
+  const sw=HAS3D(g2.kind)?`<button class="sw3d" data-act="v3d" role="switch" aria-checked="${v3}" aria-label="Terrain en 3D"><span class="sw3d-track"><i></i></span>3D</button>`:'';
+  const histBtn=`<button class="icon-btn" data-act="mhist" aria-label="Historique de la partie">${I.list}</button>`;
+  /* tuile d'une équipe : couleur, nom, score, pièces jouées */
+  const tile=(i,sub)=>`<section class="op-team ${tc(i)}" id="mt${i}"><span class="op-name"><i class="bagdot ${tc(i)}"></i>${esc(g2.teams[i].name)}</span>
+    <span class="op-sc">${S.sc[i]}</span><span class="op-sub" id="opSub${i}">${sub(i)}</span><span class="mt-bar"><i style="width:${Math.min(100,S.sc[i]/o.target*100)}%"></i></span></section>`;
+  let score='',tools='',stage='',sum='',actions='';
+  if(D.kind==='menes'){const max=D.max(o),field=!!D.field&&v3,what=D.field?D.field.pieces.toLowerCase():'';
     const pad=i=>`<div class="mt-pts">${[...Array(max)].map((_,k)=>`<button data-act="mpt" data-v="${i}|${k+1}">+${k+1}</button>`).join('')}</div>`;
-    body=`<div class="mteams">${g2.teams.map((t,i)=>`<section class="mteam ${S.winner===i?'win':''}" id="mt${i}"><div class="mt-name">${esc(t.name)}</div>${t.members&&t.members.length?`<div class="mt-mem">${t.members.map(esc).join(', ')}</div>`:''}
-      <div class="mt-score">${S.sc[i]}</div><div class="mt-bar"><i style="width:${Math.min(100,S.sc[i]/o.target*100)}%"></i></div>
-      ${over||D.field?'':pad(i)}</section>`).join('')}</div>
-      ${over||!D.field?'':`<div class="ch-teams" role="group" aria-label="À quelle équipe ?">${[0,1].map(i=>`<button class="chip" data-act="plteam" data-v="${i}" aria-pressed="${PL3.team===i}"><i class="bagdot ${i?'b':'a'}"></i>${D.field.pieces} ${esc(g2.teams[i].name)}</button>`).join('')}</div>
-      <div class="scene pl-scene"><canvas id="plCv" aria-label="${D.field.aria}"></canvas><span class="scene-hint">${D.field.hint}</span></div>
-      <p class="ch-sum" id="plSum"></p>
-      <div class="row2"><button class="btn btn-ghost" data-act="plundo" ${PL3.hist.length?'':'disabled'}>${I.undo} Annuler le dernier palet</button></div>
-      <button class="btn btn-primary" data-act="plval">Valider la ${D.unit}</button>
-      <details class="mk-alt"><summary>Saisir les points sans le terrain</summary>${g2.teams.map((t,i)=>`<p class="cat-lbl">${esc(t.name)}</p>${pad(i)}`).join('')}</details>`}
-      <p class="note center">Objectif ${o.target} points · ${D.field?'placez les '+D.field.pieces.toLowerCase()+' comme sur la planche : les points sont comptés tout seuls.':'touchez les points gagnés par l\'équipe à la fin de la '+D.unit+'.'}</p>`}
-  if(D.kind==='cornhole'){
-    const side=i=>`<section class="mteam ${S.winner===i?'win':''}" id="mt${i}"><div class="mt-name"><i class="bagdot ${i?'b':'a'}"></i>${esc(g2.teams[i].name)}</div><div class="mt-score">${S.sc[i]}</div><div class="mt-bar"><i style="width:${Math.min(100,S.sc[i]/o.target*100)}%"></i></div></section>`;
-    body=`<div class="mteams">${side(0)}${side(1)}</div>
-      ${over?'':`<div class="ch-teams" role="group" aria-label="Sacs de quelle équipe ?">${['a','b'].map((t,i)=>`<button class="chip" data-act="chteam" data-v="${t}" aria-pressed="${CH3.team===t}"><i class="bagdot ${t}"></i>Sacs ${esc(g2.teams[i].name)}</button>`).join('')}</div>
-      <div class="scene ch-scene"><canvas id="chCv" aria-label="Planche de cornhole : gardez le doigt appuyé pour viser, relâchez pour poser le sac là où il s'est arrêté"></canvas><span class="scene-hint">Doigt appuyé pour viser, relâché pour poser · sur le gazon = raté</span></div>
-      <p class="ch-sum" id="chSum"></p>
-      <div class="row2"><button class="btn btn-ghost" data-act="chundo" ${CH3.hist.length?'':'disabled'}>${I.undo} Annuler le dernier sac</button></div>
-      <button class="btn btn-primary" data-act="chval">${chLabel()}</button>
-      <details class="mk-alt"><summary>Saisir sans la planche</summary>${['a','b'].map((k,i)=>`<p class="cat-lbl">${esc(g2.teams[i].name)}</p><div class="ch-row"><span>Dans le trou <small>3 pts</small></span>${stepper(k,0)}</div><div class="ch-row"><span>Sur la planche <small>1 pt</small></span>${stepper(k,1)}</div>`).join('')}</details>`}
-      <p class="note center">Objectif ${o.target} points · 4 sacs par équipe et par manche, lancés à tour de rôle.</p>`}
+    score=`<div class="op-score">${[0,1].map(i=>tile(i,i=>field?`${plDraft.pieces.filter(p=>p.t===i).length}/${max} ${what}`:`objectif ${o.target}`)).join('')}</div>`;
+    tools=field?`<div class="ch-teams" role="group" aria-label="Quelle équipe lance ?">${[0,1].map(i=>`<button class="chip" data-act="plteam" data-v="${i}" aria-pressed="${PL3.team===i}"><i class="bagdot ${tc(i)}"></i>${esc(g2.teams[i].name)}</button>`).join('')}</div>`
+      :`<p class="op-hint">Points gagnés par l'équipe à la fin de la ${D.unit}</p>`;
+    if(field){stage=`<div class="scene fill"><canvas id="plCv" aria-label="${D.field.aria}"></canvas><span class="scene-hint">${D.field.hint}</span></div>`;
+      sum='<p class="ch-sum" id="plSum"></p>';
+      actions=`<button class="btn btn-ghost" data-act="plundo" ${PL3.hist.length?'':'disabled'} aria-label="Annuler le dernier palet">${I.undo}</button><button class="btn btn-primary" id="plVal" data-act="plval">Valider la ${D.unit}</button>`}
+    else stage=`<div class="op-pads">${[0,1].map(i=>`<div class="op-pad"><p class="cat-lbl"><i class="bagdot ${tc(i)}"></i>${esc(g2.teams[i].name)}</p>${pad(i)}</div>`).join('')}</div>`}
+  if(D.kind==='cornhole'){const bags=t=>(chDraft.bags||[]).filter(b=>b.t===t).length;
+    score=`<div class="op-score">${[0,1].map(i=>tile(i,i=>v3?`${bags(tc(i))}/4 sacs`:`objectif ${o.target}`)).join('')}</div>`;
+    tools=v3?`<div class="ch-teams" role="group" aria-label="Sacs de quelle équipe ?">${['a','b'].map((t,i)=>`<button class="chip" data-act="chteam" data-v="${t}" aria-pressed="${CH3.team===t}"><i class="bagdot ${t}"></i>${esc(g2.teams[i].name)}</button>`).join('')}</div>`:'<p class="op-hint">Sacs de la manche</p>';
+    stage=v3?`<div class="scene fill"><canvas id="chCv" aria-label="Planche de cornhole : gardez le doigt appuyé pour viser, relâchez pour poser le sac là où il s'est arrêté"></canvas><span class="scene-hint">Doigt appuyé pour viser, relâché pour poser · gazon = raté</span></div>`
+      :`<div class="op-pads">${['a','b'].map((k,i)=>`<div class="op-pad"><p class="cat-lbl"><i class="bagdot ${k}"></i>${esc(g2.teams[i].name)}</p><div class="ch-row"><span>Dans le trou <small>3 pts</small></span>${stepper(k,0)}</div><div class="ch-row"><span>Sur la planche <small>1 pt</small></span>${stepper(k,1)}</div></div>`).join('')}</div>`;
+    sum='<p class="ch-sum" id="chSum"></p>';
+    actions=`${v3?`<button class="btn btn-ghost" data-act="chundo" ${CH3.hist.length?'':'disabled'} aria-label="Annuler le dernier sac">${I.undo}</button>`:''}<button class="btn btn-primary" id="chVal" data-act="chval">${chLabel()}</button>`}
   if(D.kind==='molkky'){const cur=S.turn;
-    body=`<div class="mk-players">${g2.teams.map((t,i)=>{const p=S.P[i];return `<div class="mkp ${i===cur&&!over?'on':''} ${p.out?'out':''} ${S.winner===i?'win':''}"><span class="mkp-name">${esc(t.name)}</span><span class="mkp-miss">${[0,1,2].map(k=>`<i class="${k<p.miss?'x':''}"></i>`).join('')}</span><span class="mkp-sc">${p.sc}</span><span class="mt-bar"><i style="width:${p.sc*2}%"></i></span></div>`}).join('')}</div>
-      ${over?'':`<p class="mk-turn">Au tour de <b>${esc(g2.teams[cur].name)}</b> · reste ${50-S.P[cur].sc}</p>
-      <div class="scene mk-scene"><canvas id="mkCv" aria-label="Quilles de Mölkky : touchez les quilles tombées"></canvas><span class="scene-hint">Touchez les quilles tombées, ou la pelouse pour un raté</span></div>
-      <button class="btn btn-primary" data-act="mkval">${mkLabel()}</button>
-      <details class="mk-alt"><summary>Saisir par numéro</summary><div class="mk-pins">${MK_LAYOUT.map(r=>`<div class="mk-row">${r.map(n=>`<button class="pin" data-act="mkpin" data-v="${n}" aria-pressed="${mkSel.includes(n)}">${n}</button>`).join('')}</div>`).join('')}</div></details>`}`}
-  const hist=histOther(D,S);
-  const wname=over?g2.teams[S.winner].name:'';
-  frame(esc(D.name)+`<small>${D.kind==='molkky'?'50 points':o.target+' points'}</small>`,`<div class="col" id="oplay">
-    ${over?`<div class="win ow"><span class="crown">${S.fanny?'Fanny !':'Victoire'}</span><h1>${esc(wname)} gagne</h1><p>${D.kind==='molkky'?'':S.sc.join(' à ')}</p></div>`:''}
-    ${body}
-    ${over?`<div class="stack"><button class="btn btn-primary" data-act="mrematch">Revanche</button><button class="btn btn-silver" data-act="more">Autres jeux</button></div>`:''}
-    <section><h2 class="sec-title">Historique</h2>${hist}
-      <div class="row2" style="margin-top:8px">${g2.events.length?'<button class="btn btn-ghost" data-act="mundo">'+I.undo+' Annuler la dernière saisie</button>':''}<button class="btn btn-ghost" data-act="mute" aria-pressed="${prefs.muted}">${prefs.muted?I.mute+' Remettre le son':I.snd+' Couper le son'}</button></div></section>
-  </div>`);
-  if(!over&&D.kind==='molkky')MK3.mount();if(!over&&D.kind==='cornhole'){CH3.mount();chUpdate()}
-  if(!over&&D.field)PL3.mount();
+    score=`<div class="op-mk">${g2.teams.map((t,i)=>{const p=S.P[i];return `<div class="mkp ${i===cur?'on':''} ${p.out?'out':''}"><span class="mkp-name">${esc(t.name)}</span><span class="mkp-sc">${p.sc}</span><span class="mkp-miss">${[0,1,2].map(k=>`<i class="${k<p.miss?'x':''}"></i>`).join('')}</span></div>`}).join('')}</div>`;
+    tools=`<p class="mk-turn">Au tour de <b>${esc(g2.teams[cur].name)}</b> · reste ${50-S.P[cur].sc}</p>`;
+    stage=v3?`<div class="scene fill"><canvas id="mkCv" aria-label="Quilles de Mölkky : touchez les quilles tombées"></canvas><span class="scene-hint">Touchez les quilles tombées, ou la pelouse pour un raté</span></div>`
+      :`<div class="op-pads"><div class="mk-pins">${MK_LAYOUT.map(r=>`<div class="mk-row">${r.map(n=>`<button class="pin" data-act="mkpin" data-v="${n}" aria-pressed="${mkSel.includes(n)}">${n}</button>`).join('')}</div>`).join('')}</div></div>`;
+    actions=`<button class="btn btn-primary" data-act="mkval">${mkLabel()}</button>`}
+  frame(esc(D.name)+`<small>${D.kind==='molkky'?'50 points':o.target+' points'}</small>`,`<div class="op" id="oplay">
+    ${score}<div class="op-tools">${tools}<span class="op-tools-r">${sw}${histBtn}</span></div>
+    <div class="op-stage">${stage}</div>${sum}
+    ${actions?`<div class="op-actions">${actions}</div>`:''}
+  </div>`,{fixed:true});
+  if(v3&&D.kind==='molkky')MK3.mount();
+  if(D.kind==='cornhole'){if(v3)CH3.mount();chUpdate()}
+  if(v3&&D.field)PL3.mount();
 }
+/* Fin de partie : vainqueur, revanche, historique (cet écran peut défiler) */
+function renderOEnd(D,S){const o=g2.opts;
+  frame(esc(D.name)+`<small>${D.kind==='molkky'?'50 points':o.target+' points'}</small>`,`<div class="col" id="oplay">
+    <div class="win ow"><span class="crown">${S.fanny?'Fanny !':'Victoire'}</span><h1>${esc(g2.teams[S.winner].name)} gagne</h1><p>${D.kind==='molkky'?'':S.sc.join(' à ')}</p></div>
+    <div class="stack"><button class="btn btn-primary" data-act="mrematch">Revanche</button><button class="btn btn-silver" data-act="more">Autres jeux</button></div>
+    <section><h2 class="sec-title">Historique</h2>${histOther(D,S)}
+      <div class="row2" style="margin-top:8px"><button class="btn btn-ghost" data-act="mundo">${I.undo} Annuler la dernière saisie</button></div></section>
+  </div>`)}
+/* Historique de la partie en cours, dans une feuille */
+function openOHist(){const D=OTHER[g2.kind],S=run2(g2);
+  openSheet(`<div class="sheet-head"><h2>Historique</h2><button class="icon-btn" data-act="closesheet" aria-label="Fermer">${I.x}</button></div>
+    ${histOther(D,S)}${g2.events.length?`<button class="btn btn-ghost" data-act="mundo">${I.undo} Annuler la dernière saisie</button>`:''}`,'Historique')}
 function chLabel(){const o=g2.opts,a=chDraft.a,b=chDraft.b,pa=a[0]*3+a[1],pb=b[0]*3+b[1],na=o.cancel?Math.max(0,pa-pb):pa,nb=o.cancel?Math.max(0,pb-pa):pb;
   return 'Valider la manche · '+(o.cancel?(na?g2.teams[0].name+' +'+na:nb?g2.teams[1].name+' +'+nb:'aucun point'):'+'+pa+' / +'+pb)}
 function chUpdate(){const sum=document.getElementById('chSum');if(!sum)return;
   sum.innerHTML=['a','b'].map((t,i)=>{const [h,bd]=chDraft[t];const out=(chDraft.bags||[]).filter(b=>b.t===t&&b.miss).length;return `<span><i class="bagdot ${t}"></i><b>${esc(g2.teams[i].name)}</b> ${h} trou · ${bd} planche${out?' · '+out+' dehors':''} = <b>${h*3+bd} pts</b></span>`}).join('');
-  const v=document.querySelector('[data-act="chval"]');if(v)v.textContent=chLabel();
-  const u=document.querySelector('[data-act="chundo"]');if(u)u.disabled=!CH3.hist.length;
+  const v=document.getElementById('chVal'),u=document.querySelector('[data-act="chundo"]');if(u)u.disabled=!CH3.hist.length;
+  ['a','b'].forEach((t,i)=>{const el=document.getElementById('opSub'+i);if(el&&view3d())el.textContent=chDraft.bags.filter(b=>b.t===t).length+'/4 sacs'});
+  if(!v)return;
+  /* correction : on touche les sacs tombés, puis « Terminé » */
+  if(CH3.fix){sum.innerHTML='<span><b>Touchez chaque sac qui est tombé</b> (dans le trou ou hors de la planche), puis « Terminé ».</span>';v.dataset.act='chdone';v.textContent='Terminé';return}
+  v.dataset.act='chval';v.textContent=chLabel();
   document.querySelectorAll('.stepper output').forEach((x,i)=>{const t=i<2?'a':'b';x.textContent=chDraft[t][i%2]})}
 function stepper(k,j){const v=chDraft[k][j];return `<div class="stepper"><button data-act="chs" data-v="${k}|${j}|-1" aria-label="Moins">−</button><output>${v}</output><button data-act="chs" data-v="${k}|${j}|1" aria-label="Plus">+</button></div>`}
 function histOther(D,S){const ev=g2.events;if(!ev.length)return '<p class="empty">Les scores apparaîtront ici.</p>';
@@ -2693,7 +2778,8 @@ const G3={
     if(!this.init()){const sc=slot.closest('.scene');if(sc)sc.hidden=true;const alt=document.querySelector('details.mk-alt');if(alt)alt.open=true;return false}
     cancelAnimationFrame(this.raf);
     if(slot!==this.cv){this.cv.id=id;this.cv.setAttribute('aria-label',slot.getAttribute('aria-label')||'');slot.replaceWith(this.cv)}
-    const w=this.cv.parentElement.clientWidth||320,h=Math.round(w*ratio),dpr=Math.min(2,window.devicePixelRatio||1);
+    /* une scène « fill » prend toute la place que lui laisse l'écran ; sinon hauteur = largeur × ratio */
+    const box=this.cv.parentElement,w=box.clientWidth||320,h=box.classList.contains('fill')&&box.clientHeight>60?box.clientHeight:Math.round(w*ratio),dpr=Math.min(2,window.devicePixelRatio||1);
     this.w=w;this.h=h;this.dpr=dpr;this.cv.style.width=w+'px';this.cv.style.height=h+'px';
     if(this.cv.width!==Math.round(w*dpr)||this.cv.height!==Math.round(h*dpr)){this.cv.width=Math.round(w*dpr);this.cv.height=Math.round(h*dpr)}
     this.scene=scene;this.cv.style.touchAction=scene.aim?'none':'manipulation';
@@ -2910,7 +2996,7 @@ const CH={W:.61,L:1.22,a:.07,rise:.23,depth:.07,hole:{u:0,v:.81,r:.076}};
 CH.slope=Math.asin(CH.rise/CH.L);
 /* Sacs : demi-côté, épaisseur dessus/dessous ; couleurs par équipe : toile, fil, broderie */
 const BAG={half:.076,top:.027,bot:.003,col:{a:['#a8562a','#f1dfc0','#13233b'],b:['#23406c','#f1dfc0','#d9a47e']}};
-const CH3={cam:null,team:'a',hist:[],aimPt:null,pending:null,
+const CH3={cam:null,team:'a',hist:[],aimPt:null,hover:null,fix:false,fixBag:null,
   /* Repère de la planche : origine au milieu du bord avant, y perpendiculaire au plateau, −z vers le fond */
   board(){return M4.mul(M4.move(0,CH.a,0),M4.rotX(CH.slope))},
   at(u,v,y=0){return M4.apply(this.board(),[u,y,-v*CH.L])},
@@ -2932,13 +3018,22 @@ const CH3={cam:null,team:'a',hist:[],aimPt:null,pending:null,
     if(Math.hypot(q.u-CH.hole.u,(q.v-CH.hole.v)*CH.L)<CH.hole.r*1.15)return {hole:true,u:CH.hole.u,v:CH.hole.v};
     return {u:cl(q.u,-CH.W/2+.07,CH.W/2-.07),v:cl(q.v,.06,.96)}},
   /* Doigt posé ou qui glisse : sac fantôme à l'endroit visé ; renvoie l'étiquette de la loupe */
-  aim(sx,sy){if(!g2||g2.finishedAt)return false;this.pending=null;this.aimPt=this.target(sx,sy);this.draw();
+  /* Sac posé sur la planche sous le doigt (le plus haut s'ils sont empilés) */
+  bagAt(sx,sy){const q=this.uv(sx,sy);if(!q)return null;let best=null,bd=.07;
+    chDraft.bags.forEach(b=>{if(b.hole||b.miss)return;const d=Math.hypot(b.u-q.u,(b.v-q.v)*CH.L);if(d<=bd+.005){best=b;bd=d}});return best},
+  /* Doigt posé ou qui glisse : sac fantôme à l'endroit visé (ou, en correction, sac désigné) ; renvoie l'étiquette de la loupe */
+  aim(sx,sy){if(!g2||g2.finishedAt)return false;
+    if(this.fix){this.aimPt=null;this.hover=this.bagAt(sx,sy);this.draw();return this.hover?'Sac '+g2.teams[this.hover.t==='a'?0:1].name:'Aucun sac ici'}
+    this.aimPt=this.target(sx,sy);this.draw();
     const p=this.aimPt;return !p?'':p.miss?'Gazon · 0 point':p.hole?'Dans le trou · 3 points':'Sur la planche · 1 point'},
-  /* Doigt relevé : on pose le sac (ok = relevé sur la planche, pas ailleurs) */
-  aimEnd(ok){const p=this.aimPt;this.aimPt=null;if(ok&&p)this.place(p);else this.draw()},
+  /* Doigt relevé : on pose le sac, ou, en correction, on demande ce qu'est devenu le sac désigné */
+  aimEnd(ok){const p=this.aimPt,h=this.hover;this.aimPt=this.hover=null;
+    if(this.fix){this.draw();if(ok&&h)this.askFall(h);return}
+    if(ok&&p)this.place(p);else this.draw()},
 
   /* Pose d'un sac. Toucher un sac déjà posé pose le nouveau dessus (ils s'empilent).
-     S'il en touche un près du bord ou du trou, on demande si l'autre est tombé. */
+     S'il tombe dans le trou, ou en touche d'autres près du bord ou du trou, on demande
+     si d'autres sacs sont tombés (plusieurs possibles). */
   place(p){const bags=chDraft.bags,t=this.team,other=t==='a'?'b':'a',count=x=>bags.filter(b=>b.t===x).length;
     if(count(t)>=4){toastMsg(`${g2.teams[t==='a'?0:1].name} a déjà ses 4 sacs`);this.draw();return}
     this.hist.push(chSnap());
@@ -2946,29 +3041,33 @@ const CH3={cam:null,team:'a',hist:[],aimPt:null,pending:null,
     bags.push(b);chSync();Sound.unlock();
     if(count(other)<4)chTeam(other);
     if(reducedMotion()){Sound.fx(b.miss?'bagGrass':b.hole?'bagHole':'bagBoard');this.draw()}else{b.anim={t0:performance.now(),dur:b.hole?760:560};this.animate()}
-    if(!b.hole&&!b.miss){const n=this.touched(b);if(n)this.ask(n)}},
-  /* Sac déjà posé que le nouveau touche, s'il est près du bord ou du trou : {o, edge, hole} */
-  touched(b){let best=null,bd=1e9;
-    for(const o of chDraft.bags){if(o===b||o.hole||o.miss)continue;const d=Math.hypot(o.u-b.u,(o.v-b.v)*CH.L);if(d>BAG.half*2+.01||d>=bd)continue;
-      const edge=Math.abs(o.u)>CH.W/2-.11||o.v<.12||o.v>.9,hole=Math.hypot(o.u-CH.hole.u,(o.v-CH.hole.v)*CH.L)<CH.hole.r+.12;
-      if(edge||hole){best={o,edge,hole};bd=d}}
-    return best},
-  ask(n){this.pending=n;const who=g2.teams[n.o.t==='a'?0:1].name;
-    openSheet(`<div class="sheet-head"><h2>Le sac en a touché un autre</h2><button class="icon-btn" data-act="chpush" data-v="stay" aria-label="Fermer">${I.x}</button></div>
-      <p>Le sac de ${esc(who)} ${n.hole?'était près du trou':'était près du bord'}. A-t-il bougé ?</p>
-      <button class="btn btn-ghost" data-act="chpush" data-v="stay">Non, il est resté sur la planche</button>
-      ${n.hole?'<button class="btn btn-ghost" data-act="chpush" data-v="hole">Il est tombé dans le trou · 3 points</button>':''}
-      ${n.edge?'<button class="btn btn-ghost" data-act="chpush" data-v="out">Il est tombé de la planche · 0 point</button>':''}`,'Sac poussé')},
-  /* Réponse : le sac poussé glisse dans le trou ou tombe à côté de la planche */
-  resolve(v){const n=this.pending;this.pending=null;closeSheet();if(!n||v==='stay')return;
-    const o=n.o,t0=performance.now(),from=this.at(o.u,o.v,BAG.bot+.02);
+    if(!b.miss&&this.near(b).length)this.ask(b)},
+  /* Sacs posés que le nouveau a pu entraîner : près du trou (s'il y est tombé), ou qu'il touche près du bord ou du trou */
+  near(b){return chDraft.bags.filter(o=>{if(o===b||o.hole||o.miss)return false;
+    const nh=Math.hypot(o.u-CH.hole.u,(o.v-CH.hole.v)*CH.L)<CH.hole.r+.13,ne=Math.abs(o.u)>CH.W/2-.11||o.v<.12||o.v>.9;
+    return b.hole?nh:Math.hypot(o.u-b.u,(o.v-b.v)*CH.L)<BAG.half*2+.01&&(nh||ne)})},
+  ask(b){const n=this.near(b).length;
+    openSheet(`<div class="sheet-head"><h2>${b.hole?'Sac dans le trou':'Le sac en a touché d\'autres'}</h2><button class="icon-btn" data-act="chpush" data-v="stay" aria-label="Fermer">${I.x}</button></div>
+      <p>${b.hole?`Il y a ${n>1?n+' sacs':'un sac'} près du trou. D'autres sacs sont-ils tombés avec lui ?`:'Il en a touché près du bord ou du trou. D\'autres sacs sont-ils tombés ?'}</p>
+      <button class="btn btn-ghost" data-act="chpush" data-v="stay">Non, aucun autre</button>
+      <button class="btn btn-primary" data-act="chpush" data-v="fix">Oui, je les touche</button>`,'Sacs tombés')},
+  /* Réponse : « fix » ouvre la correction (toucher chaque sac tombé, puis Terminé) */
+  resolve(v){closeSheet();if(v==='fix'){this.fix=true;this.draw();chUpdate()}},
+  askFall(b){this.fixBag=b;
+    openSheet(`<div class="sheet-head"><h2>Où est tombé ce sac ?</h2><button class="icon-btn" data-act="closesheet" aria-label="Fermer">${I.x}</button></div>
+      <button class="btn btn-ghost" data-act="chfall" data-v="hole">Dans le trou · 3 points</button>
+      <button class="btn btn-ghost" data-act="chfall" data-v="out">Hors de la planche · 0 point</button>
+      <button class="btn btn-ghost" data-act="closesheet">Il n'a pas bougé</button>`,'Sac tombé')},
+  /* Le sac désigné glisse dans le trou ou tombe à côté de la planche */
+  fall(v){const o=this.fixBag;this.fixBag=null;closeSheet();if(!o)return;const t0=performance.now(),from=this.at(o.u,o.v,BAG.bot+.02);
     if(v==='hole'){o.hole=true;o.u=CH.hole.u;o.v=CH.hole.v;o.anim={t0,dur:700,from}}
     else{let u=o.u,v2=o.v;const side=CH.W/2-Math.abs(o.u),end=Math.min(o.v,1-o.v)*CH.L;
       if(side<end)u=Math.sign(o.u||1)*(CH.W/2+.12);else v2=o.v<.5?-.09:1.07;
       const w=this.at(u,v2);o.miss=true;o.gx=w[0];o.gz=w[2];o.anim={t0,dur:480,from}}
     chSync();if(reducedMotion()){delete o.anim;this.draw()}else this.animate()},
+  done(){this.fix=false;this.draw();chUpdate()},
   /* Annuler le dernier sac (et ce qu'il a fait tomber) */
-  undo(){const s=this.hist.pop();if(!s)return;const o=JSON.parse(s);chDraft.bags=o.bags;chTeam(o.team);this.pending=null;chSync();this.draw()},
+  undo(){const s=this.hist.pop();if(!s)return;const o=JSON.parse(s);chDraft.bags=o.bags;chTeam(o.team);this.fix=false;this.fixBag=null;chSync();this.draw()},
 
   animate(){G3.play(now=>{let busy=false;
     for(const b of chDraft.bags)if(b.anim){const t=now-b.anim.t0;
@@ -3012,7 +3111,7 @@ const CH3={cam:null,team:'a',hist:[],aimPt:null,pending:null,
       const lift=b.hole||b.miss?0:laid.filter(o=>Math.hypot(o.u-b.u,(o.v-b.v)*CH.L)<.12).length*.02;if(!b.hole&&!b.miss)laid.push(b);
       const {M,alpha}=this.bagMatrix(b,lift,now),look=b.look||1;
       items.push({mesh:G3.mesh('bag'+look,()=>Geo.bag(BAG.half,BAG.top,BAG.bot,look)),tex:G3.tex('bag-'+b.t,512,512,Paint.bag(...BAG.col[b.t]),21),
-        M,sheen:.3,shine:10,spec:.05,alpha:alpha<1?alpha:undefined});
+        M,sheen:.3,shine:10,spec:.05,alpha:alpha<1?alpha:undefined,emis:b===this.hover||b===this.fixBag?[.25,.4,.8]:null});
       occ.push({a:M4.apply(M,[0,.008,0]),b:M4.apply(M,[0,.008,0]),r:.065,k:.8})}
     if(this.aimPt){const p=this.aimPt,lift=p.miss||p.hole?0:laid.filter(o=>Math.hypot(o.u-p.u,(o.v-p.v)*CH.L)<.12).length*.02;
       const M=p.miss?M4.move(p.gx,BAG.bot,p.gz):M4.mul(B,M4.move(p.u,BAG.bot+lift+.004,-p.v*CH.L));
@@ -3046,15 +3145,15 @@ function chTeam(t){CH3.team=t;document.querySelectorAll('[data-act="chteam"]').f
    Planche de 70 cm. On pose le maître, puis chaque palet là où il s'est arrêté :
    doigt posé = loupe et palet fantôme, doigt relevé = palet posé. Un palet qui
    tombe sur un autre s'empile. S'il touche un autre palet ou le maître, l'appli
-   demande ce qu'il s'est passé : rien bougé, déplacé (on touche alors sa nouvelle
-   place) ou sorti de la planche. Maître sorti de la planche : la mène est nulle
+   demande s'ils se chevauchent ou si d'autres ont bougé : on touche alors chaque
+   pièce déplacée puis sa nouvelle place (hors de la planche si elle est tombée). Maître sorti de la planche : la mène est nulle
    et se rejoue. L'appli compte toute seule (palets plus proches du maître que le
    meilleur palet adverse) et propose l'équipe qui doit jouer : celle qui n'a pas
    le point. « Annuler le dernier palet » revient en arrière d'un lancer.
    État de saisie : plDraft (other.js). La partie enregistre {t, pts}, comme le pavé. */
 /* Dimensions (m) : rayon d'un palet, du maître, épaisseur d'un palet, de la planche, demi-côté de la planche, zone touchable */
 const PL={r:.0275,jr:.019,h:.007,bh:.022,half:.35,zone:.42};
-const PL3={cam:null,team:0,hist:[],aimPt:null,pending:null,moving:null,
+const PL3={cam:null,team:0,hist:[],aimPt:null,fix:null,hover:null,
   max(){return OTHER.palet.max(g2.opts)},
   onBoard(p){return Math.abs(p.x)<=PL.half&&Math.abs(p.z)<=PL.half},
   rOf(o){return o===plDraft.jack?PL.jr:PL.r},
@@ -3088,12 +3187,24 @@ const PL3={cam:null,team:0,hist:[],aimPt:null,pending:null,moving:null,
   /* Point visé sous le doigt (à hauteur du dessus de la planche) */
   target(sx,sy){const r=G3.ray(sx,sy);if(r.d[1]>=-1e-6)return null;const k=(PL.bh-r.o[1])/r.d[1],z=PL.zone;
     const p={x:Math.max(-z,Math.min(z,r.o[0]+r.d[0]*k)),z:Math.max(-z,Math.min(z,r.o[2]+r.d[2]*k))};p.out=!this.onBoard(p);return p},
-  aim(sx,sy){if(!g2||g2.finishedAt)return false;this.pending=null;const p=this.aimPt=this.target(sx,sy);this.draw();if(!p)return '';
-    if(this.moving)return p.out?'Hors de la planche':'Nouvelle place';
+  /* Pièce posée sous le point p (la plus haute si elles sont empilées) */
+  pieceAt(p){const D=plDraft,lv=this.levels();let best=null,bl=-1;
+    for(const o of [D.jack,...D.pieces]){if(!o||o.out)continue;if(Math.hypot(o.x-p.x,o.z-p.z)<=this.rOf(o)+.006&&(lv.get(o)||0)>=bl){best=o;bl=lv.get(o)||0}}
+    return best},
+  name(o){return o===plDraft.jack?'Maître':'Palet '+g2.teams[o.t].name},
+  /* Doigt posé ou qui glisse : pièce fantôme (ou, en correction, pièce désignée) ; renvoie l'étiquette de la loupe */
+  aim(sx,sy){if(!g2||g2.finishedAt)return false;const p=this.target(sx,sy);
+    if(this.fix&&!this.fix.sel){this.aimPt=null;this.hover=p&&this.pieceAt(p);this.draw();return this.hover?this.name(this.hover):'Aucun palet ici'}
+    this.aimPt=p;this.draw();if(!p)return '';
+    if(this.fix)return p.out?'Hors de la planche':'Nouvelle place';
     if(!plDraft.jack)return p.out?'Hors de la planche':'Maître';
     return p.out?'À côté · raté':'Palet '+g2.teams[this.team].name},
-  aimEnd(ok){const p=this.aimPt;this.aimPt=null;if(!ok||!p){this.draw();return}
-    if(this.moving)this.moveTo(p);else this.place(p)},
+  /* Doigt relevé : pose ; en correction, 1er toucher = pièce qui a bougé, 2e = sa nouvelle place */
+  aimEnd(ok){const p=this.aimPt,h=this.hover;this.aimPt=this.hover=null;
+    if(this.fix){if(!ok){this.draw();return}
+      if(!this.fix.sel){if(h){this.fix.sel=h;Sound.unlock()}this.draw();plUpdate();return}
+      if(p)this.moveTo(p);return}
+    if(!ok||!p){this.draw();return}this.place(p)},
 
   place(p){const D=plDraft;
     if(!D.jack){if(p.out){toastMsg('Le maître doit être sur la planche');this.draw();return}
@@ -3102,30 +3213,24 @@ const PL3={cam:null,team:0,hist:[],aimPt:null,pending:null,moving:null,
     const t=this.team;
     if(D.pieces.filter(q=>q.t===t).length>=this.max()){toastMsg(`${g2.teams[t].name} a déjà joué ses ${this.max()} palets`);this.draw();return}
     this.hist.push(plSnap());
-    const piece={t,x:p.x,z:p.z,rot:Math.random()*6.28,out:p.out},hit=p.out?null:this.touching(piece);
+    const piece={t,x:p.x,z:p.z,rot:Math.random()*6.28,out:p.out},hit=p.out?[]:this.touching(piece);
     D.pieces.push(piece);this.setTeam(this.next());plUpdate();Sound.unlock();
     if(reducedMotion()){this.landed(piece);this.draw()}else{piece.anim={t0:performance.now(),dur:520};this.animate()}
-    if(hit)this.ask(hit)},
-  /* Pièce (maître ou palet) que le nouveau palet touche, la plus proche */
-  touching(n){let best=null,bd=1e9;const D=plDraft;
-    for(const o of [D.jack,...D.pieces]){if(!o||o.out)continue;const d=Math.hypot(o.x-n.x,o.z-n.z);if(d<this.rOf(o)+PL.r+.004&&d<bd){best=o;bd=d}}
-    return best},
-  ask(o){this.pending={o};const jack=o===plDraft.jack,what=jack?'le maître':'un palet de '+esc(g2.teams[o.t].name),It=jack?'Le maître':'Ce palet';
-    openSheet(`<div class="sheet-head"><h2>Le palet a touché ${what}</h2><button class="icon-btn" data-act="plpush" data-v="stay" aria-label="Fermer">${I.x}</button></div>
-      <p>Que s'est-il passé ?</p>
-      <button class="btn btn-ghost" data-act="plpush" data-v="stay">Rien n'a bougé</button>
-      <button class="btn btn-ghost" data-act="plpush" data-v="move">${It} a bougé sur la planche</button>
-      <button class="btn btn-ghost" data-act="plpush" data-v="out">${It} est sorti de la planche${jack?' · mène nulle':''}</button>`,'Palet touché')},
-  resolve(v){const n=this.pending;this.pending=null;closeSheet();if(!n||v==='stay')return;const o=n.o;
-    if(v==='move'){this.moving=o;this.draw();plUpdate();return}
-    /* sorti : il glisse juste au-delà du bord le plus proche */
-    let x=o.x,z=o.z;if(PL.half-Math.abs(o.x)<PL.half-Math.abs(o.z))x=Math.sign(o.x||1)*(PL.half+.06);else z=Math.sign(o.z||1)*(PL.half+.06);
-    o.out=true;this.slide(o,x,z);this.setTeam(this.next());plUpdate()},
-  /* Nouvelle place d'une pièce déplacée par le palet */
-  moveTo(p){const o=this.moving;this.moving=null;o.out=p.out;this.slide(o,p.x,p.z);this.setTeam(this.next());plUpdate()},
+    if(hit.length)this.ask(hit)},
+  /* Pièces (maître, palets) que le nouveau palet touche */
+  touching(n){const D=plDraft;return [D.jack,...D.pieces].filter(o=>o&&!o.out&&Math.hypot(o.x-n.x,o.z-n.z)<this.rOf(o)+PL.r+.004)},
+  ask(hit){const names=hit.map(o=>o===plDraft.jack?'le maître':'un palet de '+esc(g2.teams[o.t].name));
+    openSheet(`<div class="sheet-head"><h2>Le palet a touché ${names.length>2?names.length+' pièces':names.join(' et ')}</h2><button class="icon-btn" data-act="plpush" data-v="stay" aria-label="Fermer">${I.x}</button></div>
+      <p>Les palets se chevauchent-ils, ou certains ont-ils bougé ?</p>
+      <button class="btn btn-ghost" data-act="plpush" data-v="stay">Ils se chevauchent, rien n'a bougé</button>
+      <button class="btn btn-primary" data-act="plpush" data-v="fix">Des palets ou le maître ont bougé</button>`,'Palet touché')},
+  /* « fix » : correction. On touche chaque pièce qui a bougé puis sa nouvelle place (hors de la planche si elle est tombée), puis « Terminé » */
+  resolve(v){closeSheet();if(v==='fix'){this.fix={sel:null};this.draw();plUpdate()}},
+  moveTo(p){const o=this.fix.sel;this.fix.sel=null;o.out=p.out;this.slide(o,p.x,p.z);this.setTeam(this.next());plUpdate()},
+  done(){this.fix=null;this.setTeam(this.next());this.draw();plUpdate()},
   slide(o,x,z){o.anim={t0:performance.now(),dur:430,from:{x:o.x,z:o.z}};o.x=x;o.z=z;Sound.fx(o.out?'paletGround':'paletBoard');
     if(reducedMotion()){delete o.anim;this.draw()}else this.animate()},
-  undo(){const s=this.hist.pop();if(!s)return;const o=JSON.parse(s);plDraft=o.d;this.setTeam(o.team);this.moving=this.pending=null;this.draw();plUpdate()},
+  undo(){const s=this.hist.pop();if(!s)return;const o=JSON.parse(s);plDraft=o.d;this.setTeam(o.team);this.fix=null;this.draw();plUpdate()},
   /* Bruit d'arrivée d'un palet lancé */
   landed(p){Sound.fx(p.out?'paletGround':'paletBoard')},
 
@@ -3155,26 +3260,30 @@ const PL3={cam:null,team:0,hist:[],aimPt:null,pending:null,moving:null,
     occ.push({a:[-PL.half+.1,-.2,0],b:[PL.half-.1,-.2,0],r:.23,k:.5});
     /* anneau champagne = palet qui marque, anneau bleu = pièce à déplacer */
     const SEL=[.55,.9,1.7],WIN=[1.5,1.05,.55];
-    if(D.jack){items.push(...jackItems(this.place3d(D.jack,now,lv)));if(!D.jack.anim&&this.moving===D.jack)items.push(ring(D.jack,SEL))}
+    const sel=this.fix&&(this.fix.sel||this.hover);
+    if(D.jack){items.push(...jackItems(this.place3d(D.jack,now,lv)));if(!D.jack.anim&&sel===D.jack)items.push(ring(D.jack,SEL))}
     for(const p of D.pieces){const M=this.place3d(p,now,lv);items.push(...paletItems(p.t,M));
-      if(!p.anim){if(this.moving===p)items.push(ring(p,SEL));else if(win.includes(p))items.push(ring(p,WIN));
+      if(!p.anim){if(sel===p)items.push(ring(p,SEL));else if(win.includes(p))items.push(ring(p,WIN));
         const y=this.yOf(p,lv);occ.push({a:[p.x,y+PL.r*.5,p.z],b:[p.x,y+PL.r*.5,p.z],r:PL.r,k:1})}}
     /* pièce fantôme à l'endroit visé */
-    if(this.aimPt){const p=this.aimPt,o=this.moving,M=M4.move(p.x,p.out?0:PL.bh+.0005,p.z);
+    if(this.aimPt){const p=this.aimPt,o=this.fix&&this.fix.sel,M=M4.move(p.x,p.out?0:PL.bh+.0005,p.z);
       if(o?o===D.jack:!D.jack)items.push(...jackItems(M,.55));else items.push(...paletItems(o?o.t:this.team,M,.55))}
     G3.render({cam:this.cam,env:G3_ENV,items,occ:occ.slice(0,24),shadowBox:{c:[0,.05,0],r:PL.zone+.2}})}
 };
 /* Photo de la mène en cours, pour « Annuler le dernier palet » */
 function plSnap(){return JSON.stringify({d:{jack:plDraft.jack&&(({anim,...j})=>j)(plDraft.jack),pieces:plDraft.pieces.map(({anim,...p})=>p)},team:PL3.team})}
 /* Résumé sous la planche, bouton de validation et bouton d'annulation */
-function plUpdate(){const sum=document.getElementById('plSum'),btn=document.querySelector('[data-act="plval"]');if(!sum||!btn)return;
+function plUpdate(){const sum=document.getElementById('plSum'),btn=document.getElementById('plVal');if(!sum||!btn)return;
   const D=plDraft,max=PL3.max(),s=PL3.score(),u=document.querySelector('[data-act="plundo"]');if(u)u.disabled=!PL3.hist.length;
+  btn.dataset.act='plval';
+  [0,1].forEach(i=>{const el=document.getElementById('opSub'+i);if(el)el.textContent=D.pieces.filter(p=>p.t===i).length+'/'+max+' palets'});
   const line=i=>{const mine=D.pieces.filter(p=>p.t===i),out=mine.filter(p=>p.out).length;
     return `<span><i class="bagdot ${i?'b':'a'}"></i><b>${esc(g2.teams[i].name)}</b> ${mine.length}/${max} palets${out?' · '+out+' hors planche':''}${s&&s.t===i?' · <b>'+s.pts+' point'+(s.pts>1?'s':'')+'</b>':''}</span>`};
   if(D.jack&&D.jack.out){sum.innerHTML='<span><b>Le maître est sorti de la planche :</b> la mène est nulle et se rejoue.</span>';btn.disabled=false;btn.textContent='Mène nulle · la rejouer';return}
-  sum.innerHTML=PL3.moving?`<span><b>Touchez la nouvelle place ${PL3.moving===D.jack?'du maître':'de ce palet'}</b> (hors de la planche s'il est tombé).</span>`
-    :D.jack?line(0)+line(1):'<span>Touchez la planche pour placer le maître.</span>';
-  btn.disabled=!s||!!PL3.moving;btn.textContent=s?`Valider la mène · ${g2.teams[s.t].name} +${s.pts}`:'Valider la mène'}
+  if(PL3.fix){const s=PL3.fix.sel;sum.innerHTML=s?`<span><b>Touchez la nouvelle place ${s===D.jack?'du maître':'de ce palet'}</b>, hors de la planche s'il est tombé.</span>`:'<span><b>Touchez un palet ou le maître qui a bougé</b>, puis sa nouvelle place. Recommencez pour chacun, puis « Terminé ».</span>';
+    btn.disabled=false;btn.dataset.act='pldone';btn.textContent='Terminé';return}
+  sum.innerHTML=D.jack?line(0)+line(1):'<span>Touchez la planche pour placer le maître.</span>';
+  btn.disabled=!s;btn.textContent=s?`Valider la mène · ${g2.teams[s.t].name} +${s.pts}`:'Valider la mène'}
 
 /* Petit « toc » de bois quand une quille tombe */
 function woodKnock(){if(!prefs.sounds||prefs.muted)return;Sound.unlock();if(!Sound.ctx)return;const t=Sound.ctx.currentTime;
@@ -3183,13 +3292,13 @@ function woodKnock(){if(!prefs.sounds||prefs.muted)return;Sound.unlock();if(!Sou
 window.addEventListener('resize',()=>{clearTimeout(window._scT);window._scT=setTimeout(()=>{if(screen!=='mplay')return;
   if(document.getElementById('mkCv'))MK3.mount();if(document.getElementById('chCv'))CH3.mount();if(document.getElementById('plCv'))PL3.mount()},200)});
 
-const VERSION='3.1 · 13 novembre 2026';
+const VERSION='3.2 · 13 novembre 2026';
 function sendButtons(g){const o=owner();const l=g.players.map(pl=>profById(pl.id)).filter(pr=>pr&&pr.code&&(!o||pr.code!==o.code)&&pendingFor(pr.code));
   return l.length?`<section class="card"><h2 class="sec-title">Envoyer les statistiques</h2><div class="stack">${l.map(pr=>`<button class="btn btn-ghost" data-act="sendstats" data-v="${pr.code}">${I.share} Envoyer à ${esc(pr.name)} (${pendingFor(pr.code)} partie${pendingFor(pr.code)>1?'s':''})</button>`).join('')}</div></section>`:''}
 /* =========================================================
    Réglages et état
    ========================================================= */
-const DEF_PREFS={input:'board',ambiance:'standard',volume:.8,sounds:true,voice:true,voiceMode:'full',muted:false,rate:1,voiceURI:'',confirmBoard:false,skin:'classic',decor:'none',fx:true,announce:true,adaptive:false,thr:{x01:{big:100,low:30}}};
+const DEF_PREFS={input:'board',ambiance:'standard',volume:.8,sounds:true,voice:true,voiceMode:'full',muted:false,view3d:true,setOpen:{},rate:1,voiceURI:'',confirmBoard:false,skin:'classic',decor:'none',fx:true,announce:true,adaptive:false,thr:{x01:{big:100,low:30}}};
 const prefs=(()=>{const p=Object.assign({},DEF_PREFS,store.get('prefs',{}));p.thr=Object.assign({},DEF_PREFS.thr,p.thr||{});p.thr.x01=Object.assign({},DEF_PREFS.thr.x01,p.thr.x01||{});return p})();
 let game=store.get('current',null);if(game&&!game.type)game.type='x01';
 let screen='home';
@@ -3373,7 +3482,8 @@ function frame(title,body,{fixed=false,right=null}={}){
   const root=ROOTS.includes(screen),inGame=GAME_SCREENS.includes(screen),bare=['auth','forgot','reset','welcome'].includes(screen);
   const left=root?`<button class="brand-btn" data-act="home" aria-label="Accueil">${logoSVG('t',false)}<span class="wm">ARROW</span></button>`
     :`<button class="back-btn" data-act="back" aria-label="Retour">${I.back}</button>`;
-  const rightBtn=inGame?`<button class="bar-btn right quit" data-act="quit" aria-label="Quitter la partie">${I.quit}<span>Quitter</span></button>`:accountBtn();
+  const vol=bare?'':`<button class="bar-vol" data-act="mute" aria-pressed="${prefs.muted}" aria-label="${prefs.muted?'Remettre le son':'Couper le son'}">${prefs.muted?I.mute:I.snd}</button>`;
+  const rightBtn=`<div class="bar-right">${vol}${inGame?`<button class="bar-btn right quit" data-act="quit" aria-label="Quitter la partie">${I.quit}<span>Quitter</span></button>`:accountBtn()}</div>`;
   const tabs=`<nav class="tabbar" aria-label="Navigation">${NAV.map(([k,l,p])=>k==='new'
       ?`<button class="tab add" data-act="pickgame" aria-label="Nouvelle partie">${I.plus}</button>`
       :`<button class="tab ${screen===k||(k==='home'&&!ROOTS.includes(screen)&&PARENT[screen]==='home')?'on':''}" data-act="${k}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg><span>${l}</span></button>`).join('')}</nav>
@@ -3418,8 +3528,12 @@ const ART={
   petanque:'<circle cx="34" cy="58" r="16"/><path d="M22 48c8 4 16 4 24 0M20 62c9 5 19 5 28 0"/><circle cx="68" cy="62" r="13"/><path d="M58 55c6 3 14 3 20 0"/><circle cx="62" cy="30" r="5" class="fill"/>',
   molkky:'<path d="M10 80h80"/>'+[[34,64],[50,62],[66,64]].map(([x,b])=>`<rect x="${x-5}" y="${b-24}" width="10" height="24" rx="5"/><path d="M${x-4} ${b-19}l8-3" class="cop"/>`).join('')+[[26,78],[42,76],[58,76],[74,78]].map(([x,b])=>`<rect x="${x-5.5}" y="${b-27}" width="11" height="27" rx="5.5" class="front"/><path d="M${x-4.5} ${b-21}l9-3.2" class="cop"/>`).join('')+'<rect x="6" y="16" width="34" height="8" rx="4" transform="rotate(24 23 20)" class="fill"/>',
   palet:'<path d="M14 66l14-26h44l14 26z"/><ellipse cx="44" cy="52" rx="7" ry="3" class="fill"/><ellipse cx="58" cy="58" rx="9" ry="3.5"/><ellipse cx="34" cy="60" rx="9" ry="3.5"/><ellipse cx="66" cy="48" rx="9" ry="3.5"/>',
-  cornhole:'<path d="M20 74L34 24h32l14 50z"/><ellipse cx="50" cy="38" rx="7" ry="4" class="fill"/><path d="M26 74v6M74 74v6"/><rect x="40" y="56" width="13" height="10" rx="3" transform="rotate(-12 46 61)"/>',
-  tossit:'<circle cx="50" cy="66" r="6" class="fill"/><path d="M30 24l14 30M44 54l-6 4 12 2-2-12z"/><path d="M70 30l-8 26M62 56l-5-3 4 11 7-9z"/><path d="M14 74h72"/>'};
+  /* planche inclinée vue de face (dessus, épaisseur, pieds), trou, un sac posé et un sac en vol */
+  cornhole:'<path d="M24 70L36 30h28l12 40z"/><path d="M24 70v5h52v-5" /><path d="M30 75v7M70 75v7"/><ellipse cx="50" cy="40" rx="6.5" ry="3.6" class="fill"/>'
+    +'<rect x="38" y="54" width="13" height="9" rx="3" transform="rotate(-10 44 58)" class="front"/><path d="M14 30q10-18 24-14" class="cop" stroke-dasharray="2 4"/><rect x="38" y="10" width="11" height="8" rx="2.5" transform="rotate(18 43 14)" class="fill"/>',
+  /* deux fléchettes à ventouse plantées près du jack (boule de visée) */
+  tossit:'<path d="M10 80h80"/><circle cx="50" cy="72" r="7" class="fill"/>'
+    +[[30,-16],[72,14]].map(([x,a])=>`<g transform="rotate(${a} ${x} 80)"><path d="M${x-6} 80a6 4 0 0 1 12 0" class="cop"/><path d="M${x} 76V34"/><rect x="${x-3}" y="50" width="6" height="16" rx="3" class="front"/><path d="M${x} 34l-7-10v12zM${x} 34l7-10v12z" class="fill"/></g>`).join('')};
 function famArt(k){if(k==='darts')return `<div class="fam-logo">${logoSVG('h',false)}</div>`;
   return `<svg class="fam-art" viewBox="0 0 100 90" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ART[k]}</svg>`}
 const QUICK=[['x01:501','501'],['x01:301','301'],['cricket','Cricket'],['atc','Horloge'],['killer','Killer'],['all','Tous les jeux']];
@@ -3442,7 +3556,7 @@ function renderHome(){
   frame('',`<div class="col home">
     <section class="home-head"><span class="eyebrow">Compteur de points</span><h1>Choisissez un jeu</h1></section>
     <div class="hcards">${FAMS.map(([k])=>`<button class="card hcard" data-act="fam" data-v="${k}">${famArt(k)}<span class="hc-txt"><b>${famName(k)}</b><span>${famSub(k)}</span>${left(k)}</span>${I.next}</button>`).join('')}</div>
-    <button class="card row-link" data-act="support"><span class="rl-ico">${I.heart}</span><span class="rl-txt">${isPremium()?'<b>Nous soutenir</b><span>ARROW vous plaît ? Un don, du montant de votre choix</span>':`<b>Devenir premium</b><span>Prix libre, conseillé ${PREMIUM.suggested} · tous les jeux, même hors ligne</span>`}</span>${I.next}</button>
+    <button class="card row-link gold" data-act="support"><span class="rl-ico">${I.heart}</span><span class="rl-txt">${isPremium()?'<b>Nous soutenir</b><span>ARROW vous plaît ? Un don, du montant de votre choix</span>':`<b>Devenir premium</b><span>Prix libre, conseillé ${PREMIUM.suggested} · tous les jeux, même hors ligne</span>`}</span>${I.next}</button>
   </div>`)}
 /* Page d'un jeu : nouvelle partie, reprise, raccourcis, dernières parties */
 function renderFam(){
@@ -3467,22 +3581,22 @@ function renderFam(){
    chaque autre jeu ; il faut du réseau, car c'est le serveur qui compte (action « play »).
    Compte premium : tout, sans limite, même hors ligne. Toute création de partie passe par gate(). */
 /* Prix libre (montant choisi dans PayPal), prix conseillé affiché ; lien PayPal lu sur le QR code du studio */
-const PREMIUM={suggested:'4,99 €',pay:'https://www.paypal.com/qrcodes/p2pqrc/4EGVCLPA5TTFW'};
+const PREMIUM={suggested:'4,99 €',pay:'https://www.paypal.me/tybox230'};
 const FREE_GAME='x01:501:duo',FREE_LIMIT=5;
 function isPremium(){const a=Account.get();return !!(a&&(a.premium||a.owner))}
 /* Clé de comptage et nom d'un jeu de fléchettes (les autres jeux utilisent leur nom : petanque, molkky…) */
-function dartsKey(type,opts,n){return type!=='x01'?type:(+opts.start===501&&n<=2?FREE_GAME:'x01:'+opts.start)}
+function dartsKey(type,opts,n){return n===1?'solo':type!=='x01'?type:(+opts.start===501&&n<=2?FREE_GAME:'x01:'+opts.start)}
 function dartsLabel(type,opts){return type==='x01'?String(opts.start):GAMES[type].name}
 let gateWait=null;
 const sheetHead=t=>`<div class="sheet-head"><h2>${t}</h2><button class="icon-btn" data-act="closesheet" aria-label="Fermer">${I.x}</button></div>`;
 /* Bouton qui ouvre la fenêtre de soutien : « Devenir premium » ou, une fois premium, « Nous soutenir » */
-function supportBtnHTML(cls='btn-primary'){return `<button class="btn ${cls}" data-act="support">${isPremium()?'Nous soutenir':'Devenir premium · prix libre'}</button>`}
+function supportBtnHTML(){return `<button class="btn btn-gold" data-act="support">${I.heart} ${isPremium()?'Nous soutenir':'Devenir premium · prix libre'}</button>`}
 function openSupport(){const a=Account.get()||{},prem=isPremium();
   openSheet(`${sheetHead(prem?'Nous soutenir':'Devenir premium')}
     ${prem?`<p>Merci d'utiliser ARROW ! Si l'appli vous plaît, vous pouvez soutenir le studio, du montant de votre choix.</p>`
       :`<p>Le premium ouvre tous les jeux, sans limite, même hors ligne. <b>Prix libre</b> : vous choisissez le montant, le prix conseillé est de <b>${PREMIUM.suggested}</b>.</p>
       <p class="note">Dans le message du paiement, indiquez l'e-mail de votre compte ARROW${a.email?` (<b>${esc(a.email)}</b>)`:''} : le studio vous envoie votre code premium.</p>`}
-    <a class="btn btn-primary" href="${PREMIUM.pay}" target="_blank" rel="noopener">${prem?'Faire un don avec PayPal':'Payer avec PayPal'}</a>
+    <a class="btn btn-gold" href="${PREMIUM.pay}" target="_blank" rel="noopener">${prem?'Faire un don avec PayPal':'Payer avec PayPal'}</a>
     ${prem?'':'<button class="btn btn-ghost" data-act="account">J\'ai déjà un code premium</button>'}
     <button class="btn btn-ghost" data-act="closesheet">Fermer</button>`,prem?'Nous soutenir':'Premium')}
 /* Lance start() si la partie est permise ; sinon explique pourquoi */
@@ -3490,13 +3604,14 @@ function gate(key,label,start){
   if(isPremium()){start();return}
   gateWait={key,label,start};
   if(key===FREE_GAME){gateGo();return}
+  if(key==='solo'){premiumOnly('Le jeu en solo');return}
   const used=((Account.get()||{}).plays||{})[key]||0;
   if(used>=FREE_LIMIT){openPaywall(label);return}
   openSheet(`${sheetHead('Partie gratuite '+(used+1)+' sur '+FREE_LIMIT)}
     <p>${esc(label)} : il vous reste ${FREE_LIMIT-used} partie${FREE_LIMIT-used>1?'s':''} gratuite${FREE_LIMIT-used>1?'s':''}.</p>
     <p><b>Toute partie commencée est décomptée</b>, même si vous l'arrêtez avant la fin.</p>
     <button class="btn btn-primary" data-act="gatego">Commencer la partie</button>
-    ${supportBtnHTML('btn-ghost')}
+    ${supportBtnHTML()}
     <button class="btn btn-ghost" data-act="closesheet">Annuler</button>`,'Partie gratuite')}
 async function gateGo(){const w=gateWait;if(!w)return;
   try{const r=await Cloud.call('play',{game:w.key});
@@ -3507,6 +3622,13 @@ async function gateGo(){const w=gateWait;if(!w)return;
       <p>Avec un compte gratuit, il faut être connecté à internet pour lancer une partie. Le jeu hors ligne fait partie du premium.</p>
       ${supportBtnHTML()}<button class="btn btn-ghost" data-act="closesheet">Fermer</button>`,'Pas de connexion');
     else toastMsg(niceCloud(e))}}
+/* Aspect de la cible et décor réellement affichés : ceux du premium, sinon les réglages de base */
+function skinNow(){return isPremium()?prefs.skin:'classic'}
+function decorNow(){return isPremium()?prefs.decor:'none'}
+/* Fonction réservée au premium (solo, tournois, aspects de la cible et décors) */
+function premiumOnly(what){openSheet(`${sheetHead('Réservé au premium')}
+  <p>${esc(what)} fait partie du premium, avec tous les jeux sans limite, même hors ligne.</p>
+  ${supportBtnHTML()}<button class="btn btn-ghost" data-act="account">J'ai un code premium</button>`,'Premium')}
 function openPaywall(label){openSheet(`${sheetHead('Parties gratuites terminées')}
   <p>Vous avez utilisé vos ${FREE_LIMIT} parties gratuites de ${esc(label)}. Le premium ouvre tous les jeux, sans limite, même hors ligne.</p>
   ${supportBtnHTML()}<button class="btn btn-ghost" data-act="account">J'ai un code premium</button>`,'Premium')}
@@ -3599,7 +3721,7 @@ function renderAmbiance(){
   </div>`);
 }
 /* Choix de la cible avec aperçus */
-function skinPicker(){return `<div class="skins">${Object.entries(SKINS).map(([k,v])=>`<button class="skin" data-act="skin" data-v="${k}" aria-pressed="${prefs.skin===k}"><canvas class="skin-cv" data-skin="${k}" width="96" height="96"></canvas><b>${v.name}</b><span>${v.sub}</span></button>`).join('')}</div>`}
+function skinPicker(){return `<div class="skins">${Object.entries(SKINS).map(([k,v])=>`<button class="skin ${k!=='classic'&&!isPremium()?'locked':''}" data-act="skin" data-v="${k}" aria-pressed="${skinNow()===k}"><canvas class="skin-cv" data-skin="${k}" width="96" height="96"></canvas><b>${v.name}</b><span>${v.sub}</span></button>`).join('')}</div>`}
 const thumbCache={};
 function drawSkinThumbs(){document.querySelectorAll('.skin-cv').forEach(async c=>{const k=c.dataset.skin;
   if(thumbCache[k]){c.getContext('2d').drawImage(thumbCache[k],0,0,96,96);return}
@@ -3619,35 +3741,37 @@ function renderContact(){const a=Account.get()||{};
       <button class="btn btn-primary" type="submit">Envoyer</button>
     </form></section>
   </div>`)}
+/* Catégorie des réglages, repliable (fermée par défaut, sauf « open ») */
+function setGrp(k,title,body,open=false){const on=prefs.setOpen&&k in prefs.setOpen?prefs.setOpen[k]:open;
+  return `<details class="card set-grp" data-k="${k}" ${on?'open':''}><summary><h2 class="sec-title">${title}</h2><span class="sg-chev" aria-hidden="true">${I.next}</span></summary><div class="sg-body">${body}</div></details>`}
 function renderSettings(){
   const t=prefs.thr.x01;
   const acc=Account.get(),o=owner();
   frame('Réglages',`<div class="col">
     ${Cloud.session()?`<button class="card row-link" data-act="account">${o?avatar(o,0):''}<span class="rl-txt"><b>${esc((acc&&acc.name)||(o&&o.name)||'Mon compte')}</b><span>${esc(Cloud.email()||'')} · code ${esc((acc&&acc.code)||'')}</span></span>${I.next}</button>`
       :`<button class="card row-link" data-act="account"><span class="rl-ico">${I.user}</span><span class="rl-txt"><b>Se connecter ou créer un compte</b><span>Vos parties sauvegardées et reçues automatiquement</span></span>${I.next}</button>${myCodeCard()}`}
-    <section class="card"><h2 class="sec-title">Sons et voix</h2>${audioControls()}
+    ${setGrp('audio','Sons et voix',`${audioControls()}
       <div class="set-row" style="display:block;margin-top:12px"><div class="txt" style="margin-bottom:4px"><b>Vitesse de la voix</b></div><input type="range" id="rate" min="0.7" max="1.4" step="0.05" value="${prefs.rate}" aria-label="Vitesse de la voix"></div>
-</section>
-    <section class="card"><h2 class="sec-title">Cible</h2>${skinPicker()}</section>
-    <section class="card"><h2 class="sec-title">Décor derrière la cible</h2>${decorPicker()}</section>
-    <section class="card"><h2 class="sec-title">Animations</h2>
-      <div class="set-row"><div class="txt"><b>Animations 3D</b><span>La cible pivote, les fléchettes du logo volent, reflets et étincelles dorées selon la volée</span></div><button class="switch" data-act="tog" data-v="fx" aria-pressed="${prefs.fx}" aria-label="Animations"></button></div></section>
-    <section class="card"><h2 class="sec-title">Seuils des réactions · jeux aux points</h2>
+`)}
+    ${setGrp('look','Apparence',`${isPremium()?'':'<p class="note" style="margin:0 0 10px">Les aspects de la cible et les décors sont inclus dans le premium.</p>'}<h3 class="cat-lbl">Cible</h3>${skinPicker()}<h3 class="cat-lbl">Décor derrière la cible</h3>${decorPicker()}<h3 class="cat-lbl">Animations</h3>
+      <div class="set-row"><div class="txt"><b>Animations 3D</b><span>La cible pivote, les fléchettes du logo volent, reflets et étincelles dorées selon la volée</span></div><button class="switch" data-act="tog" data-v="fx" aria-pressed="${prefs.fx}" aria-label="Animations"></button></div>`)}
+    ${setGrp('darts','Fléchettes',`<h3 class="cat-lbl">Saisie</h3>
+      <div class="seg"><button data-act="pin" data-v="board" aria-pressed="${prefs.input==='board'}">Sur la cible</button><button data-act="pin" data-v="pad" aria-pressed="${prefs.input==='pad'}">Pavé numérique</button></div>
+      <div class="set-row" style="margin-top:12px"><div class="txt"><b>Bouton Valider aussi sur la cible</b><span>Sur le pavé, chaque volée se valide toujours avec le bouton</span></div><button class="switch" data-act="tog" data-v="confirmBoard" aria-pressed="${prefs.confirmBoard}" aria-label="Valider sur la cible"></button></div><h3 class="cat-lbl">Seuils des réactions · jeux aux points</h3>
       <div class="set-row"><div class="txt"><b>Gros score à partir de</b><span>Au-dessus de 140, réaction « très grosse volée »</span></div>
         <div class="stepper"><button data-act="thr" data-v="big:-10" aria-label="Moins">−</button><output>${t.big}</output><button data-act="thr" data-v="big:10" aria-label="Plus">+</button></div></div>
       <div class="set-row"><div class="txt"><b>Petit score jusqu'à</b><span>Zéro a sa propre réaction</span></div>
         <div class="stepper"><button data-act="thr" data-v="low:-5" aria-label="Moins">−</button><output>${t.low}</output><button data-act="thr" data-v="low:5" aria-label="Plus">+</button></div></div>
       <div class="set-row"><div class="txt"><b>S'adapter à chaque joueur</b><span>Après 3 volées, les seuils suivent la moyenne du joueur</span></div><button class="switch" data-act="tog" data-v="adaptive" aria-pressed="${prefs.adaptive}" aria-label="Seuils adaptés"></button></div>
-      <p class="note" style="margin-top:10px">301 à 901, Count Up et High Score réagissent selon les points. Cricket, Shanghai et Tour de l'horloge réagissent selon le nombre de touches utiles.</p></section>
-    <section class="card"><h2 class="sec-title">Saisie</h2>
-      <div class="seg"><button data-act="pin" data-v="board" aria-pressed="${prefs.input==='board'}">Sur la cible</button><button data-act="pin" data-v="pad" aria-pressed="${prefs.input==='pad'}">Pavé numérique</button></div>
-      <div class="set-row" style="margin-top:12px"><div class="txt"><b>Bouton Valider aussi sur la cible</b><span>Sur le pavé, chaque volée se valide toujours avec le bouton</span></div><button class="switch" data-act="tog" data-v="confirmBoard" aria-pressed="${prefs.confirmBoard}" aria-label="Valider sur la cible"></button></div></section>
-    <section class="card"><h2 class="sec-title">Elmagination App Studio</h2>
+      <p class="note" style="margin-top:10px">301 à 901, Count Up et High Score réagissent selon les points. Cricket, Shanghai et Tour de l'horloge réagissent selon le nombre de touches utiles.</p>`)}
+    ${setGrp('studio','Elmagination App Studio',`
       <button class="card row-link flat" data-act="contact"><span class="rl-ico">${I.mail}</span><span class="rl-txt"><b>Nous contacter</b><span>Un bug, une idée, une question</span></span>${I.next}</button>
-      <button class="card row-link flat" data-act="support"><span class="rl-ico">${I.heart}</span><span class="rl-txt"><b>${isPremium()?'Nous soutenir':'Devenir premium'}</b><span>${isPremium()?'Un don, du montant de votre choix':'Prix libre, conseillé '+PREMIUM.suggested}</span></span>${I.next}</button></section>
+      <button class="card row-link flat gold" data-act="support"><span class="rl-ico">${I.heart}</span><span class="rl-txt"><b>${isPremium()?'Nous soutenir':'Devenir premium'}</b><span>${isPremium()?'Un don, du montant de votre choix':'Prix libre, conseillé '+PREMIUM.suggested}</span></span>${I.next}</button>`,true)}
     <p class="note center">ARROW · version ${VERSION}</p>
   </div>`);
   updateVoiceBox();drawSkinThumbs();drawDecorThumbs();
+  /* chaque catégorie se replie ou se déplie ; l'état est mémorisé */
+  document.querySelectorAll('details.set-grp').forEach(d=>d.addEventListener('toggle',()=>{prefs.setOpen[d.dataset.k]=d.open;savePrefs()}));
 }
 function demo(amb){
   Sound.unlock();const A=AMBIANCES[amb];const ph=pickPhrase(amb,'big',{n:'Yannick',r:0});
@@ -3833,11 +3957,15 @@ function sayScore(txt){if(!prefs.voice||prefs.muted)return;const id='scores_n_'+
    (il ne cache ni la cible, ni le terrain, ni le tableau des scores) */
 function showToast(t,cat,phrase,m){scoreFlash(game.players[t.p].name,m.fmt(t),!t.bust&&TAGS[cat]||'',t.bust?'bad':'')}
 let flashT=0;
-function scoreFlash(name,val,tag,cls=''){const bt=document.querySelector('.appbar');if(!bt)return;
-  let el=bt.querySelector('.sflash');if(!el){el=document.createElement('span');el.setAttribute('role','status');bt.appendChild(el)}
-  el.className='sflash '+cls;el.innerHTML=`${name||tag?`<span class="sf-top">${name?`<span class="sf-name">${esc(name)}</span>`:''}${tag?`<span class="sf-tag">${esc(tag)}</span>`:''}</span>`:''}<span class="sf-val">${esc(val)}</span>`;
-  void el.offsetWidth;el.classList.add('show');bt.classList.add('flashing');
-  clearTimeout(flashT);flashT=setTimeout(()=>{el.classList.remove('show');bt.classList.remove('flashing')},2600)}
+/* Encart doré en haut à droite de la cible (fléchettes) ou du terrain / pavé (autres jeux), 3 s */
+function scoreFlash(name,val,tag,cls=''){
+  const board=document.querySelector('#board:not([hidden])'),host=board?board.parentElement:document.querySelector('.op-stage')||document.getElementById('view');if(!host)return;
+  if(getComputedStyle(host).position==='static')host.style.position='relative';
+  let el=document.getElementById('sflash');if(!el||el.parentElement!==host){if(el)el.remove();el=document.createElement('div');el.id='sflash';el.setAttribute('role','status');host.appendChild(el)}
+  let top=10,right=10;if(board){const b=board.getBoundingClientRect(),h=host.getBoundingClientRect();top=b.top-h.top+6;right=h.right-b.right+6}
+  el.style.top=top+'px';el.style.right=right+'px';
+  el.className='sflash '+cls;el.innerHTML=`${name?`<span class="sf-name">${esc(name)}</span>`:''}<span class="sf-val">${esc(val)}</span>${tag?`<span class="sf-tag">${esc(tag)}</span>`:''}`;
+  void el.offsetWidth;el.classList.add('show');clearTimeout(flashT);flashT=setTimeout(()=>el.classList.remove('show'),3000)}
 function undoDart(){
   if(!game||!game.darts.length)return;
   clearTimeout(endT);game.darts.pop();
@@ -3962,6 +4090,11 @@ document.addEventListener('click',e=>{
       if(plDraft.jack&&plDraft.jack.out){resetOtherDraft();renderOPlay();scoreFlash('','Mène nulle','on la rejoue','bad');break}
       const r=PL3.score();if(!r||!r.pts)break;g2.events.push({t:r.t,pts:r.pts});resetOtherDraft();saveG2();renderOPlay();o2react(r.pts,OTHER[g2.kind].max(g2.opts),r.t);break}
     case 'plundo':PL3.undo();break;
+    case 'pldone':PL3.done();break;
+    case 'chdone':CH3.done();break;
+    case 'chfall':CH3.fall(v);break;
+    case 'v3d':prefs.view3d=!view3d();savePrefs();renderOPlay();break;
+    case 'mhist':openOHist();break;
     case 'plpush':PL3.resolve(v);break;
     case 'chundo':CH3.undo();break;
     case 'chpush':CH3.resolve(v);break;
@@ -3969,7 +4102,7 @@ document.addEventListener('click',e=>{
     case 'contact':go('contact');break;
     case 'ckind':contactKind=v;document.querySelectorAll('[data-act="ckind"]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===v));break;
     case 'mkval':{if(g2.finishedAt)break;const pins=mkSel.slice().sort((a,b)=>a-b);g2.events.push({pins});MK3.throwStick(pins,mkMiss);resetOtherDraft();saveG2();renderOPlay();const S=run2(g2),l=S.log[S.log.length-1];o2react(l.pts,12,-1);break}
-    case 'mundo':{if(!g2||!g2.events.length)break;if(g2.finishedAt){store.set('history2',store.get('history2',[]).filter(h=>h.id!==g2.id));delete g2.finishedAt;delete g2.endPhrase}
+    case 'mundo':{closeSheet();if(!g2||!g2.events.length)break;if(g2.finishedAt){store.set('history2',store.get('history2',[]).filter(h=>h.id!==g2.id));delete g2.finishedAt;delete g2.endPhrase}
       g2.events.pop();resetOtherDraft();saveG2();renderOPlay();break}
     case 'mrematch':{const t=JSON.parse(JSON.stringify(g2.teams));if(OTHER[g2.kind].kind==='molkky')t.push(t.shift());else t.reverse();
       gate(g2.kind,OTHER[g2.kind].name,()=>{g2={id:uid(),kind:g2.kind,opts:g2.opts,teams:t,events:[],created:Date.now()};resetOtherDraft();saveG2();go('mplay')});break}
@@ -3994,7 +4127,7 @@ document.addEventListener('click',e=>{
     case 'pdelask':document.getElementById('delBox').innerHTML='<p class="note" style="margin-bottom:8px">Le profil sera supprimé. Les parties passées restent dans l\'historique.</p><div class="row2"><button class="btn btn-danger" data-act="pdelyes">Confirmer la suppression</button><button class="btn btn-ghost" data-act="pdelno">Annuler</button></div>';break;
     case 'pdelno':renderPlayer();break;
     case 'pdelyes':tomb(curPid);profilesCache=profiles().filter(x=>x.id!==curPid);saveProfiles();go('players');break;
-    case 'tournaments':go('tournaments');break;
+    case 'tournaments':if(!isPremium()){premiumOnly('Le mode tournoi');break}go('tournaments');break;
     case 'tnew':tdraft=newTDraft();go('tnew');break;
     case 'topen':curTid=v;go('tournament');break;
     case 'tformat':tdraft.format=v;renderTNew();break;
@@ -4040,8 +4173,8 @@ document.addEventListener('click',e=>{
       document.querySelectorAll(`.pchip[data-pid="${pl.id}"]`).forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===m[pl.name]));break}
     case 'ambreset':{const m=store.get('ambByName',{});draft.players.forEach(p=>m[p.name]='standard');store.set('ambByName',m);
       document.querySelectorAll('.pchip').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v==='standard'));break}
-    case 'skin':prefs.skin=v;savePrefs();document.querySelectorAll('.skin:not(.decor)').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===v));drawDecorThumbs();break;
-    case 'decor':prefs.decor=v;savePrefs();document.querySelectorAll('.skin.decor').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===v));break;
+    case 'skin':if(!isPremium()&&v!=='classic'){premiumOnly('Changer l\'aspect de la cible');break}prefs.skin=v;savePrefs();document.querySelectorAll('.skin:not(.decor)').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===v));drawDecorThumbs();break;
+    case 'decor':if(!isPremium()&&v!=='none'){premiumOnly('Le décor derrière la cible');break}prefs.decor=v;savePrefs();document.querySelectorAll('.skin.decor').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===v));break;
     case 'listen':Sound.unlock();Voice.warm();demo(v);break;
     case 'vtest':Sound.unlock();Voice._testing=true;Voice.runTest();break;
     case 'vmode':prefs.voiceMode=v;savePrefs();render();break;
@@ -4062,7 +4195,9 @@ document.addEventListener('click',e=>{
       document.getElementById('board').hidden=v!=='board';document.getElementById('pad').hidden=v!=='pad';
       document.querySelectorAll('[data-act="mode"]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===v));
       if(v==='board')drawBoard(document.getElementById('cv'));updateGame();setTimeout(drawDecor,30);break;
-    case 'mute':prefs.muted=!prefs.muted;savePrefs();if(prefs.muted&&Voice.ok)try{speechSynthesis.cancel()}catch(e){}screen==='mplay'?renderOPlay():updateGame();break;
+    case 'mute':prefs.muted=!prefs.muted;savePrefs();if(prefs.muted&&Voice.ok)try{speechSynthesis.cancel()}catch(e){}
+      document.querySelectorAll('[data-act="mute"]').forEach(x=>{x.setAttribute('aria-pressed',prefs.muted);x.setAttribute('aria-label',prefs.muted?'Remettre le son':'Couper le son');x.innerHTML=prefs.muted?I.mute:I.snd});
+      toastMsg(prefs.muted?'Son coupé':'Son remis');break;
     case 'miss':padNum=null;addDart({seg:0,mult:0});break;
     case 'validate':padNum=null;validate();break;
     case 'undo':padNum=null;undoDart();updateGame();break;
