@@ -2223,7 +2223,8 @@ function o2react(pts,max,teamIdx){const S=run2(g2),D=OTHER[g2.kind];
   if(prefs.fx&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){const el=document.getElementById('mt'+teamIdx)||document.querySelector('.mkp.on');
     if(el){el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop')}}
   if(S.winner!=null&&!g2.finishedAt){g2.finishedAt=Date.now();
-    const vc=S.fanny?'fanny':D.kind==='molkky'&&S.P[S.winner].sc===50?(Math.random()<.5?'win50':'winner'):'winner';
+    /* la phrase « Fanny ! Treize à zéro » ne vaut que pour la pétanque et le palet, pas pour le 11-0 du cornhole */
+    const vc=S.fanny&&D.kind!=='cornhole'?'fanny':D.kind==='molkky'&&S.P[S.winner].sc===50?(Math.random()<.5?'win50':'winner'):'winner';
     g2.endPhrase=sayGame(vc,900);
     const h=store.get('history2',[]);h.unshift({id:g2.id,kind:g2.kind,date:g2.finishedAt,teams:g2.teams,winner:S.winner,score:S.sc||S.P.map(p=>p.sc)});store.set('history2',h.slice(0,300));
     saveG2();renderOPlay();setTimeout(()=>Fx.celebrate(),200);return true}
@@ -2880,7 +2881,7 @@ function woodKnock(){if(!prefs.sounds||prefs.muted)return;Sound.unlock();if(!Sou
 window.addEventListener('resize',()=>{clearTimeout(window._scT);window._scT=setTimeout(()=>{if(screen!=='mplay')return;
   if(document.getElementById('mkCv'))MK3.mount();if(document.getElementById('chCv'))CH3.mount()},200)});
 
-const VERSION='2.5 · 12 novembre 2026';
+const VERSION='2.6 · 13 novembre 2026';
 function sendButtons(g){const o=owner();const l=g.players.map(pl=>profById(pl.id)).filter(pr=>pr&&pr.code&&(!o||pr.code!==o.code)&&pendingFor(pr.code));
   return l.length?`<section class="card"><h2 class="sec-title">Envoyer les statistiques</h2><div class="stack">${l.map(pr=>`<button class="btn btn-ghost" data-act="sendstats" data-v="${pr.code}">${I.share} Envoyer à ${esc(pr.name)} (${pendingFor(pr.code)} partie${pendingFor(pr.code)>1?'s':''})</button>`).join('')}</div></section>`:''}
 /* =========================================================
