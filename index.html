@@ -111,6 +111,12 @@ input,select{font:inherit;color:inherit}
 /* ---------- Cartes / sections ---------- */
 .sec-title{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--silver-2);font-weight:700;margin:0 0 10px}
 .card{background:linear-gradient(180deg,var(--surface) 0%,rgba(19,35,59,.6) 100%);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px}
+.code-list{margin-top:12px;display:grid;gap:8px}
+.code-row{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:var(--r-md);background:var(--bg-deep);border:1px solid var(--line)}
+.code-row b{display:block;font-family:ui-monospace,Menlo,monospace;letter-spacing:.04em;font-size:14px}
+.code-row span{display:block;font-size:12px;color:var(--silver-2)}
+.code-row.used{opacity:.6}
+.code-row .btn{width:auto;min-height:38px;padding:0 12px;font-size:13px}
 .resume-row{display:flex;align-items:center;gap:8px}
 .resume-row .resume{flex:1;min-width:0}
 .resume-row .icon-btn{flex:none;color:#ffc7bf}
@@ -1892,6 +1898,7 @@ function niceCloud(e){const c=(e&&e.code)||'';
     rate:'Trop de demandes d\'un coup. Réessayez dans un quart d\'heure.',
     mail_failed:'L\'e-mail n\'a pas pu partir. Réessayez un peu plus tard.',
     reset_expired:'Ce lien a expiré ou a déjà servi. Refaites une demande de mot de passe oublié.',
+    code_invalid:'Ce code n\'est pas valable, ou il a déjà servi.',forbidden:'Cette action est réservée au studio.',
     nosession:'Votre session a expiré : reconnectez-vous.'})[c]||'Le service ne répond pas pour le moment. Réessayez dans un instant.'}
 
 /* ---------- Connexion, inscription, mot de passe ---------- */
@@ -2023,13 +2030,40 @@ function renderAccount(){if(!Cloud.session()){go('auth');return}
       <span class="lbl">Mon code joueur</span><div class="room-code">${esc(acc.code||'······')}</div>
       <p class="note">Donnez ce code à la personne qui tient le score : vos parties arrivent toutes seules dans vos statistiques.</p>
       <div class="row2"><button class="btn btn-ghost" data-act="copycode">Copier mon code</button>${o.id?`<button class="btn btn-ghost" data-act="player" data-v="${o.id}">Mes statistiques</button>`:''}</div></section>
+    ${premiumCardHTML(acc)}
     <section class="card"><h2 class="sec-title">Sauvegarde</h2><div id="syncBox">${syncBoxHTML()}</div><button class="btn btn-ghost" data-act="syncnow">Synchroniser maintenant</button></section>
     <details class="card pw-card"><summary>Changer mon mot de passe</summary>
       <form data-form="chpw" class="stack" novalidate style="margin-top:12px"><label class="fld"><span>Mot de passe actuel</span><span class="pw"><input class="tin" id="cOld" type="password" autocomplete="current-password"><button type="button" class="pw-eye" data-act="pweye">Afficher</button></span></label>
         <label class="fld"><span>Nouveau mot de passe</span><span class="pw"><input class="tin" id="cNew" type="password" autocomplete="new-password"><button type="button" class="pw-eye" data-act="pweye">Afficher</button></span></label>
         <p class="form-msg" id="aErr" role="alert"></p><button class="btn btn-ghost" type="submit">Enregistrer le nouveau mot de passe</button></form></details>
     <button class="btn btn-danger" data-act="logout">Se déconnecter</button>
-  </div>`)}
+  </div>`);
+  if(acc.owner)loadCodes()}
+/* ---------- Premium ----------
+   Un compte devient premium en saisissant un code à usage unique (ARW-XXXXX-XXXXX).
+   Le compte du studio (owner) crée ces codes ici et voit lesquels ont servi. */
+const fmtCode=c=>'ARW-'+c.slice(0,5)+'-'+c.slice(5);
+function premiumCardHTML(acc){
+  const mine=acc.premium?`<p class="form-msg ok" style="margin:0">Premium actif sur ce compte.</p>`
+    :`<form data-form="redeem" class="stack" novalidate><label class="fld"><span>J'ai un code premium</span><input class="tin" id="pCode" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ARW-XXXXX-XXXXX"></label>
+        <p class="form-msg" id="pErr" role="alert"></p><button class="btn btn-ghost" type="submit">Activer le premium</button></form>`;
+  const studio=acc.owner?`<div class="codes"><h2 class="sec-title" style="margin-top:16px">Codes à distribuer</h2>
+      <p class="note">Chaque code ne sert qu'une fois, pour un seul compte.</p>
+      <label class="fld"><span>Pour qui ? (facultatif)</span><input class="tin" id="cNote" maxlength="60" placeholder="Prénom, club…"></label>
+      <button class="btn btn-primary" data-act="codenew">Créer un code</button>
+      <div id="codeList" class="code-list"><p class="note">Chargement…</p></div></div>`:'';
+  return `<section class="card"><h2 class="sec-title">Premium</h2>${mine}${studio}</section>`}
+async function loadCodes(){const el=document.getElementById('codeList');if(!el)return;
+  try{const j=await Cloud.call('codes_list');
+    el.innerHTML=j.codes.length?j.codes.map(c=>`<div class="code-row ${c.used_at?'used':''}"><div class="grow"><b>${fmtCode(c.code)}</b>
+        <span>${c.used_at?'Utilisé par '+esc(c.used_name||'un joueur')+' le '+new Date(c.used_at).toLocaleDateString('fr-FR'):'Libre'}${c.note?' · '+esc(c.note):''}</span></div>
+        ${c.used_at?'':`<button class="btn btn-ghost" data-act="codeshare" data-v="${c.code}">Envoyer</button><button class="icon-btn" data-act="codedel" data-v="${c.code}" aria-label="Supprimer ce code">${I.trash}</button>`}</div>`).join('')
+      :'<p class="note">Aucun code pour l\'instant.</p>'}
+  catch(e){el.innerHTML=`<p class="note">${esc(niceCloud(e))}</p>`}}
+/* Partage d'un code : feuille de partage du téléphone, sinon copie */
+async function shareCode(code){const text=`Voici ton code premium ARROW : ${fmtCode(code)}\nÀ saisir dans ARROW, écran « Mon compte ».\n${location.origin+location.pathname}`;
+  try{if(navigator.share){await navigator.share({text});return}}catch(e){if(e&&e.name==='AbortError')return}
+  try{await navigator.clipboard.writeText(text);toastMsg('Code copié')}catch(e){toastMsg(fmtCode(code))}}
 function openLogout(){openSheet(`<div class="sheet-head"><h2>Se déconnecter</h2><button class="icon-btn" data-act="closesheet" aria-label="Fermer">${I.x}</button></div>
   <p>Vos parties restent sauvegardées dans votre compte. Sur ce téléphone, voulez-vous les garder ?</p>
   <div class="stack"><button class="btn btn-ghost" data-act="logoutkeep">Me déconnecter et garder les parties ici</button><button class="btn btn-danger" data-act="logoutwipe">Me déconnecter et effacer ce téléphone</button></div>`,'Se déconnecter')}
@@ -2042,12 +2076,15 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-act]
     case 'guest':store.set('guest',true);go(owner()?'home':'welcome');break;
     case 'pweye':{const i=b.parentElement.querySelector('input');i.type=i.type==='password'?'text':'password';b.textContent=i.type==='password'?'Afficher':'Masquer';break}
     case 'syncnow':Sync.err=null;updateSyncBox();try{await Sync.pull();await Sync.push();await Inbox.check();await Inbox.flush()}catch(err){Sync.err=err}updateSyncBox();break;
+    case 'codenew':{b.disabled=true;try{const j=await Cloud.call('codes_new',{count:1,note:(document.getElementById('cNote')||{}).value||''});await loadCodes();shareCode(j.codes[0])}catch(err){toastMsg(niceCloud(err))}b.disabled=false;break}
+    case 'codeshare':shareCode(b.dataset.v);break;
+    case 'codedel':try{await Cloud.call('codes_del',{code:b.dataset.v});await loadCodes()}catch(err){toastMsg(niceCloud(err))}break;
     case 'logout':openLogout();break;
     case 'logoutkeep':case 'logoutwipe':closeSheet();await Auth.signOut(a==='logoutwipe');authMode='login';go('auth');toastMsg('Vous êtes déconnecté');break;
   }});
 function formBusy(f,on){const btn=f.querySelector('button[type=submit]');if(btn){btn.disabled=on;if(on){btn.dataset.t=btn.textContent;btn.textContent='Un instant…'}else if(btn.dataset.t)btn.textContent=btn.dataset.t}}
 function formErr(t){const el=document.getElementById('aErr');if(el){el.textContent=t;el.classList.toggle('ok',false)}}
-document.addEventListener('submit',async e=>{const f=e.target,k=f.dataset&&f.dataset.form;if(!['auth','forgot','reset','chpw'].includes(k))return;e.preventDefault();
+document.addEventListener('submit',async e=>{const f=e.target,k=f.dataset&&f.dataset.form;if(!['auth','forgot','reset','chpw','redeem'].includes(k))return;e.preventDefault();
   const val=id=>(document.getElementById(id)||{}).value||'';
   if(k==='auth'){const up=authMode==='signup',name=val('aName').trim(),mail=val('aMail').trim().toLowerCase(),pw=val('aPw');
     if(up&&!name)return formErr('Indiquez votre prénom ou pseudo.');
@@ -2060,6 +2097,10 @@ document.addEventListener('submit',async e=>{const f=e.target,k=f.dataset&&f.dat
     formBusy(f,true);try{await Auth.recover(mail);f.innerHTML='<p class="form-msg ok">Si un compte existe pour cette adresse, un e-mail vient de partir. Ouvrez le lien qu\'il contient sur ce téléphone.</p>'}catch(err){formBusy(f,false);formErr(niceCloud(err))}}
   if(k==='reset'){const pw=val('rPw');if(pw.length<8)return formErr('Le mot de passe doit faire au moins 8 caractères.');
     formBusy(f,true);try{await Auth.reset(resetToken,pw);resetToken=null;toastMsg('Mot de passe enregistré');go('home')}catch(err){formBusy(f,false);formErr(niceCloud(err))}}
+  if(k==='redeem'){const msg=t=>{const el=document.getElementById('pErr');if(el)el.textContent=t};
+    formBusy(f,true);msg('');
+    try{const j=await Cloud.call('redeem',{code:val('pCode')});store.set('account',j.user);toastMsg('Premium activé, merci !');render()}
+    catch(err){formBusy(f,false);msg(niceCloud(err))}}
   if(k==='chpw'){const old=val('cOld'),pw=val('cNew');if(!old)return formErr('Indiquez votre mot de passe actuel.');if(pw.length<8)return formErr('Le nouveau mot de passe doit faire au moins 8 caractères.');
     formBusy(f,true);try{await Auth.changePassword(old,pw);f.innerHTML='<p class="form-msg ok">Mot de passe changé.</p>'}catch(err){formBusy(f,false);formErr(err.code==='invalid_credentials'?'Le mot de passe actuel est incorrect.':niceCloud(err))}}
 });
@@ -2192,7 +2233,7 @@ function renderOPlay(){
     ${body}
     ${over?`<div class="stack"><button class="btn btn-primary" data-act="mrematch">Revanche</button><button class="btn btn-silver" data-act="more">Autres jeux</button></div>`:''}
     <section><h2 class="sec-title">Historique</h2>${hist}
-      ${g2.events.length?'<div class="row2" style="margin-top:8px"><button class="btn btn-ghost" data-act="mundo">'+I.undo+' Annuler la dernière saisie</button></div>':''}</section>
+      <div class="row2" style="margin-top:8px">${g2.events.length?'<button class="btn btn-ghost" data-act="mundo">'+I.undo+' Annuler la dernière saisie</button>':''}<button class="btn btn-ghost" data-act="mute" aria-pressed="${prefs.muted}">${prefs.muted?I.mute+' Remettre le son':I.snd+' Couper le son'}</button></div></section>
   </div>`);
   if(!over&&D.kind==='molkky')MK3.mount();if(!over&&D.kind==='cornhole'){CH3.mount();chUpdate()}
 }
@@ -2215,7 +2256,7 @@ function histOther(D,S){const ev=g2.events;if(!ev.length)return '<p class="empty
 function sayGame(cat,delay=450){const L=GAME_LINES[cat];if(!L||!L.length)return '';
   const rec=Pack.has('jeux')?L.map((_,i)=>i).filter(i=>Pack.files.jeux.has(`jeux_${cat}_${i+1}`)):[];
   const pool=rec.length?rec:L.map((_,i)=>i),i=pool[Math.floor(Math.random()*pool.length)],txt=untag(L[i]);
-  if(prefs.voice&&!prefs.muted)setTimeout(()=>{if(rec.length)Pack.play(`jeux_${cat}_${i+1}`,ok=>{if(!ok)Voice.say(txt,'standard')});else Voice.say(txt,'standard')},delay);
+  if(prefs.voice&&!prefs.muted&&prefs.voiceMode!=='scores')setTimeout(()=>{if(rec.length)Pack.play(`jeux_${cat}_${i+1}`,ok=>{if(!ok)Voice.say(txt,'standard')});else Voice.say(txt,'standard')},delay);
   return txt}
 function o2react(pts,max,teamIdx){const S=run2(g2),D=OTHER[g2.kind];
   const cat=S.winner!=null?'checkout':pts>=max?'huge':pts>=Math.ceil(max/2)?'big':pts>0?'mid':'zero';
@@ -2233,7 +2274,9 @@ function o2react(pts,max,teamIdx){const S=run2(g2),D=OTHER[g2.kind];
   if(D.kind==='molkky'){const l=S.log[S.log.length-1];vc=/50/.test(l.note)?'over':/élimin/.test(l.note)?'out':!l.pts?'zero':l.pts>=10?'big':Math.random()<.4?'mene':null}
   else if(D.kind==='cornhole'){const e=g2.events[g2.events.length-1];vc=e.a[0]+e.b[0]>0?'hole':pts>=6?'big':pts>0?(Math.random()<.5?'mene':null):'zero'}
   else vc=pts===0?'blanche':pts>=3?'big':Math.random()<.6?'mene':null;
-  if(vc)sayGame(vc);
+  /* mode « scores seuls » : on annonce juste les points du lancer ou de la manche */
+  if(prefs.voiceMode==='scores'){const n=D.kind==='molkky'?S.log[S.log.length-1].pts||0:pts;setTimeout(()=>sayScore(String(n)),450)}
+  else if(vc)sayGame(vc);
   return false}
 /* Victoires dans les autres jeux, pour la fiche d'un joueur */
 function otherStatsOf(p){const out={};for(const h of store.get('history2',[])){const ti=h.teams.findIndex(t=>(t.members||[]).includes(p.name)||t.name===p.name);if(ti<0)continue;
@@ -2809,10 +2852,13 @@ const CH3={cam:null,team:'a',
       b.u=b.hole?CH.hole.u:Math.max(-CH.W/2+.07,Math.min(CH.W/2-.07,q.u));b.v=b.hole?CH.hole.v:Math.max(.06,Math.min(.96,q.v))}
     bags.push(b);chSync();Sound.unlock();
     if(count(other)<4)chTeam(other);
-    if(reducedMotion())this.draw();else{b.anim={t0:performance.now(),dur:b.hole?760:560};this.animate()}},
+    if(reducedMotion()){Sound.fx(b.miss?'bagGrass':b.hole?'bagHole':'bagBoard');this.draw()}else{b.anim={t0:performance.now(),dur:b.hole?760:560};this.animate()}},
 
   animate(){G3.play(now=>{let busy=false;
-    for(const b of chDraft.bags)if(b.anim){if(now-b.anim.t0>=b.anim.dur){delete b.anim;if(!b.miss)Sound.play(b.hole?'big':'mid')}else busy=true}
+    for(const b of chDraft.bags)if(b.anim){const t=now-b.anim.t0;
+      /* le bruit part à l'impact : fin du vol (62 % du temps pour un sac qui tombe ensuite dans le trou) */
+      if(!b.anim.heard&&t>=b.anim.dur*(b.hole?.6:.97)){b.anim.heard=true;Sound.fx(b.miss?'bagGrass':b.hole?'bagHole':'bagBoard')}
+      if(t>=b.anim.dur)delete b.anim;else busy=true}
     this.draw(now);return busy})},
 
   /* Position d'un sac : posé (planche avec empilement, ou gazon), en vol, ou en train de tomber dans le trou */
@@ -2881,13 +2927,13 @@ function woodKnock(){if(!prefs.sounds||prefs.muted)return;Sound.unlock();if(!Sou
 window.addEventListener('resize',()=>{clearTimeout(window._scT);window._scT=setTimeout(()=>{if(screen!=='mplay')return;
   if(document.getElementById('mkCv'))MK3.mount();if(document.getElementById('chCv'))CH3.mount()},200)});
 
-const VERSION='2.6 · 13 novembre 2026';
+const VERSION='2.7 · 13 novembre 2026';
 function sendButtons(g){const o=owner();const l=g.players.map(pl=>profById(pl.id)).filter(pr=>pr&&pr.code&&(!o||pr.code!==o.code)&&pendingFor(pr.code));
   return l.length?`<section class="card"><h2 class="sec-title">Envoyer les statistiques</h2><div class="stack">${l.map(pr=>`<button class="btn btn-ghost" data-act="sendstats" data-v="${pr.code}">${I.share} Envoyer à ${esc(pr.name)} (${pendingFor(pr.code)} partie${pendingFor(pr.code)>1?'s':''})</button>`).join('')}</div></section>`:''}
 /* =========================================================
    Réglages et état
    ========================================================= */
-const DEF_PREFS={input:'board',ambiance:'standard',volume:.8,sounds:true,voice:true,muted:false,rate:1,voiceURI:'',confirmBoard:false,skin:'classic',decor:'none',fx:true,announce:true,adaptive:false,thr:{x01:{big:100,low:30}}};
+const DEF_PREFS={input:'board',ambiance:'standard',volume:.8,sounds:true,voice:true,voiceMode:'full',muted:false,rate:1,voiceURI:'',confirmBoard:false,skin:'classic',decor:'none',fx:true,announce:true,adaptive:false,thr:{x01:{big:100,low:30}}};
 const prefs=(()=>{const p=Object.assign({},DEF_PREFS,store.get('prefs',{}));p.thr=Object.assign({},DEF_PREFS.thr,p.thr||{});p.thr.x01=Object.assign({},DEF_PREFS.thr.x01,p.thr.x01||{});return p})();
 let game=store.get('current',null);if(game&&!game.type)game.type='x01';
 let screen='home';
@@ -2931,6 +2977,25 @@ const Sound={ctx:null,out:null,
   unlock(){try{if(!this.ctx){const C=window.AudioContext||window.webkitAudioContext;if(!C)return;this.ctx=new C();this.out=this.ctx.createGain();this.out.connect(this.ctx.destination)}if(this.ctx.state==='suspended')this.ctx.resume()}catch(e){}},
   note(f,t,d,o={}){const c=this.ctx,os=c.createOscillator(),v=c.createGain(),g=o.g||.22;os.type=o.type||'sine';os.frequency.setValueAtTime(f,t);if(o.slide)os.frequency.exponentialRampToValueAtTime(o.slide,t+d);
     v.gain.setValueAtTime(.0001,t);v.gain.exponentialRampToValueAtTime(g,t+(o.a||.006));v.gain.exponentialRampToValueAtTime(.0001,t+d);os.connect(v);v.connect(this.out);os.start(t);os.stop(t+d+.05)},
+  /* Souffle filtré (bruits de matière : toile, sisal, herbe). type : lowpass / bandpass / highpass */
+  noise(t,d,{f=800,q=1,type='bandpass',g=.2}={}){const c=this.ctx;
+    if(!this.nbuf){this.nbuf=c.createBuffer(1,c.sampleRate,c.sampleRate);const a=this.nbuf.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1}
+    const s=c.createBufferSource(),fl=c.createBiquadFilter(),v=c.createGain();s.buffer=this.nbuf;fl.type=type;fl.frequency.value=f;fl.Q.value=q;
+    v.gain.setValueAtTime(g,t);v.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(fl);fl.connect(v);v.connect(this.out);s.start(t,Math.random()*.5,d+.05)},
+  /* Bruits de jeu (coupés par « Sons » ou par le bouton muet) :
+     dart = fléchette dans la cible, dartMiss = fléchette à côté,
+     bagBoard / bagHole / bagGrass = sac de cornhole sur la planche, dans le trou, sur le gazon */
+  fx(kind){if(!prefs.sounds||prefs.muted)return;this.unlock();if(!this.ctx)return;
+    const c=this.ctx,t=c.currentTime+.01;this.out.gain.setValueAtTime(Math.max(.0001,prefs.volume),c.currentTime);
+    switch(kind){
+      case 'dart':this.noise(t,.035,{f:900,q:1.2,g:.55});this.noise(t,.012,{f:4200,type:'highpass',g:.12});this.note(175,t,.07,{type:'triangle',g:.3,slide:85,a:.002});break;
+      case 'dartMiss':this.noise(t,.05,{f:500,q:.8,g:.3});this.note(320,t,.05,{type:'triangle',g:.16,slide:140,a:.002});break;
+      case 'bagBoard':this.note(96,t,.17,{g:.6,slide:46,a:.003});this.noise(t,.09,{f:380,type:'lowpass',g:.5});this.noise(t+.004,.07,{f:2600,q:.7,g:.07});
+        this.note(84,t+.085,.1,{g:.16,slide:50,a:.003});this.noise(t+.085,.05,{f:300,type:'lowpass',g:.12});break;
+      case 'bagHole':this.noise(t,.05,{f:700,q:1,g:.22});this.note(140,t,.06,{type:'triangle',g:.2,slide:80,a:.002});
+        this.noise(t+.05,.2,{f:2200,q:.6,g:.05});this.note(72,t+.2,.18,{g:.4,slide:40,a:.004});this.noise(t+.2,.1,{f:260,type:'lowpass',g:.3});break;
+      case 'bagGrass':this.noise(t,.13,{f:240,type:'lowpass',g:.4});this.note(70,t,.11,{g:.25,slide:44,a:.004});this.noise(t,.08,{f:3000,q:.5,g:.03});break;
+    }},
   bell(f,t,d,g=.2){this.note(f,t,d,{g});this.note(f*2.01,t,d*.6,{g:g*.35});this.note(f*3.98,t,d*.35,{g:g*.12,type:'triangle'})},
   play(cat){
     if(!prefs.sounds||prefs.muted)return 0;this.unlock();if(!this.ctx)return 0;
@@ -2985,7 +3050,7 @@ const Voice={ok:'speechSynthesis' in window,list:[],
       if(cb)setTimeout(()=>{if(!started&&cb){cb(false);cb=null}},3500);
       setTimeout(()=>{try{speechSynthesis.speak(u);if(speechSynthesis.paused)speechSynthesis.resume()}catch(e){}},speechSynthesis.speaking?120:0);return true}catch(e){cb&&cb(false);return false}},
   /* Réaction : voix enregistrée si disponible, sinon voix de l'appareil */
-  react(choice,prefix,amb){if(!prefs.voice||prefs.muted)return;
+  react(choice,prefix,amb){if(!prefs.voice||prefs.muted||prefs.voiceMode==='scores')return;
     if(choice.id&&Pack.has(amb)&&Pack.files[amb].has(choice.id)){Pack.play(choice.id,ok=>{if(!ok)this.say(prefix+choice.text,amb)});return}
     this.say(prefix+choice.text,amb)},
   warm(){if(!this.ok)return;try{const u=new SpeechSynthesisUtterance(' ');u.lang='fr-FR';u.volume=0;speechSynthesis.speak(u)}catch(e){}},
@@ -3174,6 +3239,8 @@ function openGameSheet(){const cur=draft.type;
 function audioControls(){
   return `<div class="set-row"><div class="txt"><b>Sons et jingles</b><span>Un signal après la 3<sup>e</sup> fléchette</span></div><button class="switch" data-act="tog" data-v="sounds" aria-pressed="${prefs.sounds}" aria-label="Sons"></button></div>
     <div class="set-row"><div class="txt"><b>Voix</b><span>Le commentaire est lu à voix haute</span></div><button class="switch" data-act="tog" data-v="voice" aria-pressed="${prefs.voice}" aria-label="Voix"></button></div>
+    <div class="set-row" style="display:block"><div class="txt" style="margin-bottom:6px"><b>La voix dit</b><span>${prefs.voiceMode==='scores'?'Uniquement le score, sans commentaire':'Les commentaires de l\'ambiance choisie'}</span></div>
+      <div class="seg"><button data-act="vmode" data-v="full" aria-pressed="${prefs.voiceMode!=='scores'}">Commentaires</button><button data-act="vmode" data-v="scores" aria-pressed="${prefs.voiceMode==='scores'}">Scores seuls</button></div></div>
     <div class="set-row"><div class="txt"><b>Annoncer le score</b><span>Ex. « Cent ! Belle volée ! »</span></div><button class="switch" data-act="tog" data-v="announce" aria-pressed="${prefs.announce}" aria-label="Annoncer le score"></button></div>
     <div class="set-row" style="display:block"><div class="txt" style="margin-bottom:4px"><b>Volume</b></div><input type="range" id="vol" min="0" max="1" step="0.05" value="${prefs.volume}" aria-label="Volume"></div>
     <div id="voiceBox">${voiceBoxHTML()}</div>`;
@@ -3186,13 +3253,17 @@ function updateVoiceBox(){const b=document.getElementById('voiceBox');if(!b)retu
 function voiceSelect(){if(!Voice.list.length)return '';
   return `<div style="margin-top:10px"><label for="voiceSel" class="note">Voix utilisée</label><select id="voiceSel"><option value="">Automatique (la plus naturelle)</option>${Voice.list.map(v=>`<option value="${esc(v.voiceURI)}" ${prefs.voiceURI===v.voiceURI?'selected':''}>${voiceQuality(v)>=4?'★ ':''}${esc(v.name)} (${esc(v.lang)})</option>`).join('')}</select></div>`}
 /* Ambiance de chaque joueur : Standard par défaut, on désigne qui est chambré ou flatté */
-function draftAmb(p){const m=store.get('ambByName',{});return m[p.name]&&AMBIANCES[m[p.name]]?m[p.name]:'standard'}
+/* Ambiances réservées au compte propriétaire (studio) : masquées pour tous les autres */
+const RESERVED_AMB=['superchambreur','superstar'];
+function ambAllowed(k){if(!RESERVED_AMB.includes(k))return true;const a=typeof Account!=='undefined'&&Account.get();return !!(a&&a.owner)}
+function ambSafe(k){return AMBIANCES[k]&&ambAllowed(k)?k:'standard'}
+function draftAmb(p){const m=store.get('ambByName',{});return ambSafe(m[p.name])}
 function renderAmbiance(){
   const d=draft;
   frame('Ambiance',`<div class="col">
     <section><h2 class="sec-title">Ambiance de chaque joueur</h2>
       <p class="note" style="margin:-2px 0 12px">Tout le monde est en <b>Standard</b> par défaut. Touchez un prénom sous une ambiance pour l'attribuer à ce joueur.</p>
-      <div class="amb-list">${Object.entries(AMBIANCES).map(([k,a])=>`<div class="amb" data-k="${k}">
+      <div class="amb-list">${Object.entries(AMBIANCES).filter(([k])=>ambAllowed(k)).map(([k,a])=>`<div class="amb" data-k="${k}">
         <span class="amb-name">${a.name}</span><button class="listen" data-act="listen" data-v="${k}">${I.play}Écouter</button>
         <span class="amb-tone">${a.tone}</span><span class="amb-ex">${a.ex.join(' · ')}</span>
         <div class="amb-players">${d.players.map(p=>`<button class="chip pchip" data-act="pamb" data-pid="${p.id}" data-v="${k}" aria-pressed="${draftAmb(p)===k}">${esc(p.name)}</button>`).join('')}</div></div>`).join('')}</div>
@@ -3384,7 +3455,7 @@ function addDart(d){
   if(game.validated==null)game.validated=before.turns.length;
   if(pendingTurn(before)){toastMsg('Validez d\'abord la volée (ou corrigez avec ↶)');return}
   if(before.over)return;
-  game.darts.push(d);saveGame();
+  game.darts.push(d);saveGame();Sound.fx(d.mult?'dart':'dartMiss');
   try{navigator.vibrate&&navigator.vibrate(12)}catch(e){}
   const S=m.run(game);
   if(S.turns.length>before.turns.length&&!needConfirm())validate();
@@ -3402,16 +3473,23 @@ function validate(){
   if(S.over){clearTimeout(endT);endT=setTimeout(()=>{if(game&&GAMES[game.type||'x01'].run(game).over)finishGame()},2400)}
 }
 /* Fin de volée : signal sonore puis réaction de l'ambiance */
-function ambOf(i){const pl=game.players[i];return (game.amb&&pl&&game.amb[pl.id])||(game.amb?'standard':(game.ambiance&&AMBIANCES[game.ambiance]?game.ambiance:'standard'))}
+function ambOf(i){const pl=game.players[i];return ambSafe((game.amb&&pl&&game.amb[pl.id])||(game.amb?'standard':game.ambiance))}
 function react(t,S){
   const m=GAMES[game.type||'x01'],amb=ambOf(t.p),cat=m.cat(t,S),name=game.players[t.p].name;
   const choice=choosePhrase(amb,cat,{n:name,r:t.endRem!=null?t.endRem:''});
   showToast(t,cat,choice.text,m);
   Fx.run(cat);
   const dur=Sound.play(cat);
+  const wait=Math.round(dur*550)+60;
+  if(prefs.voiceMode==='scores'){const txt=m.say(t).replace(/[ !.]+$/,'')||(t.bust?'Dépassé':t.total===0?'Zéro':t.total!=null?String(t.total):'');
+    if(txt)setTimeout(()=>sayScore(txt),wait);return}
   const prefix=prefs.announce&&!Pack.has(amb)?m.say(t):'';
-  setTimeout(()=>Voice.react(choice,prefix,amb),Math.round(dur*550)+60);
+  setTimeout(()=>Voice.react(choice,prefix,amb),wait);
 }
+/* Mode « scores seuls » : la voix dit seulement le score. Un nombre seul est lu depuis le pack
+   enregistré « scores » (clips scores_n_<nombre>) s'il est installé, sinon par la voix du téléphone. */
+function sayScore(txt){if(!prefs.voice||prefs.muted)return;const id='scores_n_'+txt;
+  if(/^\d+$/.test(txt)&&Pack.has('scores')&&Pack.files.scores.has(id))Pack.play(id,ok=>{if(!ok)Voice.say(txt,'standard')});else Voice.say(txt,'standard')}
 function showToast(t,cat,phrase,m){
   const el=document.getElementById('toast');if(!el)return;
   const tag=TAGS[cat]||'';
@@ -3611,6 +3689,7 @@ document.addEventListener('click',e=>{
     case 'decor':prefs.decor=v;savePrefs();document.querySelectorAll('.skin.decor').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===v));break;
     case 'listen':Sound.unlock();Voice.warm();demo(v);break;
     case 'vtest':Sound.unlock();Voice._testing=true;Voice.runTest();break;
+    case 'vmode':prefs.voiceMode=v;savePrefs();render();break;
     case 'tog':prefs[v]=!prefs[v];savePrefs();b.setAttribute('aria-pressed',prefs[v]);if(v==='sounds'&&prefs.sounds)Sound.play('mid');break;
     case 'thr':{const [k,dv]=v.split(':');const t=prefs.thr.x01;t[k]=Math.max(k==='big'?40:0,Math.min(k==='big'?170:90,t[k]+ +dv));if(t.low>=t.big)t.low=t.big-10;savePrefs();renderSettings();break}
     case 'launch':{
@@ -3627,7 +3706,7 @@ document.addEventListener('click',e=>{
       document.getElementById('board').hidden=v!=='board';document.getElementById('pad').hidden=v!=='pad';
       document.querySelectorAll('[data-act="mode"]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===v));
       if(v==='board')drawBoard(document.getElementById('cv'));updateGame();setTimeout(drawDecor,30);break;
-    case 'mute':prefs.muted=!prefs.muted;savePrefs();if(prefs.muted&&Voice.ok)try{speechSynthesis.cancel()}catch(e){}updateGame();break;
+    case 'mute':prefs.muted=!prefs.muted;savePrefs();if(prefs.muted&&Voice.ok)try{speechSynthesis.cancel()}catch(e){}screen==='mplay'?renderOPlay():updateGame();break;
     case 'miss':padNum=null;addDart({seg:0,mult:0});break;
     case 'validate':padNum=null;validate();break;
     case 'undo':padNum=null;undoDart();updateGame();break;
