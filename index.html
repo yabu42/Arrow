@@ -117,6 +117,17 @@ input,select{font:inherit;color:inherit}
 .code-row span{display:block;font-size:12px;color:var(--silver-2)}
 .code-row.used{opacity:.6}
 .code-row .btn{width:auto;min-height:38px;padding:0 12px;font-size:13px}
+a.btn{text-decoration:none}
+.home-head h1{margin:4px 0 0;font-family:var(--ff-num);font-weight:500;font-size:26px}
+.hcards{display:grid;gap:10px}
+.hcard{display:flex;align-items:center;gap:14px;width:100%;padding:12px 14px;text-align:left}
+.hcard .fam-art,.hcard .fam-logo{width:58px;flex:none}
+.hcard .fam-logo svg{width:100%;height:auto}
+.hc-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.hc-txt b{font-size:17px}
+.hc-txt span{font-size:13px;color:var(--silver-2)}
+.hc-txt .hc-free{color:var(--copper);font-weight:600;font-size:12px;margin-top:2px}
+.hcard>svg:last-child{width:20px;height:20px;flex:none;color:var(--silver-2)}
 .resume-row{display:flex;align-items:center;gap:8px}
 .resume-row .resume{flex:1;min-width:0}
 .resume-row .icon-btn{flex:none;color:#ffc7bf}
@@ -1757,8 +1768,9 @@ function playMatch(mid){const t=tById(curTid);const m=t.matches.find(x=>x.id===m
   const pls=[m.a,m.b].map(id=>{const p=t.players.find(x=>x.id===id);const pr=profById(id);return {id,name:p.name,color:(pr&&pr.color)||p.color}});
   const d={type:t.game.type,opts:Object.assign({},t.game.opts)};
   const amb=store.get('ambByName',{});
+  gate(dartsKey(d.type,d.opts,2),dartsLabel(d.type,d.opts),()=>{
   game=Object.assign({id:uid(),created:Date.now(),amb:Object.fromEntries(pls.map(p=>[p.id,amb[p.name]&&AMBIANCES[amb[p.name]]?amb[p.name]:'standard'])),players:pls,darts:[],validated:0,tournament:{tid:t.id,mid:m.id}},asGame(d));
-  if(GAMES[game.type].setup)GAMES[game.type].setup(game);saveGame();Sound.unlock();Voice.warm();go('game');announceStart()}
+  if(GAMES[game.type].setup)GAMES[game.type].setup(game);saveGame();Sound.unlock();Voice.warm();go('game');announceStart()})}
 /* Fin d'une partie de tournoi : on inscrit le résultat */
 function recordTournament(g,S){if(!g.tournament)return;const t=tById(g.tournament.tid);if(!t)return;const m=t.matches.find(x=>x.id===g.tournament.mid);if(!m)return;
   const w=S.winner!=null?g.players[S.winner].id:null;
@@ -1922,7 +1934,6 @@ const Account={
     /* Le profil « propriétaire » de cet appareil devient celui du compte */
     let p=profByCode(user.code)||owner()||profByName(user.name)||ensureProfile(user.name);
     p.code=user.code;if(!profiles().some(x=>x!==p&&x.name.toLowerCase()===user.name.toLowerCase()))p.name=user.name;makeOwner(p);
-    store.set('guest',false);
     await Sync.push();Inbox.check().catch(()=>{});Inbox.flush().catch(()=>{})},
   /* Au démarrage : vérifie la session et récupère ce qui a changé ailleurs */
   async resume(){if(!Cloud.session())return;
@@ -1989,7 +2000,7 @@ window.addEventListener('online',()=>{if(Cloud.session()){Sync.push();Inbox.flus
 /* ---------- Écrans ---------- */
 let authMode='login',authMsg='';
 function authHero(){return `<div class="auth-hero"><div class="logo-wrap">${logoSVG('a',false)}</div><div class="mark">ARROW</div><div class="byline">by elmagination</div></div>`}
-function canSkipAuth(){return !!(owner()||store.get('guest',false)||Cloud.session())}
+function canSkipAuth(){return !!Cloud.session()}
 function renderAuth(){const up=authMode==='signup';
   frame('',`<div class="auth">
     ${canSkipAuth()?`<button class="icon-btn auth-x" data-act="back" aria-label="Fermer">${I.x}</button>`:''}
@@ -2004,8 +2015,7 @@ function renderAuth(){const up=authMode==='signup';
       <button class="btn btn-primary" type="submit">${up?'Créer mon compte':'Se connecter'}</button>
     </form>
     ${up?'':'<button class="linkbtn" data-act="forgot">Mot de passe oublié ?</button>'}
-    <p class="note center">Compte ARROW · indépendant de vos autres applications Elmagination.</p>
-    ${Cloud.session()?'':'<button class="linkbtn dim" data-act="guest">Continuer sans compte</button>'}
+    <p class="note center">Un compte gratuit est nécessaire pour jouer : il garde vos parties et vous donne un code joueur pour relier vos statistiques à celles de vos amis.</p>
   </div>`);authMsg=''}
 function renderForgot(){
   frame('',`<div class="auth">
@@ -2044,8 +2054,10 @@ function renderAccount(){if(!Cloud.session()){go('auth');return}
    Le compte du studio (owner) crée ces codes ici et voit lesquels ont servi. */
 const fmtCode=c=>'ARW-'+c.slice(0,5)+'-'+c.slice(5);
 function premiumCardHTML(acc){
-  const mine=acc.premium?`<p class="form-msg ok" style="margin:0">Premium actif sur ce compte.</p>`
-    :`<form data-form="redeem" class="stack" novalidate><label class="fld"><span>J'ai un code premium</span><input class="tin" id="pCode" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ARW-XXXXX-XXXXX"></label>
+  const mine=acc.premium?`<p class="form-msg ok" style="margin:0">Premium actif sur ce compte : tous les jeux, sans limite, même hors ligne.</p>`
+    :`<p class="note" style="margin-top:0">Compte gratuit : le 501 à 2 joueurs sans limite, et ${FREE_LIMIT} parties pour chaque autre jeu, avec une connexion internet. Le premium ouvre tout, sans limite, même hors ligne.</p>
+      ${premiumOfferHTML()}
+      <form data-form="redeem" class="stack" novalidate><label class="fld"><span>J'ai un code premium</span><input class="tin" id="pCode" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ARW-XXXXX-XXXXX"></label>
         <p class="form-msg" id="pErr" role="alert"></p><button class="btn btn-ghost" type="submit">Activer le premium</button></form>`;
   const studio=acc.owner?`<div class="codes"><h2 class="sec-title" style="margin-top:16px">Codes à distribuer</h2>
       <p class="note">Chaque code ne sert qu'une fois, pour un seul compte.</p>
@@ -2073,7 +2085,6 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-act]
   switch(a){
     case 'amode':authMode=b.dataset.v;renderAuth();break;
     case 'forgot':go('forgot');break;
-    case 'guest':store.set('guest',true);go(owner()?'home':'welcome');break;
     case 'pweye':{const i=b.parentElement.querySelector('input');i.type=i.type==='password'?'text':'password';b.textContent=i.type==='password'?'Afficher':'Masquer';break}
     case 'syncnow':Sync.err=null;updateSyncBox();try{await Sync.pull();await Sync.push();await Inbox.check();await Inbox.flush()}catch(err){Sync.err=err}updateSyncBox();break;
     case 'codenew':{b.disabled=true;try{const j=await Cloud.call('codes_new',{count:1,note:(document.getElementById('cNote')||{}).value||''});await loadCodes();shareCode(j.codes[0])}catch(err){toastMsg(niceCloud(err))}b.disabled=false;break}
@@ -2117,12 +2128,14 @@ const OTHER={
     rules:o=>`Deux équipes lancent leurs boules le plus près possible du cochonnet. À chaque mène, seule l'équipe la mieux placée marque : un point par boule plus proche que la meilleure boule adverse (jusqu'à ${o.max} points). La première équipe à ${o.target} points gagne. ${o.target} à 0, c'est « fanny » !`,
     opts:[{k:'format',label:'Formule',vals:[['tat','Tête-à-tête'],['dbl','Doublette'],['tri','Triplette']],def:'dbl',help:v=>({tat:'1 contre 1, 3 boules chacun : jusqu\'à 3 points par mène.',dbl:'2 contre 2, 3 boules chacun : jusqu\'à 6 points par mène.',tri:'3 contre 3, 2 boules chacun : jusqu\'à 6 points par mène.'})[v]},
           {k:'target',label:'Partie en',vals:[[11,'11'],[13,'13'],[15,'15'],[21,'21']],def:13}],
-    max:o=>o.format==='tat'?3:6,fanny:true,unit:'mène'},
+    max:o=>o.format==='tat'?3:6,fanny:true,unit:'mène',
+    field:{pieces:'Boules',aria:'Terrain de pétanque : touchez pour placer le cochonnet puis chaque boule',hint:'Posez cochonnet et boules · après un tir, touchez la boule déplacée'}},
   palet:{name:'Palet breton',sub:'Palets sur planche en bois',kind:'menes',
     rules:o=>`Sur une planche en bois, chaque équipe lance ses palets en fonte au plus près du petit palet, le « maître ». À chaque mène, l'équipe la mieux placée marque un point par palet plus proche que le meilleur palet adverse. Un palet tombé de la planche ne compte pas. La première équipe à ${o.target} points gagne.`,
     opts:[{k:'max',label:'Palets par équipe',vals:[[4,'4'],[6,'6'],[8,'8'],[12,'12']],def:6,help:()=>'C\'est aussi le nombre maximal de points d\'une mène.'},
           {k:'target',label:'Partie en',vals:[[11,'11'],[12,'12'],[13,'13'],[21,'21']],def:12}],
-    max:o=>o.max,fanny:true,unit:'mène'},
+    max:o=>o.max,fanny:true,unit:'mène',
+    field:{pieces:'Palets',aria:'Planche de palet : touchez pour placer le maître puis chaque palet',hint:'Posez maître et palets (à côté = raté) · touchez un palet pour le déplacer'}},
   tossit:{name:'Tossit',sub:'Fléchettes à ventouse et Jack',kind:'menes',
     rules:o=>`Comme à la pétanque, avec des fléchettes à ventouse : on lance d'abord le Jack, puis chacun tente de coller ses Tossit au plus près. Tant qu'une équipe est la plus proche, l'autre continue de lancer. À la fin de la manche, l'équipe la mieux placée marque un point par Tossit plus proche que le meilleur adverse. La première à ${o.target} points gagne.`,
     opts:[{k:'max',label:'Tossit par équipe',vals:[[3,'3'],[6,'6']],def:3},{k:'target',label:'Partie en',vals:[[11,'11'],[13,'13'],[21,'21']],def:13}],
@@ -2176,7 +2189,9 @@ function run2(g){const D=OTHER[g.kind],o=g.opts,n=g.teams.length;
    mkSel = quilles sélectionnées, mkMiss = point de pelouse touché pour un raté ({x,z}) ;
    chDraft = sacs de la manche : a/b = [dans le trou, sur la planche], bags = sacs dessinés. */
 let g2=store.get('current2',null),odraft=null,mkSel=[],mkMiss=null,chDraft={a:[0,0],b:[0,0]};
-function resetOtherDraft(){mkSel=[];mkMiss=null;chDraft={a:[0,0],b:[0,0]}}
+/* tgDraft (pétanque, palet en 3D) : jack = cochonnet ou maître {x,z}, pieces = boules ou palets posés */
+let tgDraft={jack:null,pieces:[]};
+function resetOtherDraft(){mkSel=[];mkMiss=null;chDraft={a:[0,0],b:[0,0]};tgDraft={jack:null,pieces:[]};if(typeof TG3!=='undefined')TG3.sel=null}
 function saveG2(){if(g2)store.set('current2',g2);else store.del('current2')}
 function newODraft(kind){const D=OTHER[kind],o={};D.opts.forEach(x=>o[x.k]=x.def);const last=store.get('lastOther',{})[kind];
   const P=profilesByRecent().map(p=>p.name);
@@ -2207,10 +2222,17 @@ function renderOPlay(){
   const D=OTHER[g2.kind],S=run2(g2),o=g2.opts;let body='';
   const over=S.winner!=null;
   if(D.kind==='menes'){const max=D.max(o);
+    /* pavé de saisie directe des points d'une équipe */
+    const pad=i=>`<div class="mt-pts">${[...Array(max)].map((_,k)=>`<button data-act="mpt" data-v="${i}|${k+1}">+${k+1}</button>`).join('')}</div>`;
     body=`<div class="mteams">${g2.teams.map((t,i)=>`<section class="mteam ${S.winner===i?'win':''}" id="mt${i}"><div class="mt-name">${esc(t.name)}</div>${t.members&&t.members.length?`<div class="mt-mem">${t.members.map(esc).join(', ')}</div>`:''}
       <div class="mt-score">${S.sc[i]}</div><div class="mt-bar"><i style="width:${Math.min(100,S.sc[i]/o.target*100)}%"></i></div>
-      ${over?'':`<div class="mt-pts">${[...Array(max)].map((_,k)=>`<button data-act="mpt" data-v="${i}|${k+1}">+${k+1}</button>`).join('')}</div>`}</section>`).join('')}</div>
-      <p class="note center">Objectif ${o.target} points · touchez les points gagnés par l'équipe à la fin de la ${D.unit}.</p>`}
+      ${over||D.field?'':pad(i)}</section>`).join('')}</div>
+      ${over||!D.field?'':`<div class="ch-teams" role="group" aria-label="À quelle équipe ?">${[0,1].map(i=>`<button class="chip" data-act="tgteam" data-v="${i}" aria-pressed="${TG3.team===i}"><i class="bagdot ${i?'b':'a'}"></i>${D.field.pieces} ${esc(g2.teams[i].name)}</button>`).join('')}</div>
+      <div class="scene tg-scene"><canvas id="tgCv" aria-label="${D.field.aria}"></canvas><span class="scene-hint">${D.field.hint}</span></div>
+      <p class="ch-sum" id="tgSum"></p>
+      <button class="btn btn-primary" data-act="tgval">Valider la ${D.unit}</button>
+      <details class="mk-alt"><summary>Saisir les points sans le terrain</summary>${g2.teams.map((t,i)=>`<p class="cat-lbl">${esc(t.name)}</p>${pad(i)}`).join('')}</details>`}
+      <p class="note center">Objectif ${o.target} points · ${D.field?'placez les '+D.field.pieces.toLowerCase()+' comme sur le terrain : les points sont comptés tout seuls.':'touchez les points gagnés par l\'équipe à la fin de la '+D.unit+'.'}</p>`}
   if(D.kind==='cornhole'){
     const side=i=>`<section class="mteam ${S.winner===i?'win':''}" id="mt${i}"><div class="mt-name"><i class="bagdot ${i?'b':'a'}"></i>${esc(g2.teams[i].name)}</div><div class="mt-score">${S.sc[i]}</div><div class="mt-bar"><i style="width:${Math.min(100,S.sc[i]/o.target*100)}%"></i></div></section>`;
     body=`<div class="mteams">${side(0)}${side(1)}</div>
@@ -2236,6 +2258,7 @@ function renderOPlay(){
       <div class="row2" style="margin-top:8px">${g2.events.length?'<button class="btn btn-ghost" data-act="mundo">'+I.undo+' Annuler la dernière saisie</button>':''}<button class="btn btn-ghost" data-act="mute" aria-pressed="${prefs.muted}">${prefs.muted?I.mute+' Remettre le son':I.snd+' Couper le son'}</button></div></section>
   </div>`);
   if(!over&&D.kind==='molkky')MK3.mount();if(!over&&D.kind==='cornhole'){CH3.mount();chUpdate()}
+  if(!over&&D.field)TG3.mount();
 }
 function chLabel(){const o=g2.opts,a=chDraft.a,b=chDraft.b,pa=a[0]*3+a[1],pb=b[0]*3+b[1],na=o.cancel?Math.max(0,pa-pb):pa,nb=o.cancel?Math.max(0,pb-pa):pb;
   return 'Valider la manche · '+(o.cancel?(na?g2.teams[0].name+' +'+na:nb?g2.teams[1].name+' +'+nb:'aucun point'):'+'+pa+' / +'+pb)}
@@ -2413,6 +2436,21 @@ const Geo={
     for(let j=0;j<=seg;j++){const a=j/seg*Math.PI*2,c=Math.cos(a),s=Math.sin(a);Geo.vert(g,[r0*c,0,r0*s],[0,1,0],[0,0]);Geo.vert(g,[r1*c,0,r1*s],[0,1,0],[1,1])}
     for(let j=0;j<seg;j++){const i=j*2;g.i.push(i,i+2,i+1,i+1,i+2,i+3)}return g},
 
+  /* Boule (pétanque, cochonnet) : u = tour, v = du bas vers le haut */
+  sphere(r,seg=36,rings=22){const g=Geo.make(),ring=k=>{const a=k/rings*Math.PI,y=-Math.cos(a),rr=Math.sin(a),o=[];
+      for(let j=0;j<=seg;j++){const b=j/seg*Math.PI*2,n=[rr*Math.cos(b),y,rr*Math.sin(b)];o.push({p:V3.mul(n,r),n,t:[j/seg,k/rings]})}return o};
+    for(let k=0;k<rings;k++)Geo.band(g,ring(k),ring(k+1));return g},
+
+  /* Palet : disque épais aux arêtes adoucies, posé sur y = 0. Deux morceaux : tranche + dessous, et face du dessus */
+  puck(r,h,ch,seg=44){const body=Geo.make(),top=Geo.make();
+    const ring=(rad,y,nf)=>{const o=[];for(let j=0;j<=seg;j++){const a=j/seg*Math.PI*2,c=Math.cos(a),s=Math.sin(a);o.push({p:[rad*c,y,rad*s],n:nf(c,s),t:[j/seg*4,y/h]})}return o};
+    const side=(c,s)=>[c,0,s],up=(c,s)=>V3.norm([c,1,s]),dn=(c,s)=>V3.norm([c,-1,s]);
+    Geo.band(body,ring(r-ch,0,dn),ring(r,ch,dn));Geo.band(body,ring(r,ch,side),ring(r,h-ch,side));Geo.band(body,ring(r,h-ch,up),ring(r-ch,h,up));
+    Geo.fan(body,{p:[0,0,0],n:[0,-1,0],t:[0,0]},ring(r-ch,0,()=>[0,-1,0]),true);
+    const ri=r-ch,face=[];for(let j=0;j<=seg;j++){const a=j/seg*Math.PI*2,c=Math.cos(a),sn=Math.sin(a);face.push({p:[ri*c,h,ri*sn],n:[0,1,0],t:[c/2+.5,-sn/2+.5]})}
+    Geo.fan(top,{p:[0,h,0],n:[0,1,0],t:[.5,.5]},face,true);
+    return {body,top}},
+
   /* Boîte centrée ; texture en mètres (répétée par le matériau) */
   box(sx,sy,sz){const g=Geo.make(),h=[sx/2,sy/2,sz/2];
     const F=[[[1,0,0],[0,0,-1],[0,1,0]],[[-1,0,0],[0,0,1],[0,1,0]],[[0,1,0],[1,0,0],[0,0,-1]],[[0,-1,0],[1,0,0],[0,0,1]],[[0,0,1],[1,0,0],[0,1,0]],[[0,0,-1],[-1,0,0],[0,1,0]]];
@@ -2488,6 +2526,34 @@ const Paint={
     /* légère usure de la peinture */
     c.globalCompositeOperation='multiply';for(let i=0;i<1400;i++){c.fillStyle=`rgba(200,180,150,${R()*.2})`;c.fillRect(R()*w,R()*h,1+R()*2,1+R()*3)}
     c.globalCompositeOperation='source-over'},
+
+  /* Terrain de pétanque : sable stabilisé et petits graviers */
+  gravel(c,w,h,R){c.fillStyle='#9c8563';c.fillRect(0,0,w,h);
+    const dot=(x,y,r,col)=>{c.fillStyle=col;for(const dx of [-w,0,w])for(const dy of [-h,0,h]){if(x+dx<-r||x+dx>w+r||y+dy<-r||y+dy>h+r)continue;c.beginPath();c.ellipse(x+dx,y+dy,r,r*(.6+R()*.4),R()*3,0,7);c.fill()}};
+    for(let i=0;i<9000;i++)dot(R()*w,R()*h,.6+R()*1.6,`hsla(${26+R()*16},${14+R()*24}%,${26+R()*42}%,${.4+R()*.45})`);
+    for(let i=0;i<700;i++){const x=R()*w,y=R()*h,r=2+R()*3.5;dot(x+1.2,y+1.6,r,'rgba(40,30,20,.35)');dot(x,y,r,`hsl(${24+R()*20},${8+R()*18}%,${40+R()*30}%)`)}},
+
+  /* Acier d'une boule : métal brossé avec des stries (fines = 1 trait, doubles = 2 traits) pour distinguer les équipes */
+  steel:double=>(c,w,h,R)=>{c.fillStyle='#8f949b';c.fillRect(0,0,w,h);
+    for(let y=0;y<h;y++){c.fillStyle=`rgba(${R()<.5?255:0},${R()<.5?255:0},${R()<.5?255:0},${R()*.07})`;c.fillRect(0,y,w,1)}
+    c.fillStyle='rgba(20,22,28,.6)';
+    for(const v of (double?[.3,.34,.48,.52,.66,.7]:[.25,.38,.5,.62,.75]))c.fillRect(0,v*h-1.5,w,3);
+    for(let i=0;i<600;i++){c.fillStyle=`rgba(255,255,255,${R()*.12})`;c.fillRect(R()*w,R()*h,1+R()*5,1)}},
+
+  /* Dessus d'un palet en fonte : métal sombre grenu, anneau de couleur d'équipe */
+  paletTop:col=>(c,w,h,R)=>{c.fillStyle='#3a3d44';c.fillRect(0,0,w,h);
+    for(let i=0;i<4000;i++){c.fillStyle=R()<.5?`rgba(0,0,0,${R()*.25})`:`rgba(255,255,255,${R()*.1})`;c.fillRect(R()*w,R()*h,2,2)}
+    for(let k=0;k<5;k++){c.strokeStyle='rgba(0,0,0,.18)';c.lineWidth=1;c.beginPath();c.arc(w/2,h/2,w*(.1+k*.085),0,7);c.stroke()}
+    c.strokeStyle=col;c.lineWidth=w*.11;c.beginPath();c.arc(w/2,h/2,w*.3,0,7);c.stroke();
+    c.fillStyle=col;c.beginPath();c.arc(w/2,h/2,w*.07,0,7);c.fill()},
+
+  /* Planche de palet : lames de peuplier claires, marquées par les impacts */
+  planks(c,w,h,R){c.fillStyle='#c4a678';c.fillRect(0,0,w,h);
+    for(let i=0;i<220;i++){const y=R()*h,amp=2+R()*6,ph=R()*7;c.strokeStyle=`rgba(${150+R()*30|0},${110+R()*25|0},${66+R()*20|0},${.05+R()*.1})`;c.lineWidth=1+R()*3;
+      c.beginPath();for(let x=0;x<=w;x+=8){const yy=y+Math.sin(x*.01+ph)*amp;x?c.lineTo(x,yy):c.moveTo(x,yy)}c.stroke()}
+    for(let k=1;k<5;k++){c.fillStyle='rgba(60,40,22,.55)';c.fillRect(0,k*h/5-1,w,2.5);c.fillStyle='rgba(255,245,220,.25)';c.fillRect(0,k*h/5+1.5,w,1)}
+    for(let i=0;i<70;i++){const x=R()*w,y=R()*h,r=3+R()*9;c.strokeStyle=`rgba(70,50,30,${.12+R()*.2})`;c.lineWidth=1.5;c.beginPath();c.arc(x,y,r,R()*6,R()*6+1.2+R()*2);c.stroke()}
+    for(let i=0;i<5000;i++){c.fillStyle=`rgba(255,250,235,${R()*.06})`;c.fillRect(R()*w,R()*h,2,1)}},
 
   /* Toile d'un sac : tissage serré, couture piquée au fil clair, chevron ARROW brodé.
      Renvoie un peintre pour les couleurs données (toile, fil, broderie). */
@@ -2685,13 +2751,14 @@ const G3_ENV={sun:[-.5,.85,-.42],sunCol:[2.8,2.25,1.6],sky:[.4,.44,.54],gnd:[.14
 const sRGB=h=>[1,3,5].map(i=>Math.pow(parseInt(h.slice(i,i+2),16)/255,2.2));
 
 /* =========================================================
-   Scènes 3D : Mölkky (quilles sur la pelouse) et Cornhole (planche inclinée)
+   Scènes 3D : Mölkky (quilles sur la pelouse), Cornhole (planche inclinée),
+   pétanque (terrain en gravier) et palet (planche en bois)
    Dessinées par le moteur gl3d.js. On touche directement les quilles ou la
    planche ; tout s'anime (chute des quilles, lancer du bâton, vol des sacs).
 
    Liens avec le reste de l'appli :
    - other.js écrit <canvas id="mkCv"> ou <canvas id="chCv"> dans la page,
-     puis appelle MK3.mount() ou CH3.mount() ;
+     (ou "tgCv" pour la pétanque et le palet), puis appelle MK3.mount(), CH3.mount() ou TG3.mount() ;
    - mkSel (quilles sélectionnées), mkMiss (raté sur la pelouse) et chDraft
      (sacs de la manche) sont l'état de saisie, déclaré dans other.js ;
      app.js appelle MK3.throwStick(), CH3.draw(), chEnsureBags() et chTeam().
@@ -2920,14 +2987,148 @@ function chEnsureBags(){if(!chDraft.bags)chDraft.bags=[];const want={a:chDraft.a
 function chSync(){for(const t of ['a','b'])chDraft[t]=[chDraft.bags.filter(b=>b.t===t&&b.hole).length,chDraft.bags.filter(b=>b.t===t&&!b.hole&&!b.miss).length];chUpdate()}
 function chTeam(t){CH3.team=t;document.querySelectorAll('[data-act="chteam"]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===t))}
 
+/* ---------------- Pétanque et palet ----------------
+   On pose le cochonnet (ou le maître), puis chaque boule (ou palet) là où elle
+   s'est arrêtée. L'appli compte toute seule : l'équipe la plus proche marque un
+   point par pièce plus proche que la meilleure pièce adverse. Elle propose aussi
+   l'équipe qui doit jouer : celle qui n'a pas le point (règle officielle).
+   Après un tir : toucher la pièce déplacée (elle s'allume) puis sa nouvelle place ;
+   la retoucher l'enlève ; à la pétanque, toucher le bois du fond l'annule.
+   État de saisie : tgDraft (other.js). La partie enregistre {t, pts}, comme le pavé. */
+const TG_CFG={
+  /* r = rayon d'une pièce, jr = rayon du but (m) ; zone = partie du terrain que l'on peut toucher ;
+     wood = planche de fond : une boule qui la touche est annulée */
+  petanque:{r:.037,jr:.015,zone:{x:.43,z0:-.8,z1:.06},wood:true,fxPiece:'boule',fxJack:'jack',fxHit:'clack',jackName:'cochonnet'},
+  /* planche de 70 cm ; h = épaisseur du palet, bh = épaisseur de la planche */
+  palet:{r:.0275,jr:.019,h:.007,bh:.022,half:.35,zone:{x:.47,z0:-.47,z1:.47},fxPiece:'paletBoard',fxJack:'paletBoard',fxHit:'paletBoard',jackName:'maître'}
+};
+const TG3={cam:null,team:0,sel:null,
+  cfg(){return TG_CFG[g2.kind]},
+  max(){return OTHER[g2.kind].max(g2.opts)},
+  onBoard(p){const c=this.cfg();return !c.half||(Math.abs(p.x)<=c.half&&Math.abs(p.z)<=c.half)},
+  /* hauteur du centre d'une boule, ou du dessous d'un palet */
+  yOf(p){const c=this.cfg();return c.h?(p.out?0:c.bh):(p===tgDraft.jack?c.jr:c.r)},
+
+  mount(){if(!G3.attach('tgCv',1,this))return;const c=this.cfg(),z=c.zone,back=z.z0-(c.wood?.14:0);
+    if(!tgDraft.jack&&!tgDraft.pieces.length)this.team=g2.events.length?g2.events[g2.events.length-1].t:0;
+    if(this.sel!==tgDraft.jack&&!tgDraft.pieces.includes(this.sel))this.sel=null;
+    const pts=[];for(const x of [-z.x,z.x])for(const zz of [back,z.z1])pts.push([x,0,zz],[x,.09,zz]);
+    this.cam=G3.frame([0,0,(back+z.z1)/2],V3.norm([0,1.7,1]),.42,pts,.96,.9,0);
+    this.setTeam(this.team);this.draw();tgUpdate()},
+  setTeam(t){this.team=t;document.querySelectorAll('[data-act="tgteam"]').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.v===t))},
+
+  /* Pièces qui comptent, triées de la plus proche à la plus lointaine du but */
+  ranked(){const j=tgDraft.jack;if(!j)return [];
+    return tgDraft.pieces.filter(p=>!p.out&&!p.dead).map(p=>({p,d:Math.hypot(p.x-j.x,p.z-j.z)})).sort((a,b)=>a.d-b.d)},
+  /* Résultat de la mène : {t: équipe, pts, win: pièces qui marquent}, ou null si rien à compter */
+  score(){const R=this.ranked();if(!R.length)return null;
+    const t=R[0].p.t,k=R.findIndex(r=>r.p.t!==t),win=(k<0?R:R.slice(0,k)).map(r=>r.p);
+    return {t,pts:win.length,win}},
+  /* Équipe qui doit jouer : celle qui n'a pas le point, s'il lui reste des pièces */
+  next(){const n=t=>tgDraft.pieces.filter(p=>p.t===t).length,max=this.max(),s=this.score();
+    let t=s?1-s.t:tgDraft.pieces.length?1-tgDraft.pieces[tgDraft.pieces.length-1].t:this.team;
+    if(n(t)>=max&&n(1-t)<max)t=1-t;return t},
+
+  /* Pièce ou but sous le doigt (test à l'écran) */
+  pick(sx,sy,o,r){const y=this.yOf(o),c=G3.project([o.x,y,o.z]),e=G3.project([o.x+r,y,o.z]);return Math.hypot(sx-c.x,sy-c.y)<Math.abs(e.x-c.x)*1.15+4},
+  /* Deux pièces ne se superposent pas : pos est décalée juste à côté des autres (skip = la pièce déplacée) */
+  free(pos,skip){const c=this.cfg(),D=tgDraft,all=[...D.pieces.filter(p=>!p.dead).map(p=>({o:p,r:c.r})),...(D.jack?[{o:D.jack,r:c.jr}]:[])].filter(a=>a.o!==skip),mine=skip===D.jack?c.jr:c.r;
+    for(let k=0;k<4;k++)for(const a of all){const dx=pos.x-a.o.x,dz=pos.z-a.o.z,d=Math.hypot(dx,dz)||1e-4,min=mine+a.r+.002;if(d<min){pos.x=a.o.x+dx/d*min;pos.z=a.o.z+dz/d*min}}},
+  /* Glissade d'une pièce de sa place actuelle vers (x, z) : c'est l'effet d'un tir */
+  slide(o,x,z){const c=this.cfg();o.anim={t0:performance.now(),dur:430,from:{x:o.x,z:o.z}};o.x=x;o.z=z;Sound.fx(c.fxHit);
+    if(reducedMotion()){delete o.anim;this.draw()}else this.animate()},
+
+  tap(sx,sy){if(!g2||g2.finishedAt)return;const c=this.cfg(),z=c.zone,D=tgDraft;
+    /* 1. une pièce (ou le but) sous le doigt : on la sélectionne ; la retoucher l'enlève */
+    let hit=null;for(let i=D.pieces.length-1;i>=0&&!hit;i--)if(this.pick(sx,sy,D.pieces[i],c.r))hit=D.pieces[i];
+    if(!hit&&D.jack&&this.pick(sx,sy,D.jack,c.jr*1.6))hit=D.jack;
+    if(hit){if(this.sel!==hit)this.sel=hit;
+      else{this.sel=null;if(hit===D.jack)D.jack=null;else{D.pieces.splice(D.pieces.indexOf(hit),1);this.setTeam(hit.t)}}
+      this.draw();tgUpdate();return}
+    const g=MK3.ground(sx,sy);if(!g)return;
+    const wood=!!c.wood&&g.z<z.z0,pos={x:Math.max(-z.x,Math.min(z.x,g.x)),z:Math.max(z.z0+c.r,Math.min(z.z1,g.z))};
+    Sound.unlock();
+    /* 2. une pièce est sélectionnée : elle part à sa nouvelle place, ou contre le bois du fond (annulée) */
+    if(this.sel){const o=this.sel,isJack=o===D.jack;
+      if(isJack&&(wood||!this.onBoard(pos))){toastMsg(`Le ${c.jackName} doit rester ${c.half?'sur la planche':'sur le terrain'}`);return}
+      this.sel=null;
+      if(wood){o.dead=true;this.slide(o,o.x,z.z0+c.r)}
+      else{this.free(pos,o);if(!isJack){o.dead=false;o.out=!this.onBoard(pos)}this.slide(o,pos.x,pos.z)}
+      this.setTeam(this.next());tgUpdate();return}
+    /* 3. sinon on pose : d'abord le but, puis une pièce de l'équipe en cours */
+    if(!D.jack){if(wood)return;if(!this.onBoard(pos)){toastMsg('Le maître doit être sur la planche');return}
+      D.jack=pos;Sound.fx(c.fxJack);this.draw();tgUpdate();return}
+    const t=this.team;
+    if(D.pieces.filter(p=>p.t===t).length>=this.max()){toastMsg(`${g2.teams[t].name} a déjà joué ses ${this.max()} ${OTHER[g2.kind].field.pieces.toLowerCase()}`);return}
+    if(!wood)this.free(pos);
+    const p={t,x:pos.x,z:wood?z.z0+c.r:pos.z,rot:Math.random()*6.28,out:!this.onBoard(pos),dead:wood};
+    D.pieces.push(p);this.setTeam(this.next());tgUpdate();
+    if(reducedMotion()){this.landed(p);this.draw()}else{p.anim={t0:performance.now(),dur:520};this.animate()}},
+  /* Bruit d'arrivée d'une pièce lancée */
+  landed(p){Sound.fx(p.out?'paletGround':p.dead?'jack':this.cfg().fxPiece)},
+
+  animate(){G3.play(now=>{let busy=false;
+    for(const o of [...tgDraft.pieces,tgDraft.jack])if(o&&o.anim){
+      if(now-o.anim.t0>=o.anim.dur){const thrown=!o.anim.from;delete o.anim;if(thrown)this.landed(o)}else busy=true}
+    this.draw(now);return busy})},
+
+  /* Position d'une pièce : posée, en vol depuis le joueur, ou en train de glisser après un tir */
+  place(p,now){const c=this.cfg(),y=this.yOf(p),end=[p.x,y,p.z],rot=p.rot||0;
+    if(!p.anim)return M4.mul(M4.move(...end),M4.rotY(rot));
+    const k=Math.min(1,(now-p.anim.t0)/p.anim.dur);
+    if(p.anim.from){const e=ease.out(k),f=p.anim.from,d=Math.hypot(end[0]-f.x,end[2]-f.z);
+      return M4.mul(M4.move(...lerp3([f.x,y,f.z],end,e)),M4.rotY(rot),c.h?M4.rotY((1-e)*4):M4.rotX(-(1-e)*d/c.r))}
+    const e=Math.sin(k*Math.PI/2),start=[p.x*.4+(p.t?.12:-.12),.3,c.zone.z1+.5];
+    const pos=V3.add(lerp3(start,end,e),[0,.22*Math.sin(Math.PI*e),0]);
+    return M4.mul(M4.move(...pos),M4.rotY(rot+(1-e)*(c.h?9:0)),M4.rotX(c.h?(1-e)*.5:-(1-e)*7))},
+
+  draw(now){if(G3.scene!==this||!this.cam)return;now=now||performance.now();
+    const c=this.cfg(),D=tgDraft,z=c.zone,pal=!!c.h,top=c.bh||0,items=[],occ=[],birch=G3.tex('birch',512,512,Paint.birch,11);
+    const s=this.score(),win=s?s.win:[],planks=()=>G3.tex('planks',512,512,Paint.planks,17);
+    const ring=(o,r,emis)=>({mesh:G3.mesh('tgRing'+r,()=>Geo.ring(r+.004,r+.011)),tex:birch,M:M4.move(o.x,(o.out?0:top)+.0015,o.z),tint:[0,0,0],emis,spec:0,alpha:.95,noShadow:true});
+    const SEL=[.55,.9,1.7],WIN=[1.5,1.05,.55],glow=o=>this.sel===o?[.1,.17,.34]:null;
+    if(pal){items.push(lawnItem(),
+        {mesh:G3.mesh('plBox',()=>Geo.box(c.half*2,c.bh,c.half*2)),tex:planks(),M:M4.move(0,c.bh/2-.0004,0),tint:[.8,.7,.56],uv:[1.4,1.4,0,0]},
+        {mesh:G3.mesh('plTop',()=>Geo.plane(-c.half,c.half,-c.half,c.half,true)),tex:planks(),M:M4.move(0,c.bh,0),tint:[.82,.8,.78],shine:30,spec:.1});
+      occ.push({a:[-c.half+.1,-.2,0],b:[c.half-.1,-.2,0],r:.23,k:.5})}
+    else{items.push({mesh:G3.mesh('lawn',()=>Geo.plane(-6,6,-8,4)),tex:G3.tex('gravel',512,512,Paint.gravel,31),M:M4.id(),uv:[1/.32,1/.32,0,0],macro:.28,shine:8,spec:.03,noShadow:true},
+        /* planche de fond du terrain */
+        {mesh:G3.mesh('tgWood',()=>Geo.box(3,.11,.07)),tex:planks(),M:M4.move(0,.055,z.z0-.036),tint:[.5,.36,.23],uv:[1.2,1.2,0,0],shine:20,spec:.08});
+      occ.push({a:[-1.2,.03,z.z0-.03],b:[1.2,.03,z.z0-.03],r:.05,k:.9})}
+    /* le but : cochonnet en bois clair, ou maître (petit palet en laiton) */
+    if(D.jack){const j=D.jack,M=this.place(j,now);
+      if(pal){const g=()=>this.jg||(this.jg=Geo.puck(c.jr,c.h,.0012));
+        items.push({mesh:G3.mesh('mtBody',()=>g().body),tex:birch,M,tint:[.9,.62,.2],shine:50,spec:.5,emis:glow(j)},
+          {mesh:G3.mesh('mtTop',()=>g().top),tex:birch,M,tint:[1.15,.8,.28],shine:60,spec:.6,emis:glow(j)})}
+      else items.push({mesh:G3.mesh('jack',()=>Geo.sphere(c.jr,24,14)),tex:birch,M,tint:[1.5,.62,.16],shine:30,spec:.25,emis:glow(j)});
+      if(!j.anim){if(this.sel===j)items.push(ring(j,c.jr,SEL));occ.push({a:[j.x,top+c.jr*.6,j.z],b:[j.x,top+c.jr*.6,j.z],r:c.jr,k:1})}}
+    /* les pièces : anneau champagne = marque le point, anneau bleu = sélectionnée, sombre = annulée */
+    const pg=()=>this.pg||(this.pg=Geo.puck(c.r,c.h,.0016)),ink=['#e08a45','#5a93e0'],iron=[.55,.55,.6];
+    for(const p of D.pieces){const M=this.place(p,now),y=this.yOf(p),k=p.dead?.42:1,emis=glow(p);
+      if(pal){const tex=G3.tex('palet'+p.t,256,256,Paint.paletTop(ink[p.t]),41);
+        items.push({mesh:G3.mesh('paletBody',()=>pg().body),tex,M,tint:iron,uv:[.02,.02,.02,.02],shine:36,spec:.35,emis},{mesh:G3.mesh('paletTop',()=>pg().top),tex,M,tint:iron,shine:36,spec:.3,emis})}
+      else items.push({mesh:G3.mesh('boule',()=>Geo.sphere(c.r)),tex:G3.tex('steel'+p.t,256,256,Paint.steel(!!p.t),43),M,tint:(p.t?[.4,.47,.6]:[.7,.46,.22]).map(v=>v*k),shine:70,spec:1.5*k,emis});
+      if(!p.anim){if(this.sel===p)items.push(ring(p,c.r,SEL));else if(win.includes(p))items.push(ring(p,c.r,WIN));
+        occ.push({a:[p.x,y+c.r*.5,p.z],b:[p.x,y+c.r*.5,p.z],r:c.r,k:1})}}
+    G3.render({cam:this.cam,env:G3_ENV,items,occ:occ.slice(0,24),shadowBox:{c:[0,.05,(z.z0+z.z1)/2],r:Math.max(z.x,(z.z1-z.z0)/2)+(c.wood?.75:.2)}})}
+};
+/* Résumé sous le terrain et libellé du bouton de validation */
+function tgUpdate(){const sum=document.getElementById('tgSum'),btn=document.querySelector('[data-act="tgval"]');if(!sum||!btn)return;
+  const c=TG3.cfg(),F=OTHER[g2.kind].field,U=OTHER[g2.kind].unit,max=TG3.max(),s=TG3.score(),what=F.pieces.toLowerCase();
+  const line=i=>{const mine=tgDraft.pieces.filter(p=>p.t===i),out=mine.filter(p=>p.out).length,dead=mine.filter(p=>p.dead).length;
+    return `<span><i class="bagdot ${i?'b':'a'}"></i><b>${esc(g2.teams[i].name)}</b> ${mine.length}/${max} ${what}${out?' · '+out+' à côté':''}${dead?' · '+dead+' annulée'+(dead>1?'s':''):''}${s&&s.t===i?' · <b>'+s.pts+' point'+(s.pts>1?'s':'')+'</b>':''}</span>`};
+  sum.innerHTML=TG3.sel?`<span><b>Sélection :</b> touchez sa nouvelle place${c.wood&&TG3.sel!==tgDraft.jack?', le bois du fond pour l\'annuler,':''} ou retouchez-la pour l'enlever.</span>`
+    :tgDraft.jack?line(0)+line(1):`<span>Touchez ${c.half?'la planche':'le terrain'} pour placer le ${c.jackName}.</span>`;
+  btn.disabled=!s;btn.textContent=s?`Valider la ${U} · ${g2.teams[s.t].name} +${s.pts}`:`Valider la ${U}`}
+
 /* Petit « toc » de bois quand une quille tombe */
 function woodKnock(){if(!prefs.sounds||prefs.muted)return;Sound.unlock();if(!Sound.ctx)return;const t=Sound.ctx.currentTime;
   Sound.note(240,t,.09,{type:'triangle',g:.28,slide:110});Sound.note(820,t+.005,.04,{g:.07})}
 /* Rotation de l'écran : on recadre la scène affichée */
 window.addEventListener('resize',()=>{clearTimeout(window._scT);window._scT=setTimeout(()=>{if(screen!=='mplay')return;
-  if(document.getElementById('mkCv'))MK3.mount();if(document.getElementById('chCv'))CH3.mount()},200)});
+  if(document.getElementById('mkCv'))MK3.mount();if(document.getElementById('chCv'))CH3.mount();if(document.getElementById('tgCv'))TG3.mount()},200)});
 
-const VERSION='2.7 · 13 novembre 2026';
+const VERSION='3.0 · 13 novembre 2026';
 function sendButtons(g){const o=owner();const l=g.players.map(pl=>profById(pl.id)).filter(pr=>pr&&pr.code&&(!o||pr.code!==o.code)&&pendingFor(pr.code));
   return l.length?`<section class="card"><h2 class="sec-title">Envoyer les statistiques</h2><div class="stack">${l.map(pr=>`<button class="btn btn-ghost" data-act="sendstats" data-v="${pr.code}">${I.share} Envoyer à ${esc(pr.name)} (${pendingFor(pr.code)} partie${pendingFor(pr.code)>1?'s':''})</button>`).join('')}</div></section>`:''}
 /* =========================================================
@@ -2984,7 +3185,8 @@ const Sound={ctx:null,out:null,
     v.gain.setValueAtTime(g,t);v.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(fl);fl.connect(v);v.connect(this.out);s.start(t,Math.random()*.5,d+.05)},
   /* Bruits de jeu (coupés par « Sons » ou par le bouton muet) :
      dart = fléchette dans la cible, dartMiss = fléchette à côté,
-     bagBoard / bagHole / bagGrass = sac de cornhole sur la planche, dans le trou, sur le gazon */
+     bagBoard / bagHole / bagGrass = sac de cornhole sur la planche, dans le trou, sur le gazon,
+     boule / jack = boule et cochonnet sur le gravier, clack = boule frappée par un tir, paletBoard / paletGround = palet sur la planche ou à côté */
   fx(kind){if(!prefs.sounds||prefs.muted)return;this.unlock();if(!this.ctx)return;
     const c=this.ctx,t=c.currentTime+.01;this.out.gain.setValueAtTime(Math.max(.0001,prefs.volume),c.currentTime);
     switch(kind){
@@ -2994,6 +3196,12 @@ const Sound={ctx:null,out:null,
         this.note(84,t+.085,.1,{g:.16,slide:50,a:.003});this.noise(t+.085,.05,{f:300,type:'lowpass',g:.12});break;
       case 'bagHole':this.noise(t,.05,{f:700,q:1,g:.22});this.note(140,t,.06,{type:'triangle',g:.2,slide:80,a:.002});
         this.noise(t+.05,.2,{f:2200,q:.6,g:.05});this.note(72,t+.2,.18,{g:.4,slide:40,a:.004});this.noise(t+.2,.1,{f:260,type:'lowpass',g:.3});break;
+      case 'boule':this.noise(t,.11,{f:1500,q:.6,g:.22});this.note(86,t,.12,{g:.45,slide:48,a:.003});this.noise(t,.07,{f:300,type:'lowpass',g:.3});break;
+      case 'jack':this.note(520,t,.05,{type:'triangle',g:.14,slide:300,a:.002});this.noise(t,.05,{f:1800,q:.8,g:.1});break;
+      case 'paletBoard':this.noise(t,.02,{f:5200,type:'highpass',g:.3});this.note(1870,t,.16,{g:.12,a:.001});this.note(2930,t,.1,{g:.07,a:.001});this.note(4100,t,.06,{g:.04,a:.001});
+        this.note(150,t,.1,{type:'triangle',g:.45,slide:80,a:.002});this.noise(t,.06,{f:600,q:.8,g:.3});this.note(1870,t+.07,.07,{g:.04,a:.001});this.noise(t+.07,.03,{f:700,q:.8,g:.1});break;
+      case 'clack':this.noise(t,.012,{f:5000,type:'highpass',g:.35});this.note(2350,t,.07,{g:.2,a:.001});this.note(3720,t,.05,{g:.12,a:.001});this.note(5300,t,.03,{g:.06,a:.001});break;
+      case 'paletGround':this.noise(t,.1,{f:260,type:'lowpass',g:.35});this.note(78,t,.1,{g:.25,slide:46,a:.004});break;
       case 'bagGrass':this.noise(t,.13,{f:240,type:'lowpass',g:.4});this.note(70,t,.11,{g:.25,slide:44,a:.004});this.noise(t,.08,{f:3000,q:.5,g:.03});break;
     }},
   bell(f,t,d,g=.2){this.note(f,t,d,{g});this.note(f*2.01,t,d*.6,{g:g*.35});this.note(f*3.98,t,d*.35,{g:g*.12,type:'triangle'})},
@@ -3100,7 +3308,7 @@ const TAGS={c180:'Cent quatre-vingts',checkout:'Partie gagnée',huge:'Très gros
    ========================================================= */
 const ROOTS=['home','players','history','settings'];
 const GAME_SCREENS=['game','mplay'];
-const PARENT={setup:'home',ambiance:'setup',end:'home',player:'players',tournaments:'home',tnew:'tournaments',tournament:'tournaments',import:'home',more:'home',mset:'home',account:'settings',auth:'home',forgot:'auth',reset:'home',welcome:'auth'};
+const PARENT={fam:'home',setup:'fam',ambiance:'setup',end:'home',player:'players',tournaments:'fam',tnew:'tournaments',tournament:'tournaments',import:'home',more:'home',mset:'fam',account:'settings',auth:'home',forgot:'auth',reset:'home',welcome:'auth'};
 let lastFrame=null;
 const NAV=[['home','Jouer','<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>'],['players','Joueurs','<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.3-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18.5 14.8c1.6.8 2.6 2.5 3 5.2"/>'],
   ['new','Partie',''],['history','Historique','<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'],['settings','Réglages','<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>']];
@@ -3113,7 +3321,7 @@ function frame(title,body,{fixed=false,right=null}={}){
     :`<button class="back-btn" data-act="back" aria-label="Retour">${I.back}</button>`;
   const rightBtn=inGame?`<button class="bar-btn right quit" data-act="quit" aria-label="Quitter la partie">${I.quit}<span>Quitter</span></button>`:accountBtn();
   const tabs=`<nav class="tabbar" aria-label="Navigation">${NAV.map(([k,l,p])=>k==='new'
-      ?`<button class="tab add" data-act="newfam" aria-label="Nouvelle partie">${I.plus}</button>`
+      ?`<button class="tab add" data-act="pickgame" aria-label="Nouvelle partie">${I.plus}</button>`
       :`<button class="tab ${screen===k||(k==='home'&&!ROOTS.includes(screen)&&PARENT[screen]==='home')?'on':''}" data-act="${k}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg><span>${l}</span></button>`).join('')}</nav>
     <div class="sig">${STUDIO}<span>Elmagination</span></div>`;
   app.innerHTML=`${bare?'':`<header class="appbar ${root?'root':''}">${left}<div class="bar-title">${root&&screen==='home'?'':title}</div>${rightBtn}</header>`}
@@ -3121,17 +3329,19 @@ function frame(title,body,{fixed=false,right=null}={}){
     ${inGame?`<footer class="brandbar">${STUDIO}<span class="brand-name">Elmagination</span></footer>`:bare?'':`<footer class="dock">${tabs}</footer>`}`;
   if(keep){const v=document.getElementById('view');if(v)v.scrollTop=keep}
 }
-function go(s){screen=s;lastFrame=null;closeSheet();render()}
+/* Sans compte connecté, seuls les écrans de connexion sont accessibles */
+const OPEN_SCREENS=['auth','forgot','reset'];
+function go(s){if(!Cloud.session()&&!OPEN_SCREENS.includes(s))s='auth';screen=s;lastFrame=null;closeSheet();render()}
 function render(){
   if(screen!=='game')releaseWake();
-  ({home:renderHome,setup:renderSetup,ambiance:renderAmbiance,game:renderGameShell,end:renderEnd,settings:renderSettings,players:renderPlayers,player:renderPlayer,history:renderHistory,tournaments:renderTournaments,tnew:renderTNew,tournament:renderTournament,welcome:renderWelcome,import:renderImport,mset:renderOSetup,mplay:renderOPlay,auth:renderAuth,forgot:renderForgot,reset:renderReset,account:renderAccount}[screen]||renderHome)();
+  ({home:renderHome,fam:renderFam,setup:renderSetup,ambiance:renderAmbiance,game:renderGameShell,end:renderEnd,settings:renderSettings,players:renderPlayers,player:renderPlayer,history:renderHistory,tournaments:renderTournaments,tnew:renderTNew,tournament:renderTournament,welcome:renderWelcome,import:renderImport,mset:renderOSetup,mplay:renderOPlay,auth:renderAuth,forgot:renderForgot,reset:renderReset,account:renderAccount}[screen]||renderHome)();
 }
 /* Retour : ferme d'abord une fenêtre ouverte, sinon remonte d'un écran */
 function back(){
   if(document.querySelector('.sheet-bg')){closeSheet();return true}
   if(screen==='home')return false;
-  if(screen==='game'&&game&&!game.finishedAt&&game.darts.length){openQuit();return true}
-  if(screen==='auth'&&!Cloud.session()&&!store.get('guest',false)&&!owner())return false;
+  if(screen==='game'&&game&&!game.finishedAt&&game.darts.length){openQuit('darts');return true}
+  if(screen==='auth'&&!Cloud.session())return false;
   go(PARENT[screen]||'home');return true;
 }
 /* Geste retour du téléphone : une entrée d'historique « piège » est rejouée à chaque retour */
@@ -3162,30 +3372,82 @@ const QUICK=[['x01:501','501'],['x01:301','301'],['cricket','Cricket'],['atc','H
 /* Carte « Reprendre la partie » suivie de son bouton de suppression (which : 'darts' ou 'other') */
 function resumeRow(card,which){return `<div class="resume-row">${card}<button class="icon-btn" data-act="delask" data-v="${which}" aria-label="Supprimer la partie en cours">${I.trash}</button></div>`}
 function curFam(){return FAMS.some(f=>f[0]===prefs.fam)?prefs.fam:'darts'}
+/* Cartes « Reprendre la partie » : fléchettes (which 'darts') et autre jeu (which 'other') ; fam limite à un jeu */
+function resumeHTML(fam){let out='';
+  const g=game&&!game.finishedAt?game:null,o2=g2&&!g2.finishedAt&&(!fam||g2.kind===fam)?g2:null;
+  if(g&&(!fam||fam==='darts')){const m=GAMES[g.type||'x01'],S=m.run(g),pl=g.players[S.p];
+    out+=resumeRow(`<button class="card resume" data-act="resume"><div class="big">${g.type==='x01'?g.start:esc(m.short)}</div><div class="meta"><b>Reprendre la partie</b><span>${g.players.map(p=>esc(p.name)).join(' · ')}</span><span>Au tour de ${esc(pl.name)}</span></div>${I.next}</button>`,'darts')}
+  if(o2&&fam!=='darts')out+=resumeRow(`<button class="card resume" data-act="mresume"><div class="big">${esc(OTHER[o2.kind].name.split(' ')[0].slice(0,4))}</div><div class="meta"><b>Reprendre la partie</b><span>${o2.teams.map(t=>esc(t.name)).join(' · ')}</span></div>${I.next}</button>`,'other');
+  return out}
+const famName=k=>k==='darts'?'Fléchettes':OTHER[k].name,famSub=k=>k==='darts'?'18 jeux, de 501 au Killer':OTHER[k].sub;
+/* Accueil : la liste des jeux */
 function renderHome(){
+  const a=Account.get()||{},plays=a.plays||{};
+  /* compte gratuit : ce qu'il reste à chaque jeu */
+  const left=k=>isPremium()?'':`<span class="hc-free">${k==='darts'?'501 à 2 joueurs : gratuit':Math.max(0,FREE_LIMIT-(plays[k]||0))+' / '+FREE_LIMIT+' parties gratuites'}</span>`;
+  frame('',`<div class="col home">
+    <section class="home-head"><span class="eyebrow">Compteur de points</span><h1>Choisissez un jeu</h1></section>
+    ${resumeHTML()}
+    <div class="hcards">${FAMS.map(([k])=>`<button class="card hcard" data-act="fam" data-v="${k}">${famArt(k)}<span class="hc-txt"><b>${famName(k)}</b><span>${famSub(k)}</span>${left(k)}</span>${I.next}</button>`).join('')}</div>
+    ${isPremium()?'':`<button class="card row-link" data-act="account"><span class="rl-txt"><b>Passer en premium · ${PREMIUM.price}</b><span>Tous les jeux, sans limite, même hors ligne</span></span>${I.next}</button>`}
+  </div>`)}
+/* Page d'un jeu : nouvelle partie, reprise, raccourcis, dernières parties */
+function renderFam(){
   const fam=curFam(),isD=fam==='darts';
-  const g=game&&!game.finishedAt?game:null,o2=g2&&!g2.finishedAt&&g2.kind===fam?g2:null;let res='';
-  if(isD&&g){const m=GAMES[g.type||'x01'],S=m.run(g);const pl=g.players[S.p];
-    res=resumeRow(`<button class="card resume" data-act="resume"><div class="big">${g.type==='x01'?g.start:esc(m.short)}</div><div class="meta"><b>Reprendre la partie</b><span>${g.players.map(p=>esc(p.name)).join(' · ')}</span><span>Au tour de ${esc(pl.name)}</span></div>${I.next}</button>`,'darts')}
-  if(o2)res=resumeRow(`<button class="card resume" data-act="mresume"><div class="big">${esc(OTHER[fam].name.split(' ')[0].slice(0,4))}</div><div class="meta"><b>Reprendre la partie</b><span>${o2.teams.map(t=>esc(t.name)).join(' · ')}</span></div>${I.next}</button>`,'other');
-  const name=isD?'Fléchettes':OTHER[fam].name,sub=isD?'18 jeux, de 501 au Killer':OTHER[fam].sub;
   const recent=isD?gameHistory().filter(x=>!x.imported).slice(0,3).map(x=>{const m=GAMES[x.type||'x01'];let w='';try{const S=m.run(x);w=S.winner!=null?x.players[S.winner].name:'Égalité'}catch(e){}
       return `<button class="hrow" data-act="hgame" data-v="${x.id}"><span class="hr-date">${new Date(x.finishedAt||x.created).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}</span><span class="hr-main"><b>${esc(x.type==='x01'?String(x.start):m.short)}</b> · ${x.players.map(p=>esc(p.name)).join(', ')}</span><span class="hr-win">${esc(w)}</span></button>`})
     :store.get('history2',[]).filter(h=>h.kind===fam).slice(0,3).map(h=>`<div class="hrow"><span class="hr-date">${new Date(h.date).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}</span><span class="hr-main">${h.teams.map(t=>esc(t.name)).join(' · ')}</span><span class="hr-win">${esc(h.teams[h.winner]?h.teams[h.winner].name:'')} · ${(h.score||[]).join('-')}</span></div>`);
-  frame('',`<div class="col home">
-    <div class="fam-tabs" role="tablist">${FAMS.map(([k,l])=>`<button role="tab" class="fam-tab" data-act="fam" data-v="${k}" aria-selected="${k===fam}">${l}</button>`).join('')}</div>
+  frame(famName(fam),`<div class="col home">
     <section class="fam-hero">
-      <div class="fh-text"><span class="eyebrow">${isD?'Cible tactile':'Compteur de points'}</span><h1>${name}</h1><p>${sub}</p></div>
+      <div class="fh-text"><span class="eyebrow">Compteur de points</span><h1>${famName(fam)}</h1><p>${famSub(fam)}</p></div>
       ${famArt(fam)}
       <button class="btn btn-primary" data-act="newfam">${I.plus} Nouvelle partie</button>
     </section>
-    ${res}
+    ${resumeHTML(fam)}
     ${isD?`<section><h2 class="sec-title">Lancer directement</h2><div class="quick">${QUICK.map(([k,l])=>`<button class="qk ${k==='all'?'all':''}" data-act="quick" data-v="${k}">${l}</button>`).join('')}</div></section>
       <button class="card row-link" data-act="tournaments"><span class="rl-ico">${I.cup}</span><span class="rl-txt"><b>Tournois</b><span>Élimination, poules, championnat</span></span>${I.next}</button>`:''}
     ${recent.length?`<section><h2 class="sec-title">Dernières parties</h2><div class="hlist">${recent.join('')}</div></section>`:''}
-  </div>`);
-  const t=document.querySelector('.fam-tab[aria-selected="true"]');if(t)t.scrollIntoView({block:'nearest',inline:'center'});
-}
+  </div>`)}
+
+/* ---------- Version gratuite et premium ----------
+   Compte gratuit : 501 à 2 joueurs sans limite (FREE_GAME) et FREE_LIMIT parties commencées pour
+   chaque autre jeu ; il faut du réseau, car c'est le serveur qui compte (action « play »).
+   Compte premium : tout, sans limite, même hors ligne. Toute création de partie passe par gate(). */
+const PREMIUM={price:'4,99 €',pay:'https://www.paypal.com/qrcodes/p2pqrc/4EGVCLPA5TTFW'};
+const FREE_GAME='x01:501:duo',FREE_LIMIT=5;
+function isPremium(){const a=Account.get();return !!(a&&(a.premium||a.owner))}
+/* Clé de comptage et nom d'un jeu de fléchettes (les autres jeux utilisent leur nom : petanque, molkky…) */
+function dartsKey(type,opts,n){return type!=='x01'?type:(+opts.start===501&&n<=2?FREE_GAME:'x01:'+opts.start)}
+function dartsLabel(type,opts){return type==='x01'?String(opts.start):GAMES[type].name}
+let gateWait=null;
+const sheetHead=t=>`<div class="sheet-head"><h2>${t}</h2><button class="icon-btn" data-act="closesheet" aria-label="Fermer">${I.x}</button></div>`;
+function premiumOfferHTML(){return `<a class="btn btn-primary" href="${PREMIUM.pay}" target="_blank" rel="noopener">Passer en premium · ${PREMIUM.price}</a>
+  <p class="note">Paiement par PayPal. Indiquez l'e-mail de votre compte ARROW dans le message du paiement : le studio vous envoie ensuite votre code premium.</p>`}
+/* Lance start() si la partie est permise ; sinon explique pourquoi */
+function gate(key,label,start){
+  if(isPremium()){start();return}
+  gateWait={key,label,start};
+  if(key===FREE_GAME){gateGo();return}
+  const used=((Account.get()||{}).plays||{})[key]||0;
+  if(used>=FREE_LIMIT){openPaywall(label);return}
+  openSheet(`${sheetHead('Partie gratuite '+(used+1)+' sur '+FREE_LIMIT)}
+    <p>${esc(label)} : il vous reste ${FREE_LIMIT-used} partie${FREE_LIMIT-used>1?'s':''} gratuite${FREE_LIMIT-used>1?'s':''}.</p>
+    <p><b>Toute partie commencée est décomptée</b>, même si vous l'arrêtez avant la fin.</p>
+    <button class="btn btn-primary" data-act="gatego">Commencer la partie</button>
+    <button class="btn btn-ghost" data-act="account">Passer en premium</button>
+    <button class="btn btn-ghost" data-act="closesheet">Annuler</button>`,'Partie gratuite')}
+async function gateGo(){const w=gateWait;if(!w)return;
+  try{const r=await Cloud.call('play',{game:w.key});
+    if(r.used!=null){const a=Account.get();if(a){a.plays=Object.assign({},a.plays,{[w.key]:r.used});store.set('account',a)}}
+    if(!r.allowed){openPaywall(w.label);return}
+    gateWait=null;closeSheet();w.start()}
+  catch(e){if(e.code==='offline')openSheet(`${sheetHead('Pas de connexion')}
+      <p>Avec un compte gratuit, il faut être connecté à internet pour lancer une partie. Le jeu hors ligne fait partie du premium.</p>
+      ${premiumOfferHTML()}<button class="btn btn-ghost" data-act="closesheet">Fermer</button>`,'Pas de connexion');
+    else toastMsg(niceCloud(e))}}
+function openPaywall(label){openSheet(`${sheetHead('Parties gratuites terminées')}
+  <p>Vous avez utilisé vos ${FREE_LIMIT} parties gratuites de ${esc(label)}. Le premium ouvre tous les jeux, sans limite, même hors ligne.</p>
+  ${premiumOfferHTML()}<button class="btn btn-ghost" data-act="account">J'ai un code premium</button>`,'Premium')}
 
 /* ---------- Préparation ---------- */
 function newDraft(){
@@ -3589,7 +3851,9 @@ document.addEventListener('click',e=>{
     case 'home':go('home');break;
     case 'more':go('home');break;
     case 'back':back();break;
-    case 'fam':prefs.fam=v;savePrefs();renderHome();break;
+    case 'fam':prefs.fam=v;savePrefs();go('fam');break;
+    case 'pickgame':if(screen!=='fam'){go('home');break}
+    /* sur la page d'un jeu, le « + » lance une nouvelle partie de ce jeu */
     case 'newfam':{const f=curFam();if(f==='darts'){draft=newDraft();go('setup')}else{odraft=newODraft(f);go('mset')}break}
     case 'quick':{draft=newDraft();if(v!=='all'){const [t,st]=v.split(':');draft.type=t;draft.opts=Object.assign(defaultOpts(t),(store.get('lastSetup',{}).opts||{})[t]||{});if(st)draft.opts.start=+st}
       go('setup');if(v==='all')openGameSheet();break}
@@ -3606,19 +3870,22 @@ document.addEventListener('click',e=>{
     case 'mtmem':{const [i,n]=v.split('|');const t=odraft.teams[+i];t.members=t.members||[];const k=t.members.indexOf(n);if(k>=0)t.members.splice(k,1);else{t.members.push(n);odraft.teams.forEach((x,j)=>{if(j!==+i&&x.members)x.members=x.members.filter(m=>m!==n)})}renderOSetup();break}
     case 'mstart':{const d=odraft;const D=OTHER[d.kind];
       d.teams.forEach((t,i)=>{t.name=(t.name||'').trim()||(D.kind==='molkky'?'Joueur '+(i+1):'Équipe '+(i+1));if(D.kind==='molkky')ensureProfile(t.name)});
+      gate(d.kind,D.name,()=>{
       g2={id:uid(),kind:d.kind,opts:Object.assign({},d.opts),teams:JSON.parse(JSON.stringify(d.teams)),events:[],created:Date.now()};
-      const lo=store.get('lastOther',{});lo[d.kind]={opts:d.opts};store.set('lastOther',lo);resetOtherDraft();saveG2();Sound.unlock();Voice.warm();go('mplay');sayGame('start',600);Pack.preload(['jeux']);break}
+      const lo=store.get('lastOther',{});lo[d.kind]={opts:d.opts};store.set('lastOther',lo);resetOtherDraft();saveG2();Sound.unlock();Voice.warm();go('mplay');sayGame('start',600);Pack.preload(['jeux'])});break}
     case 'mpt':{if(g2.finishedAt)break;const [t,pts]=v.split('|').map(Number);g2.events.push({t,pts});saveG2();renderOPlay();o2react(pts,OTHER[g2.kind].max(g2.opts),t);break}
     case 'chs':{const [k,j,d]=v.split('|');const a=chDraft[k];const nv=Math.max(0,Math.min(4,a[+j]+(+d)));if(nv+a[1-(+j)]<=4)a[+j]=nv;chEnsureBags();CH3.draw();chUpdate();break}
     case 'chval':{if(g2.finishedAt)break;const e={a:chDraft.a.slice(),b:chDraft.b.slice()};g2.events.push(e);resetOtherDraft();saveG2();renderOPlay();
       const S=run2(g2),l=S.log[S.log.length-1];o2react(Math.max(l.pa,l.pb),9,l.pa>=l.pb?0:1);break}
     case 'mkpin':mkToggle(+v);break;
     case 'chteam':chTeam(v);break;
+    case 'tgteam':TG3.setTeam(+v);break;
+    case 'tgval':{if(g2.finishedAt)break;const r=TG3.score();if(!r||!r.pts)break;g2.events.push({t:r.t,pts:r.pts});resetOtherDraft();saveG2();renderOPlay();o2react(r.pts,OTHER[g2.kind].max(g2.opts),r.t);break}
     case 'mkval':{if(g2.finishedAt)break;const pins=mkSel.slice().sort((a,b)=>a-b);g2.events.push({pins});MK3.throwStick(pins,mkMiss);resetOtherDraft();saveG2();renderOPlay();const S=run2(g2),l=S.log[S.log.length-1];o2react(l.pts,12,-1);break}
     case 'mundo':{if(!g2||!g2.events.length)break;if(g2.finishedAt){store.set('history2',store.get('history2',[]).filter(h=>h.id!==g2.id));delete g2.finishedAt;delete g2.endPhrase}
       g2.events.pop();resetOtherDraft();saveG2();renderOPlay();break}
     case 'mrematch':{const t=JSON.parse(JSON.stringify(g2.teams));if(OTHER[g2.kind].kind==='molkky')t.push(t.shift());else t.reverse();
-      g2={id:uid(),kind:g2.kind,opts:g2.opts,teams:t,events:[],created:Date.now()};resetOtherDraft();saveG2();go('mplay');break}
+      gate(g2.kind,OTHER[g2.kind].name,()=>{g2={id:uid(),kind:g2.kind,opts:g2.opts,teams:t,events:[],created:Date.now()};resetOtherDraft();saveG2();go('mplay')});break}
     case 'iam':{const pr=profById(v);if(pr){makeOwner(pr);go('home')}break}
     case 'copycode':{const o=owner();try{navigator.clipboard.writeText(o.code).then(()=>toastMsg('Code copié : '+o.code),()=>toastMsg('Votre code : '+o.code))}catch(e){toastMsg('Votre code : '+o.code)}break}
     case 'sendstats':sendStats(v);break;
@@ -3662,6 +3929,7 @@ document.addEventListener('click',e=>{
       else if(screen==='mplay'&&g2&&!g2.finishedAt&&g2.events.length)openQuit('other');
       else go('home');break;
     case 'delask':openDelete(v);break;
+    case 'gatego':b.disabled=true;gateGo();break;
     case 'pause':closeSheet();go('home');break;
     case 'abandon':if(v==='other'){g2=null;saveG2();resetOtherDraft()}else{game=null;saveGame()}closeSheet();go('home');break;
     case 'new':draft=newDraft();go('setup');break;
@@ -3694,6 +3962,7 @@ document.addEventListener('click',e=>{
     case 'thr':{const [k,dv]=v.split(':');const t=prefs.thr.x01;t[k]=Math.max(k==='big'?40:0,Math.min(k==='big'?170:90,t[k]+ +dv));if(t.low>=t.big)t.low=t.big-10;savePrefs();renderSettings();break}
     case 'launch':{
       Sound.unlock();Voice.warm();
+      gate(dartsKey(draft.type,draft.opts,draft.players.length),dartsLabel(draft.type,draft.opts),()=>{
       const used=new Set();const pls=draft.players.map((p,i)=>{let nm=(p.name||'').trim()||('Joueur '+(i+1));let k=2;while(used.has(nm.toLowerCase()))nm=((p.name||'').trim()||'Joueur')+' '+k++;used.add(nm.toLowerCase());
         const pr=ensureProfile(nm,p.color);return {id:pr.id,name:pr.name,color:pr.color}});
       let amb=Object.fromEntries(draft.players.map((p,i)=>[pls[i].id,draftAmb(p)])),gp=pls;const ts=draft.teamSize||1;
@@ -3701,7 +3970,7 @@ document.addEventListener('click',e=>{
         gp.push({id:tid,name:mem.map(x=>x.name).join(' & '),color:mem[0].color,members:mem});amb[tid]=mem.map(x=>amb[x.id]).find(a=>a!=='standard')||'standard'}}
       game=Object.assign({id:uid(),created:Date.now(),amb,players:gp,darts:[],validated:0},asGame(draft));if(GAMES[game.type].setup)GAMES[game.type].setup(game);
       const ls=store.get('lastSetup',{});store.set('lastSetup',{type:draft.type,opts:Object.assign({},ls.opts||{},{[draft.type]:draft.opts})});
-      rememberPlayers(pls.map(p=>p.name));const ls2=store.get('lastSetup',{});ls2.teamSize=ts;store.set('lastSetup',ls2);saveGame();go('game');announceStart();break}
+      rememberPlayers(pls.map(p=>p.name));const ls2=store.get('lastSetup',{});ls2.teamSize=ts;store.set('lastSetup',ls2);saveGame();go('game');announceStart()});break}
     case 'mode':{const wasPend=pendingTurn(GAMES[game.type||'x01'].run(game));prefs.input=v;savePrefs();padNum=null;if(wasPend&&!needConfirm())validate();}
       document.getElementById('board').hidden=v!=='board';document.getElementById('pad').hidden=v!=='pad';
       document.querySelectorAll('[data-act="mode"]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===v));
@@ -3718,8 +3987,9 @@ document.addEventListener('click',e=>{
     case 'closesheet':closeSheet();break;
     case 'endundo':undoDart();go('game');break;
     case 'rematch':{const pls=game.players.slice(1).concat(game.players[0]);
+      gate(dartsKey(game.type||'x01',{start:game.start},game.players.length),dartsLabel(game.type||'x01',{start:game.start}),()=>{
       const old=game;game={id:uid(),created:Date.now(),type:old.type||'x01',opts:old.opts||{},amb:old.amb,ambiance:old.ambiance,players:pls,darts:[],validated:0};
-      if(game.type==='x01'){game.start=old.start;game.outRule=old.outRule;game.inRule=old.inRule}if(GAMES[game.type].setup)GAMES[game.type].setup(game);saveGame();go('game');announceStart();break}
+      if(game.type==='x01'){game.start=old.start;game.outRule=old.outRule;game.inRule=old.inRule}if(GAMES[game.type].setup)GAMES[game.type].setup(game);saveGame();go('game');announceStart()});break}
   }
 });
 document.addEventListener('keydown',e=>{
@@ -3752,7 +4022,7 @@ document.addEventListener('change',e=>{
 let recovery=false;
 {const m=/^#reset=([a-f0-9]{20,})$/.exec(location.hash||'');if(m){resetToken=m[1];recovery=true}}
 if(recovery)screen='reset';
-else if(!Cloud.session()&&!store.get('guest',false))screen='auth';
+else if(!Cloud.session())screen='auth';
 else if(!owner())screen='welcome';
 else if(game&&!game.finishedAt&&game.darts&&game.darts.length)screen='game';
 {const m=/^#imp=(.+)$/.exec(location.hash||'');
