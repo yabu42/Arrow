@@ -2328,7 +2328,7 @@ function renderOPlay(){
   if(D.kind==='cornhole'){const bags=t=>(chDraft.bags||[]).filter(b=>b.t===t).length;
     score=`<div class="op-score">${[0,1].map(i=>tile(i,i=>v3?`${bags(tc(i))}/4 sacs`:`objectif ${o.target}`)).join('')}</div>`;
     tools=v3?`<div class="ch-teams" role="group" aria-label="Sacs de quelle équipe ?">${['a','b'].map((t,i)=>`<button class="chip" data-act="chteam" data-v="${t}" aria-pressed="${CH3.team===t}"><i class="bagdot ${t}"></i>${esc(g2.teams[i].name)}</button>`).join('')}</div>`:'<p class="op-hint">Sacs de la manche</p>';
-    stage=v3?`<div class="scene fill"><canvas id="chCv" aria-label="Planche de cornhole : gardez le doigt appuyé pour viser, relâchez pour poser le sac là où il s'est arrêté"></canvas><span class="scene-hint">Doigt appuyé pour viser, relâché pour poser · gazon = raté</span></div>`
+    stage=v3?`<div class="scene fill"><canvas id="chCv" aria-label="Planche de cornhole : touchez l'endroit où le sac s'est arrêté ; gardez le doigt appuyé pour viser à la loupe"></canvas><span class="scene-hint">Touchez pour poser · restez appuyé = loupe · gazon = raté</span></div>`
       :`<div class="op-pads">${['a','b'].map((k,i)=>`<div class="op-pad"><p class="cat-lbl"><i class="bagdot ${k}"></i>${esc(g2.teams[i].name)}</p><div class="ch-row"><span>Dans le trou <small>3 pts</small></span>${stepper(k,0)}</div><div class="ch-row"><span>Sur la planche <small>1 pt</small></span>${stepper(k,1)}</div></div>`).join('')}</div>`;
     sum='<p class="ch-sum" id="chSum"></p>';
     actions=`${v3?`<button class="btn btn-ghost" data-act="chundo" ${CH3.hist.length?'':'disabled'} aria-label="Annuler le dernier sac">${I.undo}</button>`:''}<button class="btn btn-primary" id="chVal" data-act="chval">${chLabel()}</button>`}
@@ -2713,7 +2713,7 @@ void main(){if(uHole.w>0.&&length(vLoc.xz-uHole.xy)<uHole.z)discard;}`;
 /* ---------------- Moteur ---------------- */
 const SHADOW_SIZE=2048;
 const G3={
-  cv:null,gl:null,ok:null,scene:null,raf:0,w:0,h:0,dpr:1,
+  cv:null,gl:null,ok:null,scene:null,raf:0,w:0,h:0,dpr:1,lens:true,
   prog:null,dprog:null,fbo:null,depthTex:null,meshes:{},texs:{},view:null,
 
   /* Crée le canvas WebGL une seule fois ; renvoie false si l'appareil ne sait pas faire */
@@ -2725,15 +2725,24 @@ const G3={
     cv.addEventListener('webglcontextlost',e=>{e.preventDefault();cancelAnimationFrame(this.raf);this.prog=null;this.meshes={};this.texs={}});
     cv.addEventListener('webglcontextrestored',()=>this.scene&&this.scene.draw());
     /* Toucher. Une scène qui vise (aim / aimEnd) montre une loupe tant que le doigt reste posé
-       et pose à l'endroit où il se relève ; les autres reçoivent un simple toucher (tap). */
-    let aiming=null;
+       et pose à l'endroit où il se relève ; les autres reçoivent un simple toucher (tap).
+       Scène « lensLate » (cornhole) : un toucher bref pose directement, sans loupe ; la loupe
+       n'apparaît que si le doigt reste posé (LENS_HOLD ms) ou glisse (LENS_MOVE px). */
+    let aiming=null,last=null,x0=0,y0=0,timer=0;
+    const LENS_HOLD=320,LENS_MOVE=12;
+    const stop=()=>{aiming=null;last=null;clearTimeout(timer);Loupe.hide()};
     const inside=e=>{const r=cv.getBoundingClientRect();return e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom};
     cv.addEventListener('pointerdown',e=>{const s=this.scene;if(!s||e.button>0)return;e.preventDefault();
       if(!s.aim){const r=cv.getBoundingClientRect();s.tap(e.clientX-r.left,e.clientY-r.top);return}
-      cv.setPointerCapture(e.pointerId);aiming=e.pointerId;this.aimAt(e)});
-    cv.addEventListener('pointermove',e=>{if(e.pointerId===aiming)this.aimAt(e)});
-    cv.addEventListener('pointerup',e=>{if(e.pointerId!==aiming)return;aiming=null;Loupe.hide();this.scene.aimEnd(inside(e))});
-    cv.addEventListener('pointercancel',()=>{if(aiming==null)return;aiming=null;Loupe.hide();if(this.scene)this.scene.aimEnd(false)});
+      cv.setPointerCapture(e.pointerId);aiming=e.pointerId;last=e;x0=e.clientX;y0=e.clientY;
+      this.lens=!s.lensLate;clearTimeout(timer);
+      if(!this.lens)timer=setTimeout(()=>{if(aiming!=null&&last&&this.scene===s){this.lens=true;this.aimAt(last)}},LENS_HOLD);
+      this.aimAt(e)});
+    cv.addEventListener('pointermove',e=>{if(e.pointerId!==aiming)return;last=e;
+      if(!this.lens&&Math.hypot(e.clientX-x0,e.clientY-y0)>LENS_MOVE)this.lens=true;
+      this.aimAt(e)});
+    cv.addEventListener('pointerup',e=>{if(e.pointerId!==aiming)return;stop();this.scene.aimEnd(inside(e))});
+    cv.addEventListener('pointercancel',()=>{if(aiming==null)return;stop();if(this.scene)this.scene.aimEnd(false)});
     /* les numéros et la marque sont redessinés quand les polices Jost/Figtree arrivent */
     if(document.fonts)document.fonts.ready.then(()=>{this.dropTex(['caps','boardTop']);if(this.scene&&this.cv.isConnected)this.scene.draw()});
     return true},
@@ -2788,7 +2797,7 @@ const G3={
 
   /* Visée : la scène dessine le point visé, puis la loupe recopie l'image (même instant, sinon WebGL l'a déjà effacée) */
   aimAt(e){const r=this.cv.getBoundingClientRect(),label=this.scene.aim(e.clientX-r.left,e.clientY-r.top);
-    if(label===false)Loupe.hide();else Loupe.show(this.cv,e.clientX,e.clientY,label)},
+    if(label===false||!this.lens)Loupe.hide();else Loupe.show(this.cv,e.clientX,e.clientY,label)},
 
   /* Caméra qui cadre automatiquement une liste de points.
      dir : direction cible → œil ; mx/my : marge (1 = bord de l'image) ; oy : décalage vertical */
@@ -2988,7 +2997,7 @@ function mkUpdate(){const b=document.querySelector('[data-act="mkval"]');if(b)b.
    l'équipe qui a marqué la manche précédente commence. L'appli alterne donc
    toute seule ; les boutons « Sacs … » permettent de corriger. Un sac touché
    sur le gazon est un raté : il vaut 0 mais compte parmi les 4.
-   Saisie : doigt posé = loupe et sac fantôme, doigt relevé = sac posé (il s'empile
+   Saisie : toucher bref = sac posé ; doigt qui reste posé ou glisse = loupe et sac fantôme, doigt relevé = sac posé (il s'empile
    s'il tombe sur un autre). « Annuler le dernier sac » revient en arrière. */
 /* Planche réglementaire (m) : largeur, longueur, hauteur de l'avant, montée jusqu'à
    l'arrière, épaisseur du cadre ; trou : u (gauche-droite), v (0 = avant, 1 = fond), rayon */
@@ -2997,6 +3006,7 @@ CH.slope=Math.asin(CH.rise/CH.L);
 /* Sacs : demi-côté, épaisseur dessus/dessous ; couleurs par équipe : toile, fil, broderie */
 const BAG={half:.076,top:.027,bot:.003,col:{a:['#a8562a','#f1dfc0','#13233b'],b:['#23406c','#f1dfc0','#d9a47e']}};
 const CH3={cam:null,team:'a',hist:[],aimPt:null,hover:null,fix:false,fixBag:null,
+  lensLate:true,   /* la loupe est une aide : elle n'apparaît que si le doigt reste posé ou glisse */
   /* Repère de la planche : origine au milieu du bord avant, y perpendiculaire au plateau, −z vers le fond */
   board(){return M4.mul(M4.move(0,CH.a,0),M4.rotX(CH.slope))},
   at(u,v,y=0){return M4.apply(this.board(),[u,y,-v*CH.L])},
@@ -3292,13 +3302,13 @@ function woodKnock(){if(!prefs.sounds||prefs.muted)return;Sound.unlock();if(!Sou
 window.addEventListener('resize',()=>{clearTimeout(window._scT);window._scT=setTimeout(()=>{if(screen!=='mplay')return;
   if(document.getElementById('mkCv'))MK3.mount();if(document.getElementById('chCv'))CH3.mount();if(document.getElementById('plCv'))PL3.mount()},200)});
 
-const VERSION='3.2 · 13 novembre 2026';
+const VERSION='3.4 · 14 novembre 2026';
 function sendButtons(g){const o=owner();const l=g.players.map(pl=>profById(pl.id)).filter(pr=>pr&&pr.code&&(!o||pr.code!==o.code)&&pendingFor(pr.code));
   return l.length?`<section class="card"><h2 class="sec-title">Envoyer les statistiques</h2><div class="stack">${l.map(pr=>`<button class="btn btn-ghost" data-act="sendstats" data-v="${pr.code}">${I.share} Envoyer à ${esc(pr.name)} (${pendingFor(pr.code)} partie${pendingFor(pr.code)>1?'s':''})</button>`).join('')}</div></section>`:''}
 /* =========================================================
    Réglages et état
    ========================================================= */
-const DEF_PREFS={input:'board',ambiance:'standard',volume:.8,sounds:true,voice:true,voiceMode:'full',muted:false,view3d:true,setOpen:{},rate:1,voiceURI:'',confirmBoard:false,skin:'classic',decor:'none',fx:true,announce:true,adaptive:false,thr:{x01:{big:100,low:30}}};
+const DEF_PREFS={input:'board',ambiance:'standard',volume:.8,sounds:true,voice:true,voiceMode:'full',scoreVoice:'h',muted:false,view3d:true,setOpen:{},rate:1,voiceURI:'',confirmBoard:false,skin:'classic',decor:'none',fx:true,announce:true,adaptive:false,thr:{x01:{big:100,low:30}}};
 const prefs=(()=>{const p=Object.assign({},DEF_PREFS,store.get('prefs',{}));p.thr=Object.assign({},DEF_PREFS.thr,p.thr||{});p.thr.x01=Object.assign({},DEF_PREFS.thr.x01,p.thr.x01||{});return p})();
 let game=store.get('current',null);if(game&&!game.type)game.type='x01';
 let screen='home';
@@ -3687,6 +3697,8 @@ function audioControls(){
     <div class="set-row"><div class="txt"><b>Voix</b><span>Le commentaire est lu à voix haute</span></div><button class="switch" data-act="tog" data-v="voice" aria-pressed="${prefs.voice}" aria-label="Voix"></button></div>
     <div class="set-row" style="display:block"><div class="txt" style="margin-bottom:6px"><b>La voix dit</b><span>${prefs.voiceMode==='scores'?'Uniquement le score, sans commentaire':'Les commentaires de l\'ambiance choisie'}</span></div>
       <div class="seg"><button data-act="vmode" data-v="full" aria-pressed="${prefs.voiceMode!=='scores'}">Commentaires</button><button data-act="vmode" data-v="scores" aria-pressed="${prefs.voiceMode==='scores'}">Scores seuls</button></div></div>
+    ${prefs.voiceMode==='scores'&&Pack.has('scores')&&Pack.has('scoresf')?`<div class="set-row" style="display:block"><div class="txt" style="margin-bottom:6px"><b>Voix des scores</b><span>Touchez pour écouter un exemple</span></div>
+      <div class="seg"><button data-act="svoice" data-v="h" aria-pressed="${prefs.scoreVoice!=='f'}">Voix homme</button><button data-act="svoice" data-v="f" aria-pressed="${prefs.scoreVoice==='f'}">Voix femme</button></div></div>`:''}
     <div class="set-row"><div class="txt"><b>Annoncer le score</b><span>Ex. « Cent ! Belle volée ! »</span></div><button class="switch" data-act="tog" data-v="announce" aria-pressed="${prefs.announce}" aria-label="Annoncer le score"></button></div>
     <div class="set-row" style="display:block"><div class="txt" style="margin-bottom:4px"><b>Volume</b></div><input type="range" id="vol" min="0" max="1" step="0.05" value="${prefs.volume}" aria-label="Volume"></div>
     <div id="voiceBox">${voiceBoxHTML()}</div>`;
@@ -3950,9 +3962,11 @@ function react(t,S){
   setTimeout(()=>Voice.react(choice,prefix,amb),wait);
 }
 /* Mode « scores seuls » : la voix dit seulement le score. Un nombre seul est lu depuis le pack
-   enregistré « scores » (clips scores_n_<nombre>) s'il est installé, sinon par la voix du téléphone. */
-function sayScore(txt){if(!prefs.voice||prefs.muted)return;const id='scores_n_'+txt;
-  if(/^\d+$/.test(txt)&&Pack.has('scores')&&Pack.files.scores.has(id))Pack.play(id,ok=>{if(!ok)Voice.say(txt,'standard')});else Voice.say(txt,'standard')}
+   enregistré s'il est installé — « scores » (voix homme) ou « scoresf » (voix femme) selon
+   prefs.scoreVoice, clips <pack>_n_<nombre> — sinon par la voix du téléphone. */
+function scorePack(){const want=prefs.scoreVoice==='f'?'scoresf':'scores';return Pack.has(want)?want:Pack.has('scores')?'scores':Pack.has('scoresf')?'scoresf':null}
+function sayScore(txt){if(!prefs.voice||prefs.muted)return;const pk=scorePack(),id=pk+'_n_'+txt;
+  if(pk&&/^\d+$/.test(txt)&&Pack.files[pk].has(id))Pack.play(id,ok=>{if(!ok)Voice.say(txt,'standard')});else Voice.say(txt,'standard')}
 /* Score d'une volée ou d'une mène, affiché dans la barre du haut à la place du titre pendant 2,6 s
    (il ne cache ni la cible, ni le terrain, ni le tableau des scores) */
 function showToast(t,cat,phrase,m){scoreFlash(game.players[t.p].name,m.fmt(t),!t.bust&&TAGS[cat]||'',t.bust?'bad':'')}
@@ -3989,7 +4003,7 @@ function finishGame(){
   setTimeout(()=>Inbox.flush().catch(()=>{}),1500);
 }
 /* Début de partie : phrase de lancement dans l'ambiance du premier joueur */
-function announceStart(){if(!game||!game.players||!game.players.length)return;Pack.preload(game.players.map((_,k)=>ambOf(k)));const amb=ambOf(0);const c=choosePhrase(amb,'start',{n:game.players[0].name,r:''});
+function announceStart(){if(!game||!game.players||!game.players.length)return;Pack.preload(game.players.map((_,k)=>ambOf(k)));if(prefs.voiceMode==='scores'&&scorePack())Pack.preload([scorePack()]);const amb=ambOf(0);const c=choosePhrase(amb,'start',{n:game.players[0].name,r:''});
   setTimeout(()=>{if(screen==='game')Voice.react(c,'',amb)},700)}
 function announceEnd(){const e=game.endPhrase;if(!e)return;const d=Sound.play('checkout');setTimeout(()=>Voice.react(e,'',e.amb),Math.round(d*500)+100)}
 
@@ -4178,6 +4192,7 @@ document.addEventListener('click',e=>{
     case 'listen':Sound.unlock();Voice.warm();demo(v);break;
     case 'vtest':Sound.unlock();Voice._testing=true;Voice.runTest();break;
     case 'vmode':prefs.voiceMode=v;savePrefs();render();break;
+    case 'svoice':prefs.scoreVoice=v;savePrefs();render();Sound.unlock();sayScore('180');break;
     case 'tog':prefs[v]=!prefs[v];savePrefs();b.setAttribute('aria-pressed',prefs[v]);if(v==='sounds'&&prefs.sounds)Sound.play('mid');break;
     case 'thr':{const [k,dv]=v.split(':');const t=prefs.thr.x01;t[k]=Math.max(k==='big'?40:0,Math.min(k==='big'?170:90,t[k]+ +dv));if(t.low>=t.big)t.low=t.big-10;savePrefs();renderSettings();break}
     case 'launch':{
