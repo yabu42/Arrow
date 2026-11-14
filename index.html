@@ -742,6 +742,9 @@ button.omatch:active{transform:scale(.99)}
 .omatch.done{opacity:.72}
 .bm.live{border-color:var(--copper)}
 .ostats th:nth-child(2),.ostats td:nth-child(2){text-align:left;width:100%}
+.b3{margin-top:14px}
+tr.cut td{border-bottom:2px solid var(--copper)}
+.qtag{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--copper-hi);margin-left:4px}
 .olink{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
 .olink span{flex:1;min-width:0;display:flex;flex-direction:column}
 .olink small{font-size:12px;color:var(--muted)}
@@ -1792,16 +1795,95 @@ const saveTournaments=l=>store.set('tournaments',l);
 const tById=id=>tournaments().find(t=>t.id===id);
 function saveT(t){const l=tournaments();const i=l.findIndex(x=>x.id===t.id);if(i>=0)l[i]=t;else l.unshift(t);saveTournaments(l)}
 const pName=(t,id)=>{const p=t.players.find(x=>x.id===id);return p?p.name:'?'};
-function newTDraft(){return {name:'Tournoi du '+new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long'}),format:'ko',legs:1,gsize:4,type:'x01',opts:defaultOpts('x01'),pids:profilesByRecent().slice(0,4).map(p=>p.id)}}
+function newTDraft(){return {name:'Tournoi du '+new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long'}),format:'ko',legs:1,gsize:4,nmatch:3,ksize:8,third:false,type:'x01',opts:defaultOpts('x01'),pids:profilesByRecent().slice(0,4).map(p=>p.id)}}
 /* Élimination directe : tableau complet, exemptés qualifiés d'office */
 function buildKO(ids){let n=1;while(n<ids.length)n*=2;const seeds=ids.concat(Array(n-ids.length).fill(null));
   const order=[];for(let i=0;i<n/2;i++)order.push([seeds[i],seeds[n-1-i]]);
   const rounds=[];let cur=order.map(([a,b],i)=>({id:uid(),r:0,i,a,b,winner:null}));rounds.push(cur);
   let size=cur.length;let r=1;while(size>1){size/=2;rounds.push([...Array(size)].map((_,i)=>({id:uid(),r,i,a:null,b:null,winner:null})));r++}
   const flat=rounds.flat();koAdvance(flat);return flat}
-function koAdvance(ms){let changed=true;while(changed){changed=false;
-  for(const m of ms){if(m.winner==null&&m.r===0&&((m.a&&!m.b)||(!m.a&&m.b))){m.winner=m.a||m.b;m.bye=true;changed=true}
-    if(m.winner){const nx=ms.find(x=>x.r===m.r+1&&x.i===Math.floor(m.i/2));if(nx){const side=m.i%2?'b':'a';if(nx[side]!==m.winner){nx[side]=m.winner;changed=true}}}}}}
+/* Fait avancer les vainqueurs dans le tableau ; la petite finale (match « third », même tour que la finale)
+   reçoit les deux perdants des demi-finales. */
+function koAdvance(ms){const fin=ms.filter(m=>!m.third),th=ms.find(m=>m.third),R=fin.length?Math.max(...fin.map(m=>m.r)):0;
+  let changed=true;while(changed){changed=false;
+  for(const m of fin){if(m.winner==null&&m.r===0&&((m.a&&!m.b)||(!m.a&&m.b))){m.winner=m.a||m.b;m.bye=true;changed=true}
+    if(m.winner){const nx=fin.find(x=>x.r===m.r+1&&x.i===Math.floor(m.i/2));if(nx){const side=m.i%2?'b':'a';if(nx[side]!==m.winner){nx[side]=m.winner;changed=true}}}}
+  if(th&&R>=1&&!th.done){const semis=fin.filter(m=>m.r===R-1);
+    semis.forEach(s=>{const side=s.i%2?'b':'a',lo=s.winner&&s.a&&s.b&&!s.bye?(s.winner===s.a?s.b:s.a):null;if(th[side]!==lo){th[side]=lo;changed=true}});
+    const all=semis.every(s=>s.winner),one=(th.a&&!th.b)||(!th.a&&th.b);
+    if(all&&one&&!th.winner){th.winner=th.a||th.b;th.bye=true;changed=true}
+    else if(th.bye&&(!all||!one)){th.winner=null;th.bye=false;changed=true}}}}
+/* Ajoute la petite finale (3e place) à un tableau d'au moins 4 joueurs */
+function addThird(ms){const fin=ms.filter(m=>!m.third);if(!fin.length||ms.some(m=>m.third))return ms;const R=Math.max(...fin.map(m=>m.r));
+  if(R>=1){ms.push({id:uid(),r:R,i:1,third:true,a:null,b:null,winner:null,stage:fin[0].stage});koAdvance(ms)}return ms}
+const koFinal=K=>{const fin=K.filter(m=>!m.third);if(!fin.length)return null;const R=Math.max(...fin.map(m=>m.r));return fin.find(m=>m.r===R)};
+/* Tableau avec têtes de série : le 1er rencontre le dernier qualifié, et ne peut croiser le 2e qu'en finale */
+function seededKO(ranked,size){let n=2;while(n<size)n*=2;let order=[1];while(order.length<n)order=order.flatMap(x=>[x,order.length*2+1-x]);
+  const seed=k=>ranked[k-1]||null,all=[];for(let i=0;i<n/2;i++)all.push({id:uid(),r:0,i,a:seed(order[2*i]),b:seed(order[2*i+1]),winner:null});
+  let cnt=n/2,r=1;while(cnt>1){cnt/=2;for(let i=0;i<cnt;i++)all.push({id:uid(),r,i,a:null,b:null,winner:null});r++}
+  koAdvance(all);return all}
+
+/* ---------- Matchs aléatoires puis tableau (format « pool ») ----------
+   Chaque joueur fait au moins N matchs contre des adversaires tirés au sort, sans revoir le même.
+   Un tour = chacun joue au plus une fois. Avec un nombre impair de joueurs, un joueur différent attend
+   à chaque tour ; ces joueurs-là se rencontrent dans un tour de rattrapage final (s'il en reste un seul,
+   il affronte un joueur tiré au sort, qui fait donc un match de plus : le classement se fait au taux de victoires). */
+function buildPool(ids,N){N=Math.max(1,Math.min(N,ids.length-1));
+  const R=Math.random,shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+  const met=new Set(),key=(a,b)=>a<b?a+'|'+b:b+'|'+a,ms=[],left=[];
+  const add=(r,a,b,extra)=>{met.add(key(a,b));ms.push(Object.assign({id:uid(),r,a,b,winner:null,stage:'p'},extra?{extra:true}:{}))};
+  for(let r=0;r<N;r++){let best=null;
+    for(let k=0;k<400&&!best;k++){let pool=shuffle(ids),lo=null;
+      if(pool.length%2){lo=pool.find(id=>!left.includes(id))||pool[0];pool=pool.filter(x=>x!==lo)}
+      const pairs=[],rest=pool.slice();let ok=true;
+      while(rest.length){const a=rest.shift(),j=rest.findIndex(b=>!met.has(key(a,b)));if(j<0){ok=false;break}pairs.push([a,rest.splice(j,1)[0]])}
+      if(ok)best={pairs,lo}}
+    if(!best){const pool=shuffle(ids),lo=pool.length%2?pool.pop():null,pairs=[];for(let i=0;i<pool.length;i+=2)pairs.push([pool[i],pool[i+1]]);best={pairs,lo}}
+    best.pairs.forEach(([a,b])=>add(r,a,b));if(best.lo)left.push(best.lo)}
+  if(left.length){const L=shuffle(left);
+    while(L.length>1){const a=L.shift();let j=L.findIndex(b=>!met.has(key(a,b)));if(j<0)j=0;add(N,a,L.splice(j,1)[0])}
+    if(L.length){const a=L[0],others=shuffle(ids).filter(x=>x!==a&&!left.includes(x));add(N,a,others.find(x=>!met.has(key(a,x)))||others[0],true)}}
+  return ms}
+const poolCut=t=>Math.min(t.ksize||8,t.players.length);
+/* Classement des matchs aléatoires : taux de victoires (nul = ½), puis, au 501/301…, la moyenne des points
+   qu'il restait au joueur à la fin de ses matchs (le « moins mauvais » passe), puis confrontation directe,
+   puis l'ordre choisi par l'organisateur (t.tie.P). need : égalité parfaite à la limite du tableau. */
+function poolRank(t){const ms=t.matches.filter(m=>m.stage==='p'),x01=t.game&&t.game.type==='x01',out=new Set(t.out||[]);
+  const tab=Object.fromEntries(t.players.map(p=>[p.id,{id:p.id,pl:0,w:0,l:0,d:0,rem:0,remN:0}]));
+  for(const m of ms){if(!m.done||!tab[m.a]||!tab[m.b])continue;const A=tab[m.a],B=tab[m.b];A.pl++;B.pl++;
+    if(m.winner===m.a){A.w++;B.l++}else if(m.winner===m.b){B.w++;A.l++}else{A.d++;B.d++}
+    const ch=m.res&&m.res.chips;if(x01&&ch&&!m.ff)[A,B].forEach((P,k)=>{const v=parseInt(ch[k],10);if(!isNaN(v)){P.rem+=v;P.remN++}})}
+  const rows=Object.values(tab);rows.forEach(r=>{r.rate=r.pl?(r.w+r.d/2)/r.pl:0;r.avg=r.remN?r.rem/r.remN:null});
+  const cmp=(x,y)=>(out.has(x.id)-out.has(y.id))||(y.rate-x.rate)||(x01?((x.avg==null?1e9:x.avg)-(y.avg==null?1e9:y.avg)):0);
+  rows.sort(cmp);const dec=(t.tie||{}).P,K=poolCut(t);let need=null;
+  for(let i=0;i<rows.length;){let j=i;while(j<rows.length&&cmp(rows[i],rows[j])===0)j++;
+    if(j-i>1){const grp=rows.slice(i,j),set=new Set(grp.map(r=>r.id)),mini={};grp.forEach(r=>mini[r.id]=0);
+      ms.forEach(m=>{if(!m.done||!set.has(m.a)||!set.has(m.b))return;if(m.winner===m.a)mini[m.a]+=2;else if(m.winner===m.b)mini[m.b]+=2;else{mini[m.a]++;mini[m.b]++}});
+      grp.sort((x,y)=>mini[y.id]-mini[x.id]);
+      if(dec&&grp.every(r=>dec.includes(r.id)))grp.sort((x,y)=>dec.indexOf(x.id)-dec.indexOf(y.id));
+      else for(let k=0;k<grp.length;){let l=k;while(l<grp.length&&mini[grp[l].id]===mini[grp[k].id])l++;
+        if(l-k>1){grp.slice(k,l).forEach(r=>r.tied=true);if(!need&&i+k<K&&i+l>K)need={from:i+k,to:i+l,ids:grp.slice(k,l).map(r=>r.id)}}k=l}
+      rows.splice(i,j-i,...grp)}
+    i=j}
+  /* qualifiés d'office : meilleurs que le premier non qualifié ; repêchés : les autres qualifiés */
+  const first=rows[K];rows.forEach((r,k)=>{r.q=k<K&&!out.has(r.id);r.direct=r.q&&(!first||r.rate>first.rate)});
+  return {rows,need,K}}
+const poolDone=t=>t.matches.every(m=>m.stage!=='p'||m.done);
+/* Égalité parfaite à la limite du tableau, à faire trancher par l'organisateur */
+function poolTie(t){if(t.format!=='pool'||!poolDone(t)||koMatches(t).length)return null;const R=poolRank(t);
+  return R.need?{key:'P',label:'Repêchage',ids:R.need.ids,why:R.K+' places au tableau'}:null}
+function buildPoolFinals(t){const R=poolRank(t),ranked=R.rows.filter(r=>r.q).map(r=>r.id);
+  const ms=seededKO(ranked,R.K);if(t.third)addThird(ms);ms.forEach(m=>t.matches.push(Object.assign(m,{stage:'k'})))}
+function poolTableHTML(t){const R=poolRank(t),x01=t.game&&t.game.type==='x01',done=poolDone(t),out=new Set(t.out||[]);
+  return `<div class="stats-wrap"><table class="stats ostats"><thead><tr><th>#</th><th>Joueur</th><th>J</th><th>G</th><th>P</th>${x01?'<th title="Points restants en moyenne">Rest.</th>':''}</tr></thead><tbody>${R.rows.map((r,k)=>`<tr class="${r.q?'w':''}${k===R.K-1?' cut':''}"><td>${k+1}${r.tied&&done?'=':''}</td><td>${esc(pName(t,r.id))}${out.has(r.id)?' <small class="note">(retiré)</small>':done&&r.q?` <small class="qtag">${r.direct?'qualifié':'repêché'}</small>`:''}</td><td>${r.pl}</td><td>${r.w}</td><td>${r.l}</td>${x01?`<td>${r.avg==null?'—':Math.round(r.avg)}</td>`:''}</tr>`).join('')}</tbody></table></div>
+    <p class="note" style="margin-top:6px">Les ${R.K} premiers (en couleur) vont au tableau final. Classement : victoires${x01?', puis points restants en moyenne (le moins mauvais passe)':''}, puis confrontation directe.</p>`}
+/* Construit les matchs d'un nouveau tournoi (sur ce téléphone ou en ligne) */
+function buildStructure(t,d,ids){t.third=!!d.third&&d.format!=='league';
+  if(d.format==='ko'){t.matches=buildKO(ids);if(t.third)addThird(t.matches)}
+  else if(d.format==='league')t.matches=buildLeague(ids,d.legs);
+  else if(d.format==='pool'){t.nmatch=Math.max(1,Math.min(d.nmatch,ids.length-1));t.ksize=Math.min(d.ksize,ids.length);t.matches=buildPool(ids,t.nmatch)}
+  else{const G2=buildGroups(ids,d.gsize);t.groups=G2.groups;t.matches=G2.ms}
+  return t}
 /* Championnat : chacun contre chacun (méthode du cercle), aller-retour en option */
 function buildLeague(ids,legs){const a=ids.slice();if(a.length%2)a.push(null);const n=a.length,ms=[];
   for(let r=0;r<n-1;r++){for(let i=0;i<n/2;i++){const x=a[i],y=a[n-1-i];if(x&&y)ms.push({id:uid(),r,a:r%2?y:x,b:r%2?x:y,winner:null})}a.splice(1,0,a.pop())}
@@ -1810,20 +1892,21 @@ function buildLeague(ids,legs){const a=ids.slice();if(a.length%2)a.push(null);co
 function buildGroups(ids,size){const ng=Math.max(2,Math.round(ids.length/size));const groups=[...Array(ng)].map(()=>[]);
   ids.forEach((id,k)=>{const row=Math.floor(k/ng),col=k%ng;groups[row%2?ng-1-col:col].push(id)});
   const ms=[];groups.forEach((gr,gi)=>buildLeague(gr,1).forEach(m=>ms.push(Object.assign(m,{stage:'g',grp:gi}))));return {groups,ms}}
-const koMatches=t=>t.format==='groups'?t.matches.filter(m=>m.stage==='k'):t.matches;
+const hasPrelim=t=>t.format==='groups'||t.format==='pool';
+const koMatches=t=>hasPrelim(t)?t.matches.filter(m=>m.stage==='k'):t.matches;
 const GROUP_L='ABCDEFGHIJKLMNOP';
 /* Phase finale : les 2 premiers de chaque poule, 1er d'une poule contre 2e d'une autre */
 function buildFinals(t,rank){const W=[],R=[];t.groups.forEach((gr,gi)=>{const ms=t.matches.filter(m=>m.stage==='g'&&m.grp===gi),st=rank?rank(t,gr,ms):standings(t,gr,ms);if(st[0])W.push({id:st[0].id,g:gi});if(st[1])R.push({id:st[1].id,g:gi})});
   const len=W.length+R.length;let n=1;while(n<len)n*=2;const seeds=Array(len).fill(null);W.forEach((w,i)=>seeds[i]=w.id);
   const left=R.slice();for(let j=0;j<W.length;j++){const pi=n-1-j;if(pi>=len||pi<W.length)continue;let k=left.findIndex(r=>r.g!==W[j].g);if(k<0)k=0;seeds[pi]=left.splice(k,1)[0].id}
   for(let i=W.length;i<len;i++)if(seeds[i]==null)seeds[i]=left.shift().id;
-  buildKO(seeds).forEach(m=>t.matches.push(Object.assign(m,{stage:'k'})))}
+  const K=buildKO(seeds);if(t.third)addThird(K);K.forEach(m=>t.matches.push(Object.assign(m,{stage:'k'})))}
 function standings(t,ids,ms){const tab=Object.fromEntries((ids||t.players.map(p=>p.id)).map(id=>[id,{id,pl:0,w:0,l:0,d:0,pts:0}]));
   for(const m of (ms||t.matches)){if(!m.done||!tab[m.a]||!tab[m.b])continue;const A=tab[m.a],B=tab[m.b];A.pl++;B.pl++;
     if(m.winner===m.a){A.w++;B.l++;A.pts+=2}else if(m.winner===m.b){B.w++;A.l++;B.pts+=2}else{A.d++;B.d++;A.pts++;B.pts++}}
   return Object.values(tab).sort((x,y)=>y.pts-x.pts||y.w-x.w||x.l-y.l)}
-const tLabel=t=>t.format==='ko'?'Élimination directe':t.format==='groups'?'Poules + phase finale':'Championnat'+(t.legs===2?' aller-retour':'');
-function tStatus(t){if(t.format!=='league'){const K=koMatches(t);if(!K.length)return {done:false};const fin=K.find(m=>m.r===Math.max(...K.map(x=>x.r)));return fin&&fin.winner?{done:true,champ:fin.winner}:{done:false}}
+const tLabel=t=>t.format==='ko'?'Élimination directe':t.format==='groups'?'Poules + phase finale':t.format==='pool'?'Matchs aléatoires + tableau':'Championnat'+(t.legs===2?' aller-retour':'');
+function tStatus(t){if(t.format!=='league'){const K=koMatches(t);if(!K.length)return {done:false};const fin=koFinal(K),th=K.find(m=>m.third);return fin&&fin.winner&&(!th||th.winner)?{done:true,champ:fin.winner,third:th&&th.winner}:{done:false}}
   if(t.matches.every(m=>m.done)){const s=standings(t);return {done:true,champ:s[0].id}}return {done:false}}
 function renderTournaments(){
   const l=tournaments();if(Online.list==null&&!Online.loadingList){Online.loadingList=true;Online.refreshList().finally(()=>Online.loadingList=false)}
@@ -1832,7 +1915,7 @@ function renderTournaments(){
     <button class="btn btn-silver" data-act="tnewonline">Créer un tournoi en ligne (plusieurs cibles)</button>
     <section><h2 class="sec-title">Tournois en ligne</h2>${Online.list==null?'<p class="note">Chargement…</p>':Online.list.length?`<div class="plist">${Online.list.map(o=>`<button class="prow-card" data-act="oopen" data-v="${o.id}"><span class="t-ico">◎</span><span class="pc-name">${esc(o.name||'Tournoi')}</span><span class="pc-sub">${o.players} joueurs · ${o.champ?'Vainqueur : '+esc(o.champ):o.round<0?'pas encore commencé':'en cours'}</span>${I.next}</button>`).join('')}</div>`:`<p class="note">${Online.listErr?esc(Online.listErr):'Aucun tournoi en ligne. Un tournoi en ligne se joue sur plusieurs cibles à la fois : l\'appli tire au sort cibles et arbitres, les arbitres comptent avec leur téléphone (simple lien, sans compte) et une page tableau s\'affiche sur la télé.'}</p>`}</section>
     <section><h2 class="sec-title">Mes tournois</h2>${l.length?`<div class="plist">${l.map(t=>{const s=tStatus(t),done=t.matches.filter(m=>m.done&&!m.bye).length,tot=t.matches.filter(m=>!m.bye).length;
-      return `<button class="prow-card" data-act="topen" data-v="${t.id}"><span class="t-ico">${t.format==='ko'?'⟩':t.format==='groups'?'⊞':'≡'}</span><span class="pc-name">${esc(t.name)}</span><span class="pc-sub">${tLabel(t)} · ${t.players.length} joueurs · ${s.done?'Vainqueur : '+esc(pName(t,s.champ)):done+' / '+tot+' matchs'}</span>${I.next}</button>`}).join('')}</div>`:'<p class="note">Aucun tournoi pour l\'instant.</p>'}</section>
+      return `<button class="prow-card" data-act="topen" data-v="${t.id}"><span class="t-ico">${t.format==='ko'?'⟩':t.format==='groups'?'⊞':t.format==='pool'?'⁂':'≡'}</span><span class="pc-name">${esc(t.name)}</span><span class="pc-sub">${tLabel(t)} · ${t.players.length} joueurs · ${s.done?'Vainqueur : '+esc(pName(t,s.champ)):done+' / '+tot+' matchs'}</span>${I.next}</button>`}).join('')}</div>`:'<p class="note">Aucun tournoi pour l\'instant.</p>'}</section>
   </div>`);
 }
 function optsHTML(type,opts,act){return GAMES[type].opts.map(o=>optRowHTML(o,opts[o.k],act)).join('')}
@@ -1841,9 +1924,11 @@ function renderTNew(){
   frame(d.online?'Nouveau tournoi en ligne':'Nouveau tournoi',`<div class="col">
     <section><h2 class="sec-title">Nom</h2><input class="tin" id="tName" value="${esc(d.name)}" maxlength="40" aria-label="Nom du tournoi"></section>
     <section class="card"><div class="opt-row"><span class="lbl">Formule</span>
-      <div class="seg"><button data-act="tformat" data-v="ko" aria-pressed="${d.format==='ko'}">Élimination</button><button data-act="tformat" data-v="groups" aria-pressed="${d.format==='groups'}">Poules</button><button data-act="tformat" data-v="league" aria-pressed="${d.format==='league'}">Championnat</button></div>
-      <p>${d.format==='ko'?'Un match perdu et c\'est fini. Si le nombre de joueurs n\'est pas une puissance de 2, certains sont qualifiés d\'office au premier tour.':d.format==='groups'?'Les joueurs sont répartis en poules ; chacun affronte les joueurs de sa poule (victoire 2 points, nul 1 point). Les 2 premiers de chaque poule passent en phase finale, à élimination directe : le 1er d\'une poule rencontre le 2e d\'une autre.':'Chacun affronte tous les autres. Victoire = 2 points, égalité = 1 point. Le meilleur total gagne.'}</p></div>
+      <div class="seg"><button data-act="tformat" data-v="ko" aria-pressed="${d.format==='ko'}">Élimination</button><button data-act="tformat" data-v="groups" aria-pressed="${d.format==='groups'}">Poules</button><button data-act="tformat" data-v="pool" aria-pressed="${d.format==='pool'}">Aléatoire</button><button data-act="tformat" data-v="league" aria-pressed="${d.format==='league'}">Championnat</button></div>
+      <p>${d.format==='ko'?'Un match perdu et c\'est fini. Si le nombre de joueurs n\'est pas une puissance de 2, certains sont qualifiés d\'office au premier tour.':d.format==='groups'?'Les joueurs sont répartis en poules ; chacun affronte les joueurs de sa poule (victoire 2 points, nul 1 point). Les 2 premiers de chaque poule passent en phase finale, à élimination directe : le 1er d\'une poule rencontre le 2e d\'une autre.':d.format==='pool'?'Chaque joueur fait plusieurs matchs contre des adversaires tirés au sort (jamais deux fois le même). Puis les meilleurs du classement remplissent le tableau final : les plus forts sont qualifiés d\'office, les places restantes vont aux « moins mauvais » (repêchage). Têtes de série : le 1er ne peut croiser le 2e qu\'en finale.':'Chacun affronte tous les autres. Victoire = 2 points, égalité = 1 point. Le meilleur total gagne.'}</p></div>
       ${d.format==='groups'?`<div class="opt-row"><span class="lbl">Joueurs par poule</span><div class="seg">${[3,4,5,6].map(n=>`<button data-act="tgsize" data-v="${n}" aria-pressed="${d.gsize===n}">${n}</button>`).join('')}</div><p>${d.pids.length>=4?`${Math.max(2,Math.round(d.pids.length/d.gsize))} poules pour ${d.pids.length} joueurs.`:'Il faut au moins 4 joueurs pour faire des poules.'}</p></div>`:''}
+      ${d.format==='pool'?poolDraftHTML(d):''}
+      ${d.format!=='league'?`<div class="opt-row"><span class="lbl">Petite finale (3e place)</span><div class="seg"><button data-act="tthird" data-v="1" aria-pressed="${!!d.third}">Oui</button><button data-act="tthird" data-v="0" aria-pressed="${!d.third}">Non</button></div></div>`:''}
       ${d.format==='league'?`<div class="opt-row"><span class="lbl">Matchs</span><div class="seg"><button data-act="tlegs" data-v="1" aria-pressed="${d.legs===1}">Aller simple</button><button data-act="tlegs" data-v="2" aria-pressed="${d.legs===2}">Aller-retour</button></div></div>`:''}</section>
     <section class="card"><h2 class="sec-title">Jeu de chaque match</h2>
       <select id="tType" aria-label="Jeu">${Object.values(GAMES).map(g=>`<option value="${g.id}" ${d.type===g.id?'selected':''}>${esc(g.name)}</option>`).join('')}</select>
@@ -1856,6 +1941,18 @@ function renderTNew(){
     <button class="btn btn-primary" data-act="tcreate" ${d.pids.length<(d.format==='groups'?4:2)||(d.online&&!d.refs.length)?'disabled':''}>Créer le tournoi${d.online?' en ligne':''} (${d.pids.length} joueurs)</button>${d.online&&!d.refs.length?'<p class="note center">Ajoutez au moins un arbitre.</p>':''}
   </div>`);
 }
+/* Réglages propres aux matchs aléatoires : nombre de matchs par joueur, taille du tableau final */
+const KSIZES=[[2,'Finale'],[4,'Demies'],[8,'Quarts'],[16,'8es'],[32,'16es']];
+function poolDraftHTML(d){const n=d.pids.length,ks=KSIZES.filter(([k])=>k<=Math.max(2,n));if(!ks.some(([k])=>k===d.ksize))d.ksize=ks[ks.length-1][0];
+  const maxM=Math.max(1,Math.min(8,n-1));if(d.nmatch>maxM)d.nmatch=maxM;
+  return `<div class="opt-row"><span class="lbl">Matchs par joueur (minimum)</span><div class="stepper"><button data-act="tnmatch" data-v="-1" aria-label="Un match de moins">−</button><output>${d.nmatch}</output><button data-act="tnmatch" data-v="1" aria-label="Un match de plus">+</button></div></div>
+    <div class="opt-row"><span class="lbl">Tableau final</span><div class="seg">${ks.map(([k,l])=>`<button data-act="tksize" data-v="${k}" aria-pressed="${d.ksize===k}">${l}</button>`).join('')}</div>
+      <p>${n>=2?`${n} inscrits → <b>${d.ksize} au tableau final</b>${d.ksize<n?` : ${n-d.ksize} éliminé${n-d.ksize>1?'s':''} après les matchs aléatoires`:' : tout le monde passe'}. ${n%2&&d.nmatch?'Nombre impair : à chaque tour un joueur attend, il rattrape son match à la fin.':''}`:''}</p></div>`}
+/* Égalité parfaite à trancher par l'organisateur (repêchage des matchs aléatoires) */
+let tTieSel=[];
+function tieCardHTML(t,tie,sel,pre){return `<div class="card"><p><b>Égalité parfaite · ${esc(tie.label)}</b> (${tie.why}).<br>Touchez les joueurs dans l'ordre du classement :</p>
+    <div class="chips" style="margin-top:10px">${tie.ids.map(id=>{const k=sel.indexOf(id);return `<button class="chip pchip" data-act="${pre}tiepick" data-v="${id}" aria-pressed="${k>=0}">${k>=0?(k+1)+'. ':''}${esc(pName(t,id))}</button>`}).join('')}</div>
+    <div class="row2" style="margin-top:10px"><button class="btn btn-primary" data-act="${pre}tieok" ${sel.length===tie.ids.length?'':'disabled'}>Valider ce classement</button><button class="btn btn-ghost" data-act="${pre}tiereset">Recommencer</button></div></div>`}
 function matchRow(t,m){const A=m.a?esc(pName(t,m.a)):'<i>à venir</i>',B=m.b?esc(pName(t,m.b)):'<i>à venir</i>';
   const can=m.a&&m.b&&!m.done;const live=game&&!game.finishedAt&&game.tournament&&game.tournament.mid===m.id;
   return `<div class="mrow ${m.done?'done':''}"><span class="${m.winner===m.a&&m.done?'mw':''}">${A}</span><span class="vs">${m.done?(m.winner?'':'nul'):'contre'}</span><span class="${m.winner===m.b&&m.done?'mw':''}">${B}</span>
@@ -1864,9 +1961,14 @@ function renderTournament(){
   const t=tById(curTid);if(!t){go('tournaments');return}const s=tStatus(t);const G=GAMES[t.game.type];
   let body='';
   const koBody=(K,title)=>{const R=Math.max(...K.map(m=>m.r));const names=['Finale','Demi-finales','Quarts de finale','Huitièmes de finale','Seizièmes de finale'];
-    return `<section><h2 class="sec-title">${title}</h2><div class="bracket">${[...Array(R+1)].map((_,r)=>`<div class="bcol"><h3>${names[R-r]||'Tour '+(r+1)}</h3>${K.filter(m=>m.r===r).map(m=>`<div class="bm ${m.done?'done':''}"><span class="${m.winner&&m.winner===m.a?'mw':''}">${m.a?esc(pName(t,m.a)):(m.bye&&r===0?'—':'…')}</span><span class="${m.winner&&m.winner===m.b?'mw':''}">${m.b?esc(pName(t,m.b)):(r===0?'exempté':'…')}</span></div>`).join('')}</div>`).join('')}</div></section>
+    return `<section><h2 class="sec-title">${title}</h2><div class="bracket">${[...Array(R+1)].map((_,r)=>`<div class="bcol"><h3>${names[R-r]||'Tour '+(r+1)}</h3>${K.filter(m=>m.r===r).map(m=>`${m.third?'<h3 class="b3">3e place</h3>':''}<div class="bm ${m.done?'done':''}"><span class="${m.winner&&m.winner===m.a?'mw':''}">${m.a?esc(pName(t,m.a)):(m.bye&&r===0?'—':'…')}</span><span class="${m.winner&&m.winner===m.b?'mw':''}">${m.b?esc(pName(t,m.b)):(r===0?'exempté':'…')}</span></div>`).join('')}</div>`).join('')}</div></section>
       <section><h2 class="sec-title">Matchs</h2><div class="mlist">${K.filter(m=>!m.bye&&m.a&&m.b).sort((a,b)=>(a.done-b.done)||a.r-b.r).map(m=>matchRow(t,m)).join('')}</div></section>`};
   if(t.format==='ko')body=koBody(t.matches,'Tableau');
+  else if(t.format==='pool'){const K=koMatches(t),tie=poolTie(t),pm=t.matches.filter(m=>m.stage==='p');
+    body=(K.length?koBody(K,'Tableau final'):'')+(tie?tieCardHTML(t,tie,tTieSel,'t'):'')
+      +`<section><h2 class="sec-title">Classement · matchs aléatoires</h2>${poolTableHTML(t)}</section>
+      <section><h2 class="sec-title">Matchs aléatoires · ${pm.filter(m=>m.done).length} / ${pm.length}</h2><div class="mlist">${pm.slice().sort((a,b)=>(a.done-b.done)||a.r-b.r).map(m=>matchRow(t,m)).join('')}</div>
+      ${K.length?'':'<p class="note" style="margin-top:6px">Le tableau final se crée tout seul quand tous les matchs aléatoires sont joués.</p>'}</section>`}
   else if(t.format==='groups'){const K=koMatches(t);
     body=(K.length?koBody(K,'Phase finale'):'')+t.groups.map((gr,gi)=>{const ms=t.matches.filter(m=>m.stage==='g'&&m.grp===gi),st=standings(t,gr,ms);
       return `<section><h2 class="sec-title">Poule ${GROUP_L[gi]}</h2><div class="stats-wrap"><table class="stats"><thead><tr><th>#</th><th>Joueur</th><th>Pts</th><th>J</th><th>G</th><th>N</th><th>P</th></tr></thead><tbody>${st.map((r,k)=>`<tr class="${k<2&&ms.every(m=>m.done)?'w':''}"><td>${k+1}</td><td>${esc(pName(t,r.id))}</td><td>${r.pts}</td><td>${r.pl}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td></tr>`).join('')}</tbody></table></div>
@@ -1877,7 +1979,7 @@ function renderTournament(){
       <p class="note" style="margin-top:8px">Pts : victoire 2, nul 1. J joués, G gagnés, N nuls, P perdus.</p></section>
       <section><h2 class="sec-title">Matchs</h2><div class="mlist">${t.matches.slice().sort((a,b)=>(a.done-b.done)||a.r-b.r).map(m=>matchRow(t,m)).join('')}</div></section>`}
   frame(esc(t.name),`<div class="col">
-    <div class="win">${s.done?`<span class="crown">Vainqueur du tournoi</span><h1>${esc(pName(t,s.champ))}</h1>`:`<span class="crown">${tLabel(t)}</span>`}
+    <div class="win">${s.done?`<span class="crown">Vainqueur du tournoi</span><h1>${esc(pName(t,s.champ))}</h1>${s.third?`<p>3e place : ${esc(pName(t,s.third))}</p>`:''}`:`<span class="crown">${tLabel(t)}</span>`}
       <p>${t.game.type==='x01'?t.game.opts.start+' · '+OUT_LABEL[t.game.opts.outRule]:esc(G.name)} · ${t.players.length} joueurs · ${t.matches.filter(m=>m.done&&!m.bye).length} / ${t.matches.filter(m=>!m.bye).length} matchs joués</p></div>
     ${body}
     <div id="tDelBox"><button class="btn btn-danger" data-act="tdelask">Supprimer le tournoi</button></div>
@@ -1895,14 +1997,17 @@ function recordTournament(g,S){if(g.remote){Ref.result(g,S);return}if(!g.tournam
   const w=S.winner!=null?g.players[S.winner].id:null;
   const ko=t.format==='ko'||m.stage==='k';
   if(ko&&w==null)return; // égalité en élimination directe : le match reste à rejouer
-  m.done=true;m.winner=w;m.gameId=g.id;if(ko)koAdvance(koMatches(t));
+  m.done=true;m.winner=w;m.gameId=g.id;m.res={chips:[0,1].map(i=>stripTags(GAMES[g.type].chip(S,i)))};if(ko)koAdvance(koMatches(t));
   if(t.format==='groups'&&m.stage==='g'&&!koMatches(t).length&&t.matches.every(x=>x.stage!=='g'||x.done))buildFinals(t);
+  if(t.format==='pool'&&m.stage==='p'&&!koMatches(t).length&&poolDone(t)&&!poolTie(t))buildPoolFinals(t);
   saveT(t)}
 function unrecordTournament(g){if(g.remote){Ref.retract(g);return}if(!g.tournament)return;const t=tById(g.tournament.tid);if(!t)return;const m=t.matches.find(x=>x.id===g.tournament.mid);if(!m||m.gameId!==g.id)return;
-  if(m.stage==='g'&&koMatches(t).some(x=>x.done&&!x.bye))return; // phase finale déjà commencée
-  if(m.stage==='g')t.matches=t.matches.filter(x=>x.stage!=='k');
-  if(t.format==='ko'||m.stage==='k'){const nx=koMatches(t).find(x=>x.r===m.r+1&&x.i===Math.floor(m.i/2));if(nx&&nx.done)return;if(nx)nx[m.i%2?'b':'a']=null}
-  m.done=false;m.winner=null;m.gameId=null;saveT(t)}
+  const pre=m.stage==='g'||m.stage==='p';
+  if(pre&&koMatches(t).some(x=>x.done&&!x.bye))return; // phase finale déjà commencée
+  if(pre)t.matches=t.matches.filter(x=>x.stage!=='k');
+  const ko=t.format==='ko'||m.stage==='k';
+  if(ko&&!m.third){const K=koMatches(t),nx=K.find(x=>!x.third&&x.r===m.r+1&&x.i===Math.floor(m.i/2)),th=K.find(x=>x.third);if(nx&&nx.done)return;if(th&&th.done&&!th.bye&&(th.a===m.a||th.a===m.b||th.b===m.a||th.b===m.b))return;if(nx)nx[m.i%2?'b':'a']=null}
+  m.done=false;m.winner=null;m.gameId=null;m.res=null;if(ko)koAdvance(koMatches(t));saveT(t)}
 
 /* =========================================================
    Profil de l'utilisateur et code utilisateur
@@ -2030,7 +2135,7 @@ function niceCloud(e){const c=(e&&e.code)||'';
     mail_failed:'L\'e-mail n\'a pas pu partir. Réessayez un peu plus tard.',
     reset_expired:'Ce lien a expiré ou a déjà servi. Refaites une demande de mot de passe oublié.',
     rate:'Trop de messages d\'un coup : réessayez dans un quart d\'heure.',mail_failed:'Le message n\'a pas pu partir. Réessayez plus tard.',
-    code_invalid:'Ce code n\'est pas valable, ou il a déjà servi.',forbidden:'Cette action est réservée au studio.',
+    code_invalid:'Ce code n\'est pas valable, ou il a déjà servi.',already_premium:'Ce compte est déjà premium à vie : gardez ce code pour quelqu\'un d\'autre.',forbidden:'Cette action est réservée au studio.',
     nosession:'Votre session a expiré : reconnectez-vous.'})[c]||'Le service ne répond pas pour le moment. Réessayez dans un instant.'}
 
 /* ---------- Connexion, inscription, mot de passe ---------- */
@@ -2173,27 +2278,35 @@ function renderAccount(){if(!Cloud.session()){go('auth');return}
    Un compte devient premium en saisissant un code à usage unique (ARW-XXXXX-XXXXX).
    Le compte du studio (owner) crée ces codes ici et voit lesquels ont servi. */
 const fmtCode=c=>'ARW-'+c.slice(0,5)+'-'+c.slice(5);
+/* Durées des codes premium : 0 = à vie */
+const CODE_DAYS=[[0,'À vie'],[7,'1 semaine'],[30,'1 mois'],[90,'3 mois'],[365,'1 an']];let codeDays=0;
+const daysLabel=d=>(CODE_DAYS.find(x=>x[0]===(d||0))||[0,'À vie'])[1];
 function premiumCardHTML(acc){
-  const mine=acc.premium?`<p class="form-msg ok" style="margin:0 0 12px">Premium actif sur ce compte : tous les jeux, sans limite, même hors ligne.</p>${supportBtnHTML('btn-ghost')}`
-    :`<p class="note" style="margin-top:0">Compte gratuit : le 501 à 2 joueurs sans limite, et ${FREE_LIMIT} parties pour chaque autre jeu, avec une connexion internet. Le premium ouvre tout, sans limite, même hors ligne.</p>
+  const until=acc.premium_until?new Date(acc.premium_until):null,temp=until&&!acc.owner;
+  const mine=isPremium()&&!temp?`<p class="form-msg ok" style="margin:0 0 12px">Premium actif sur ce compte : tous les jeux, sans limite, même hors ligne.</p>${supportBtnHTML('btn-ghost')}`
+    :isPremium()&&temp?`<p class="form-msg ok" style="margin:0 0 12px">Premium actif jusqu'au <b>${until.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</b> : tous les jeux, sans limite, même hors ligne. Ensuite, le compte repasse en version gratuite (rien n'est perdu).</p>${supportBtnHTML('btn-ghost')}
+      <form data-form="redeem" class="stack" novalidate><label class="fld"><span>J'ai un autre code premium</span><input class="tin" id="pCode" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ARW-XXXXX-XXXXX"></label>
+        <p class="form-msg" id="pErr" role="alert"></p><button class="btn btn-ghost" type="submit">Activer</button></form>`
+    :`${until&&until<new Date()?`<p class="note" style="margin-top:0">Votre premium a pris fin le ${until.toLocaleDateString('fr-FR',{day:'numeric',month:'long'})}.</p>`:''}<p class="note" style="margin-top:0">Compte gratuit : le 501 à 2 joueurs sans limite, et ${FREE_LIMIT} parties pour chaque autre jeu, avec une connexion internet. Le premium ouvre tout, sans limite, même hors ligne.</p>
       ${supportBtnHTML()}
       <form data-form="redeem" class="stack" novalidate><label class="fld"><span>J'ai un code premium</span><input class="tin" id="pCode" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ARW-XXXXX-XXXXX"></label>
         <p class="form-msg" id="pErr" role="alert"></p><button class="btn btn-ghost" type="submit">Activer le premium</button></form>`;
   const studio=acc.owner?`<div class="codes"><h2 class="sec-title" style="margin-top:16px">Codes à distribuer</h2>
-      <p class="note">Chaque code ne sert qu'une fois, pour un seul compte.</p>
-      <label class="fld"><span>Pour qui ? (facultatif)</span><input class="tin" id="cNote" maxlength="60" placeholder="Prénom, club…"></label>
+      <p class="note">Chaque code ne sert qu'une fois, pour un seul compte. Un code temporaire (gain de tournoi…) donne le premium pour la durée choisie, à partir du jour où il est saisi.</p>
+      <div class="fld"><span>Durée</span><div class="seg" id="cDays">${CODE_DAYS.map(([d,l])=>`<button data-act="cdays" data-v="${d}" aria-pressed="${codeDays===d}">${l}</button>`).join('')}</div></div>
+      <label class="fld"><span>Pour qui ? (facultatif)</span><input class="tin" id="cNote" maxlength="60" placeholder="Prénom, club, gagnant du tournoi…"></label>
       <button class="btn btn-primary" data-act="codenew">Créer un code</button>
       <div id="codeList" class="code-list"><p class="note">Chargement…</p></div></div>`:'';
   return `<section class="card"><h2 class="sec-title">Premium</h2>${mine}${studio}</section>`}
 async function loadCodes(){const el=document.getElementById('codeList');if(!el)return;
   try{const j=await Cloud.call('codes_list');
     el.innerHTML=j.codes.length?j.codes.map(c=>`<div class="code-row ${c.used_at?'used':''}"><div class="grow"><b>${fmtCode(c.code)}</b>
-        <span>${c.used_at?'Utilisé par '+esc(c.used_name||'un joueur')+' le '+new Date(c.used_at).toLocaleDateString('fr-FR'):'Libre'}${c.note?' · '+esc(c.note):''}</span></div>
-        ${c.used_at?'':`<button class="btn btn-ghost" data-act="codeshare" data-v="${c.code}">Envoyer</button><button class="icon-btn" data-act="codedel" data-v="${c.code}" aria-label="Supprimer ce code">${I.trash}</button>`}</div>`).join('')
+        <span>${c.duration_days?'<b>'+daysLabel(c.duration_days)+'</b> · ':''}${c.used_at?'Utilisé par '+esc(c.used_name||'un joueur')+' le '+new Date(c.used_at).toLocaleDateString('fr-FR'):'Libre'}${c.note?' · '+esc(c.note):''}</span></div>
+        ${c.used_at?'':`<button class="btn btn-ghost" data-act="codeshare" data-v="${c.code}" data-d="${c.duration_days||0}">Envoyer</button><button class="icon-btn" data-act="codedel" data-v="${c.code}" aria-label="Supprimer ce code">${I.trash}</button>`}</div>`).join('')
       :'<p class="note">Aucun code pour l\'instant.</p>'}
   catch(e){el.innerHTML=`<p class="note">${esc(niceCloud(e))}</p>`}}
 /* Partage d'un code : feuille de partage du téléphone, sinon copie */
-async function shareCode(code){const text=`Voici ton code premium ARROW : ${fmtCode(code)}\nÀ saisir dans ARROW, écran « Mon compte ».\n${location.origin+location.pathname}`;
+async function shareCode(code,days){const text=`Voici ton code premium ARROW${days?' ('+daysLabel(days)+' de premium)':''} : ${fmtCode(code)}\nÀ saisir dans ARROW, écran « Mon compte ».\n${location.origin+location.pathname}`;
   try{if(navigator.share){await navigator.share({text});return}}catch(e){if(e&&e.name==='AbortError')return}
   try{await navigator.clipboard.writeText(text);toastMsg('Code copié')}catch(e){toastMsg(fmtCode(code))}}
 function openLogout(){openSheet(`<div class="sheet-head"><h2>Se déconnecter</h2><button class="icon-btn" data-act="closesheet" aria-label="Fermer">${I.x}</button></div>
@@ -2207,8 +2320,9 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-act]
     case 'forgot':go('forgot');break;
     case 'pweye':{const i=b.parentElement.querySelector('input');i.type=i.type==='password'?'text':'password';b.textContent=i.type==='password'?'Afficher':'Masquer';break}
     case 'syncnow':Sync.err=null;updateSyncBox();try{await Sync.pull();await Sync.push();await Inbox.check();await Inbox.flush()}catch(err){Sync.err=err}updateSyncBox();break;
-    case 'codenew':{b.disabled=true;try{const j=await Cloud.call('codes_new',{count:1,note:(document.getElementById('cNote')||{}).value||''});await loadCodes();shareCode(j.codes[0])}catch(err){toastMsg(niceCloud(err))}b.disabled=false;break}
-    case 'codeshare':shareCode(b.dataset.v);break;
+    case 'cdays':codeDays=+b.dataset.v;document.querySelectorAll('[data-act=cdays]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===b.dataset.v));break;
+    case 'codenew':{b.disabled=true;try{const j=await Cloud.call('codes_new',{count:1,days:codeDays||null,note:(document.getElementById('cNote')||{}).value||''});await loadCodes();shareCode(j.codes[0],codeDays)}catch(err){toastMsg(niceCloud(err))}b.disabled=false;break}
+    case 'codeshare':shareCode(b.dataset.v,+b.dataset.d||0);break;
     case 'codedel':try{await Cloud.call('codes_del',{code:b.dataset.v});await loadCodes()}catch(err){toastMsg(niceCloud(err))}break;
     case 'logout':openLogout();break;
     case 'logoutkeep':case 'logoutwipe':closeSheet();await Auth.signOut(a==='logoutwipe');authMode='login';go('auth');toastMsg('Vous êtes déconnecté');break;
@@ -2238,7 +2352,7 @@ document.addEventListener('submit',async e=>{const f=e.target,k=f.dataset&&f.dat
     catch(err){formBusy(f,false);msg(niceCloud(err))}}
   if(k==='redeem'){const msg=t=>{const el=document.getElementById('pErr');if(el)el.textContent=t};
     formBusy(f,true);msg('');
-    try{const j=await Cloud.call('redeem',{code:val('pCode')});store.set('account',j.user);toastMsg('Premium activé, merci !');render()}
+    try{const j=await Cloud.call('redeem',{code:val('pCode')});store.set('account',j.user);toastMsg(j.user.premium_until?'Premium activé jusqu\'au '+new Date(j.user.premium_until).toLocaleDateString('fr-FR',{day:'numeric',month:'long'})+' !':'Premium activé, merci !');render()}
     catch(err){formBusy(f,false);msg(niceCloud(err))}}
   if(k==='chpw'){const old=val('cOld'),pw=val('cNew');if(!old)return formErr('Indiquez votre mot de passe actuel.');if(pw.length<8)return formErr('Le nouveau mot de passe doit faire au moins 8 caractères.');
     formBusy(f,true);try{await Auth.changePassword(old,pw);f.innerHTML='<p class="form-msg ok">Mot de passe changé.</p>'}catch(err){formBusy(f,false);formErr(err.code==='invalid_credentials'?'Le mot de passe actuel est incorrect.':niceCloud(err))}}
@@ -3380,13 +3494,15 @@ function roundName(t,key){
   if(key<0)return 'Pas encore commencé';
   if(t.format==='league')return 'Journée '+(key+1);
   if(t.format==='groups'&&key<KO_START)return 'Poules · tour '+(key+1);
-  const K=koMatches(t),R=Math.max(...K.map(m=>m.r)),r=key>=KO_START?key-KO_START:key;
+  if(t.format==='pool'&&key<KO_START)return key>=t.nmatch?'Matchs aléatoires · rattrapage':'Matchs aléatoires · tour '+(key+1);
+  const K=koMatches(t).filter(m=>!m.third),R=Math.max(...K.map(m=>m.r)),r=key>=KO_START?key-KO_START:key;
+  if(r===R&&koMatches(t).some(m=>m.third))return 'Finale et 3e place';
   return ['Finale','Demi-finales','Quarts de finale','Huitièmes de finale','Seizièmes de finale'][R-r]||'Tour '+(r+1)}
 const roundDone=(t,key)=>roundMatches(t,key).every(m=>m.done);
 /* Manche suivante : null si le tournoi est fini ; 'finals' si la phase finale reste à créer */
 function nextRound(t){const ks=roundKeys(t).filter(k=>k>t.round);
   if(ks.length)return ks[0];
-  if(t.format==='groups'&&!koMatches(t).length)return 'finals';
+  if(hasPrelim(t)&&!koMatches(t).length)return 'finals';
   return null}
 
 /* ---------- Classement avec départage ----------
@@ -3406,6 +3522,7 @@ function oRank(t,ids,ms,key){
   return {rows:out,need}}
 /* Égalité qui compte : qualification en poule (entre la 2e et la 3e place), ou titre au championnat */
 function tieToSettle(t){
+  if(t.format==='pool')return poolTie(t);
   if(t.format==='groups'&&!koMatches(t).length&&t.matches.every(m=>m.stage!=='g'||m.done)){
     for(let gi=0;gi<t.groups.length;gi++){const ms=t.matches.filter(m=>m.stage==='g'&&m.grp===gi),R=oRank(t,t.groups[gi],ms,'g'+gi);
       if(R.need&&R.need.from<2&&R.need.to>2)return {key:'g'+gi,label:'Poule '+GROUP_L[gi],ids:R.need.ids,why:'deux qualifiés par poule'}}}
@@ -3414,7 +3531,7 @@ function tieToSettle(t){
   return null}
 function oChampion(t){
   if(t.format==='league'){if(!t.matches.every(m=>m.done)||tieToSettle(t))return null;return oRank(t,null,t.matches,'L').rows[0].id}
-  const K=koMatches(t);if(!K.length)return null;const fin=K.find(m=>m.r===Math.max(...K.map(x=>x.r)));return fin&&fin.winner||null}
+  const K=koMatches(t);if(!K.length)return null;const fin=koFinal(K),th=K.find(m=>m.third);if(th&&!th.winner)return null;return fin&&fin.winner||null}
 
 /* ---------- Forfaits ---------- */
 /* Un joueur retiré (t.out) perd tous ses matchs pas encore joués des manches lancées */
@@ -3438,7 +3555,7 @@ function drawRound(t,ms){
     if(o){[m.board,o.board]=[o.board,m.board];[m.ref,o.ref]=[o.ref,m.ref];[m.ord,o.ord]=[o.ord,m.ord]}})}
 /* Lance une manche : phase finale créée si besoin, forfaits appliqués, tirage, matchs ouverts aux arbitres */
 function launchRound(t,key){
-  if(key==='finals'){buildFinals(t,(t,gr,ms)=>oRank(t,gr,ms,'g'+t.groups.indexOf(gr)).rows);key=KO_START}
+  if(key==='finals'){if(t.format==='pool')buildPoolFinals(t);else buildFinals(t,(t,gr,ms)=>oRank(t,gr,ms,'g'+t.groups.indexOf(gr)).rows);key=KO_START}
   koAdvance(koMatches(t));
   const ms=roundMatches(t,key).filter(m=>!m.done&&m.a&&m.b);ms.forEach(m=>m.launched=true);
   t.round=key;applyForfeits(t);
@@ -3462,12 +3579,13 @@ function absorbLive(t,live){let ch=false;
   return ch}
 /* Un résultat peut-il encore être annulé ? (pas si la suite du tableau a commencé) */
 function canUndo(t,m){if(!m.done||m.bye)return false;
-  if(isKO(t,m)){const nx=koMatches(t).find(x=>x.r===m.r+1&&x.i===Math.floor(m.i/2));if(nx&&(nx.done||nx.launched))return false}
-  if(m.stage==='g'&&koMatches(t).length)return false;
+  if(isKO(t,m)&&!m.third){const K=koMatches(t),nx=K.find(x=>!x.third&&x.r===m.r+1&&x.i===Math.floor(m.i/2)),th=K.find(x=>x.third);if(nx&&(nx.done||nx.launched))return false;
+    if(th&&(th.done||th.launched)&&[th.a,th.b].some(p=>p&&(p===m.a||p===m.b)))return false}
+  if((m.stage==='g'||m.stage==='p')&&koMatches(t).length)return false;
   return true}
 function undoResult(t,m){
-  if(isKO(t,m)){const nx=koMatches(t).find(x=>x.r===m.r+1&&x.i===Math.floor(m.i/2));if(nx)nx[m.i%2?'b':'a']=null}
-  m.done=false;m.winner=null;m.res=null;delete m.ff;delete m.src}
+  if(isKO(t,m)&&!m.third){const nx=koMatches(t).find(x=>!x.third&&x.r===m.r+1&&x.i===Math.floor(m.i/2));if(nx)nx[m.i%2?'b':'a']=null}
+  m.done=false;m.winner=null;m.res=null;delete m.ff;delete m.src;if(isKO(t,m))koAdvance(koMatches(t))}
 
 /* ---------- Échanges avec le serveur ---------- */
 const Online={
@@ -3481,7 +3599,7 @@ const Online={
     catch(e){this.err=niceCloud(e)}
     const sig=JSON.stringify([this.T,this.live,this.err]);if(sig!==this.sig){this.sig=sig;if(screen==='otour'&&!document.querySelector('.sheet-bg'))renderOTour()}},
   finishCheck(){const t=this.T;if(!t||t.finished||nextRound(t)!==null||t.round<0||!roundDone(t,t.round))return false;
-    const c=oChampion(t);if(!c)return false;t.finished=Date.now();t.champ=c;t.champName=pName(t,c);return true},
+    const c=oChampion(t);if(!c)return false;t.finished=Date.now();t.champ=c;t.champName=pName(t,c);const th=koMatches(t).find(m=>m.third);if(th&&th.winner)t.thirdName=pName(t,th.winner);return true},
   /* Enregistre ; en cas de modification ailleurs entretemps, on recharge et on prévient */
   async save(clear=[]){const t=this.T;this.finishCheck();
     try{const j=await Cloud.call('t_save',{id:this.id,state:t,version:this.ver,clear});this.ver=j.version;this.err='';return true}
@@ -3524,15 +3642,16 @@ function boardsHTML(t,live,act,onlyRef){const key=t.round;if(key<0)return '';
   return ids.map(id=>{const L=byB[id].sort((a,b)=>a.ord-b.ord),refs=[...new Set(L.map(m=>m.ref))].map(r=>esc(refNameOf(t,r))).join(', ');
     return `<div class="oboard"><div class="ob-head"><b>${esc(boardName(t,id))}</b><span>arbitre : ${refs}</span></div>${L.map(m=>matchLine(t,m,live,{act})).join('')}</div>`}).join('')
     +(forf.length?`<div class="oboard"><div class="ob-head"><b>Forfaits</b></div>${forf.map(m=>matchLine(t,m,live,{act})).join('')}</div>`:'')}
-function exemptsHTML(t){const ex=roundExempts(t,t.round);return ex.length?`<p class="note">Exempt${ex.length>1?'s':''} cette manche : ${ex.map(id=>esc(pName(t,id))).join(', ')}</p>`:''}
+function exemptsHTML(t){const ex=roundExempts(t,t.round);if(t.format==='pool'&&t.round>=t.nmatch&&t.round<KO_START)return '';return ex.length?`<p class="note">Exempt${ex.length>1?'s':''} cette manche : ${ex.map(id=>esc(pName(t,id))).join(', ')}</p>`:''}
 function bracketHTML(t,live){const K=koMatches(t);if(!K.length)return '';const R=Math.max(...K.map(m=>m.r));
   const names=['Finale','Demi-finales','Quarts','Huitièmes','Seizièmes'];
   return `<div class="bracket">${[...Array(R+1)].map((_,r)=>`<div class="bcol"><h3>${names[R-r]||'Tour '+(r+1)}</h3>${K.filter(m=>m.r===r).map(m=>{const s=matchState(t,m,live);
     const w=s.k==='done'?m.winner:s.k==='sent'?(s.w==='a'?m.a:s.w==='b'?m.b:null):null;
-    return `<div class="bm ${m.done?'done':''} ${s.k==='live'?'live':''}"><span class="${w&&w===m.a?'mw':''}">${m.a?esc(pName(t,m.a)):(m.bye&&r===0?'—':'…')}</span><span class="${w&&w===m.b?'mw':''}">${m.b?esc(pName(t,m.b)):(r===0?'exempté':'…')}</span></div>`}).join('')}</div>`).join('')}</div>`}
+    return `${m.third?'<h3 class="b3">3e place</h3>':''}<div class="bm ${m.done?'done':''} ${s.k==='live'?'live':''}"><span class="${w&&w===m.a?'mw':''}">${m.a?esc(pName(t,m.a)):(m.bye&&r===0?'—':'…')}</span><span class="${w&&w===m.b?'mw':''}">${m.b?esc(pName(t,m.b)):(r===0?'exempté':'…')}</span></div>`}).join('')}</div>`).join('')}</div>`}
 function tableHTML(t,ids,ms,key,qual){const R=oRank(t,ids,ms,key),out=new Set(t.out||[]),over=ms.every(m=>m.done);
   return `<div class="stats-wrap"><table class="stats ostats"><thead><tr><th>#</th><th>Joueur</th><th>Pts</th><th>J</th><th>G</th><th>N</th><th>P</th></tr></thead><tbody>${R.rows.map((r,k)=>`<tr class="${k<qual?'w':''}"><td>${k+1}${r.tied&&over?'=':''}</td><td>${esc(pName(t,r.id))}${out.has(r.id)?' <small class="note">(retiré)</small>':''}</td><td>${r.pts}</td><td>${r.pl}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td></tr>`).join('')}</tbody></table></div>`}
 function standingsHTML(t,live){
+  if(t.format==='pool')return (koMatches(t).length?`<section><h2 class="sec-title">Tableau final</h2>${bracketHTML(t,live)}</section>`:'')+`<section><h2 class="sec-title">Classement · matchs aléatoires</h2>${poolTableHTML(t)}</section>`;
   if(t.format==='league')return `<section><h2 class="sec-title">Classement</h2>${tableHTML(t,null,t.matches,'L',t.finished?1:0)}</section>`;
   if(t.format==='groups')return (koMatches(t).length?`<section><h2 class="sec-title">Phase finale</h2>${bracketHTML(t,live)}</section>`:'')
     +t.groups.map((gr,gi)=>{const ms=t.matches.filter(m=>m.stage==='g'&&m.grp===gi);return `<section><h2 class="sec-title">Poule ${GROUP_L[gi]}</h2>${tableHTML(t,gr,ms,'g'+gi,ms.every(m=>m.done)?2:0)}</section>`}).join('');
@@ -3546,15 +3665,13 @@ function renderOTour(){
   const pending=key>=0?roundMatches(t,key).filter(m=>!m.done).length:0;
   let main='';
   if(t.finished)main='';
-  else if(tie&&(key<0||done))main=`<div class="card"><p><b>Égalité parfaite · ${esc(tie.label)}</b> (${tie.why}).<br>Touchez les joueurs dans l'ordre du classement :</p>
-    <div class="chips" style="margin-top:10px">${tie.ids.map(id=>{const k=(O.tieSel||[]).indexOf(id);return `<button class="chip pchip" data-act="otiepick" data-v="${id}" aria-pressed="${k>=0}">${k>=0?(k+1)+'. ':''}${esc(pName(t,id))}</button>`}).join('')}</div>
-    <div class="row2" style="margin-top:10px"><button class="btn btn-primary" data-act="otieok" ${(O.tieSel||[]).length===tie.ids.length?'':'disabled'}>Valider ce classement</button><button class="btn btn-ghost" data-act="otiereset">Recommencer</button></div></div>`;
+  else if(tie&&(key<0||done))main=tieCardHTML(t,tie,O.tieSel||[],'o');
   else if(key<0)main=`<button class="btn btn-primary" data-act="olaunch">Lancer la 1re manche · ${esc(roundName(t,roundKeys(t)[0]))}</button><p class="note center">L'appli tire au sort la cible et l'arbitre de chaque match.</p>`;
   else if(done&&nx!==null)main=`<button class="btn btn-primary" data-act="olaunch">Valider et lancer : ${esc(nx==='finals'?'phase finale':roundName(t,nx))}</button>`;
   else if(!done)main=`<p class="note center">${pending} match${pending>1?'s':''} à terminer avant la manche suivante.</p>`;
   const links=O.links[O.id]||{};
   frame(esc(t.name),`<div class="col">
-    <div class="win">${t.finished?`<span class="crown">Vainqueur du tournoi</span><h1>${esc(t.champName||'')}</h1>`:`<span class="crown">${tLabel(t)} · en ligne</span><h1 style="font-size:26px">${esc(roundName(t,key))}</h1>`}
+    <div class="win">${t.finished?`<span class="crown">Vainqueur du tournoi</span><h1>${esc(t.champName||'')}</h1>${t.thirdName?`<p>3e place : ${esc(t.thirdName)}</p>`:''}`:`<span class="crown">${tLabel(t)} · en ligne</span><h1 style="font-size:26px">${esc(roundName(t,key))}</h1>`}
       <p>${t.game.type==='x01'?t.game.opts.start+' · '+OUT_LABEL[t.game.opts.outRule]:esc(GAMES[t.game.type].name)} · ${t.players.length} joueurs · ${t.boards.length} cible${t.boards.length>1?'s':''} · ${t.refs.length} arbitre${t.refs.length>1?'s':''}</p></div>
     ${O.err?`<p class="note center" style="color:var(--danger)">${esc(O.err)}</p>`:''}
     ${main}
@@ -3634,7 +3751,7 @@ async function createOnline(d){
   const t={v:1,online:true,name:(d.name||'Tournoi').trim(),format:d.format,legs:d.legs,game:{type:d.type,opts:d.opts},
     players:ids.map(id=>{const p=profById(id);return {id,name:p.name,color:p.color}}),created:Date.now(),matches:[],
     boards:[...Array(d.boards)].map((_,i)=>({id:'b'+(i+1),name:'Cible '+(i+1)})),refs:d.refs.map((n,i)=>({id:'r'+(i+1)+uid().slice(0,4),name:n})),round:-1,out:[],tie:{}};
-  if(d.format==='ko')t.matches=buildKO(ids);else if(d.format==='league')t.matches=buildLeague(ids,d.legs);else{const G2=buildGroups(ids,d.gsize);t.groups=G2.groups;t.matches=G2.ms}
+  buildStructure(t,d,ids);
   try{await Online.create(t);Online.list=null;go('otour')}catch(e){toastMsg(niceCloud(e))}}
 /* Parties du brouillon propres au tournoi en ligne (cibles, arbitres) */
 function onlineDraftHTML(d){return `<section class="card"><h2 class="sec-title">Cibles</h2>
@@ -3708,7 +3825,7 @@ function renderTv(){const t=Tv.T;
   frame('Tableau',`<div class="tv">${body}</div>`);
   if(!Online.timer)Online.poll();requestWake()}
 
-const VERSION='3.6 · 14 novembre 2026';
+const VERSION='3.7 · 14 novembre 2026';
 function sendButtons(g){const o=owner();const l=g.players.map(pl=>profById(pl.id)).filter(pr=>pr&&pr.code&&(!o||pr.code!==o.code)&&pendingFor(pr.code));
   return l.length?`<section class="card"><h2 class="sec-title">Envoyer les statistiques</h2><div class="stack">${l.map(pr=>`<button class="btn btn-ghost" data-act="sendstats" data-v="${pr.code}">${I.share} Envoyer à ${esc(pr.name)} (${pendingFor(pr.code)} partie${pendingFor(pr.code)>1?'s':''})</button>`).join('')}</div></section>`:''}
 /* =========================================================
@@ -4008,7 +4125,9 @@ function renderFam(){
 /* Prix libre (montant choisi dans PayPal), prix conseillé affiché ; lien PayPal lu sur le QR code du studio */
 const PREMIUM={suggested:'4,99 €',pay:'https://www.paypal.me/tybox230'};
 const FREE_GAME='x01:501:duo',FREE_LIMIT=5;
-function isPremium(){const a=Account.get();return !!(a&&(a.premium||a.owner))}
+/* Premium à vie, compte du studio, ou premium temporaire pas encore expiré (vérifié aussi hors ligne) */
+function isPremium(){const a=Account.get();if(!a)return false;if(a.owner)return true;
+  if(a.premium_until&&new Date(a.premium_until)<new Date())return false;return !!a.premium}
 /* Clé de comptage et nom d'un jeu de fléchettes (les autres jeux utilisent leur nom : petanque, molkky…) */
 function dartsKey(type,opts,n){return n===1?'solo':type!=='x01'?type:(+opts.start===501&&n<=2?FREE_GAME:'x01:'+opts.start)}
 function dartsLabel(type,opts){return type==='x01'?String(opts.start):GAMES[type].name}
@@ -4566,9 +4685,15 @@ document.addEventListener('click',e=>{
     case 'tpick':{const i=tdraft.pids.indexOf(v);if(i>=0)tdraft.pids.splice(i,1);else tdraft.pids.push(v);renderTNew();break}
     case 'tcreate':{const d=tdraft;if(d.online){b.disabled=true;createOnline(d);break}const ids=shuffleSeeded(d.pids,Date.now()|0);const players=ids.map(id=>{const p=profById(id);return {id,name:p.name,color:p.color}});
       const t={id:uid(),name:(d.name||'Tournoi').trim(),format:d.format,legs:d.legs,game:{type:d.type,opts:d.opts},players,created:Date.now(),
-        matches:[]};if(d.format==='ko')t.matches=buildKO(ids);else if(d.format==='league')t.matches=buildLeague(ids,d.legs);else{const G2=buildGroups(ids,d.gsize);t.groups=G2.groups;t.matches=G2.ms}
+        matches:[]};buildStructure(t,d,ids);
       saveT(t);curTid=t.id;go('tournament');break}
     case 'tgsize':tdraft.gsize=+v;renderTNew();break;
+    case 'tthird':tdraft.third=v==='1';renderTNew();break;
+    case 'tnmatch':tdraft.nmatch=Math.max(1,Math.min(8,tdraft.nmatch+(+v)));renderTNew();break;
+    case 'tksize':tdraft.ksize=+v;renderTNew();break;
+    case 'ttiepick':if(!tTieSel.includes(v))tTieSel.push(v);renderTournament();break;
+    case 'ttiereset':tTieSel=[];renderTournament();break;
+    case 'ttieok':{const t=tById(curTid),tie=poolTie(t);if(!tie)break;t.tie=Object.assign(t.tie||{},{P:tTieSel.slice()});tTieSel=[];if(!poolTie(t))buildPoolFinals(t);saveT(t);renderTournament();break}
     case 'tplay':playMatch(v);break;
     case 'tdelask':document.getElementById('tDelBox').innerHTML='<div class="row2"><button class="btn btn-danger" data-act="tdelyes">Confirmer la suppression</button><button class="btn btn-ghost" data-act="tdelno">Annuler</button></div>';break;
     case 'tdelno':renderTournament();break;
