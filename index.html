@@ -721,6 +721,51 @@ details.mk-alt[open] summary{margin-bottom:10px}
 .ch-sum b{color:var(--silver)}
 .tin{min-height:50px}
 .pw-card summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--copper-hi)}
+
+/* ---------- Tournoi en ligne : cibles, matchs, liens, page tableau ---------- */
+.oboards{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.oboard{border:1px solid var(--line);border-radius:var(--r-md);background:rgba(255,255,255,.02);padding:10px;display:flex;flex-direction:column;gap:6px}
+.ob-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:0 2px 2px}
+.ob-head b{font-family:var(--ff-mark);font-weight:500;font-size:17px;color:var(--copper-hi);letter-spacing:.04em}
+.ob-head span{font-size:12px;color:var(--muted);text-align:right}
+.omatch{display:grid;grid-template-columns:1fr;gap:3px;align-items:center;text-align:left;width:100%;padding:9px 11px;border-radius:12px;border:1px solid var(--line);background:var(--bg-deep);font-size:14px;color:var(--silver)}
+button.omatch:active{transform:scale(.99)}
+.om-p{display:flex;justify-content:space-between;gap:6px;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-weight:600}
+.om-p.mw{color:var(--copper-hi);font-weight:800}
+.om-n{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.om-p.turn .om-n::before{content:'';display:inline-block;width:.42em;height:.42em;border-radius:50%;background:var(--copper);margin-right:.4em;vertical-align:.12em}
+.om-sc{font-family:var(--ff-num);font-weight:500;font-variant-numeric:tabular-nums;color:var(--silver-2)}
+.om-tag{grid-column:1/-1;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.omatch.live{border-color:var(--copper)}
+.omatch.live .om-tag{color:var(--copper)}
+.omatch.sent .om-tag{color:var(--champagne)}
+.omatch.done{opacity:.72}
+.bm.live{border-color:var(--copper)}
+.ostats th:nth-child(2),.ostats td:nth-child(2){text-align:left;width:100%}
+.olink{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
+.olink span{flex:1;min-width:0;display:flex;flex-direction:column}
+.olink small{font-size:12px;color:var(--muted)}
+.olink:last-of-type{border-bottom:0;margin-bottom:8px}
+/* Page tableau : faite pour une télé (paysage), lisible de loin */
+.tv{padding:clamp(12px,2.2vw,32px);min-height:100vh;display:flex;flex-direction:column;gap:clamp(12px,2vw,24px)}
+.tv-head{display:flex;align-items:center;gap:clamp(10px,1.6vw,22px)}
+.tv-head svg{width:clamp(34px,4vw,64px);height:auto;flex:none}
+.tv-head div{flex:1;min-width:0}
+.tv-head h1{margin:0;font-family:var(--ff-mark);font-weight:500;font-size:clamp(24px,3.6vw,56px);line-height:1.05}
+.tv-head p{margin:2px 0 0;color:var(--copper-hi);font-size:clamp(14px,1.8vw,28px);letter-spacing:.06em}
+.tv-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:clamp(12px,2vw,28px);align-items:start}
+.tv .oboards{grid-template-columns:repeat(auto-fill,minmax(clamp(260px,22vw,420px),1fr))}
+.tv-col{display:flex;flex-direction:column;gap:clamp(10px,1.4vw,18px)}
+.tv .sec-title{font-size:clamp(11px,1.1vw,16px)}
+.tv .omatch{font-size:clamp(14px,1.55vw,26px);padding:clamp(8px,1vw,16px) clamp(10px,1.2vw,18px)}
+.tv .om-tag{font-size:clamp(10px,.9vw,14px)}
+.tv .ob-head b{font-size:clamp(16px,1.7vw,28px)}
+.tv .ob-head span{font-size:clamp(11px,1vw,16px)}
+.tv .stats td{font-size:clamp(15px,1.4vw,24px)}
+.tv .stats td:first-child{font-size:clamp(13px,1.2vw,20px)}
+.tv .bcol{flex-basis:clamp(130px,12vw,220px)}
+.tv .bm{font-size:clamp(12px,1.15vw,19px)}
+@media (max-width:760px){.tv-grid{grid-template-columns:1fr}.tv-fs{display:none}}
 </style>
 
 </head>
@@ -1768,7 +1813,7 @@ function buildGroups(ids,size){const ng=Math.max(2,Math.round(ids.length/size));
 const koMatches=t=>t.format==='groups'?t.matches.filter(m=>m.stage==='k'):t.matches;
 const GROUP_L='ABCDEFGHIJKLMNOP';
 /* Phase finale : les 2 premiers de chaque poule, 1er d'une poule contre 2e d'une autre */
-function buildFinals(t){const W=[],R=[];t.groups.forEach((gr,gi)=>{const st=standings(t,gr,t.matches.filter(m=>m.stage==='g'&&m.grp===gi));if(st[0])W.push({id:st[0].id,g:gi});if(st[1])R.push({id:st[1].id,g:gi})});
+function buildFinals(t,rank){const W=[],R=[];t.groups.forEach((gr,gi)=>{const ms=t.matches.filter(m=>m.stage==='g'&&m.grp===gi),st=rank?rank(t,gr,ms):standings(t,gr,ms);if(st[0])W.push({id:st[0].id,g:gi});if(st[1])R.push({id:st[1].id,g:gi})});
   const len=W.length+R.length;let n=1;while(n<len)n*=2;const seeds=Array(len).fill(null);W.forEach((w,i)=>seeds[i]=w.id);
   const left=R.slice();for(let j=0;j<W.length;j++){const pi=n-1-j;if(pi>=len||pi<W.length)continue;let k=left.findIndex(r=>r.g!==W[j].g);if(k<0)k=0;seeds[pi]=left.splice(k,1)[0].id}
   for(let i=W.length;i<len;i++)if(seeds[i]==null)seeds[i]=left.shift().id;
@@ -1781,9 +1826,11 @@ const tLabel=t=>t.format==='ko'?'Élimination directe':t.format==='groups'?'Poul
 function tStatus(t){if(t.format!=='league'){const K=koMatches(t);if(!K.length)return {done:false};const fin=K.find(m=>m.r===Math.max(...K.map(x=>x.r)));return fin&&fin.winner?{done:true,champ:fin.winner}:{done:false}}
   if(t.matches.every(m=>m.done)){const s=standings(t);return {done:true,champ:s[0].id}}return {done:false}}
 function renderTournaments(){
-  const l=tournaments();
+  const l=tournaments();if(Online.list==null&&!Online.loadingList){Online.loadingList=true;Online.refreshList().finally(()=>Online.loadingList=false)}
   frame('Tournois',`<div class="col">
-    <button class="btn btn-primary" data-act="tnew">Créer un tournoi</button>
+    <button class="btn btn-primary" data-act="tnew">Créer un tournoi sur ce téléphone</button>
+    <button class="btn btn-silver" data-act="tnewonline">Créer un tournoi en ligne (plusieurs cibles)</button>
+    <section><h2 class="sec-title">Tournois en ligne</h2>${Online.list==null?'<p class="note">Chargement…</p>':Online.list.length?`<div class="plist">${Online.list.map(o=>`<button class="prow-card" data-act="oopen" data-v="${o.id}"><span class="t-ico">◎</span><span class="pc-name">${esc(o.name||'Tournoi')}</span><span class="pc-sub">${o.players} joueurs · ${o.champ?'Vainqueur : '+esc(o.champ):o.round<0?'pas encore commencé':'en cours'}</span>${I.next}</button>`).join('')}</div>`:`<p class="note">${Online.listErr?esc(Online.listErr):'Aucun tournoi en ligne. Un tournoi en ligne se joue sur plusieurs cibles à la fois : l\'appli tire au sort cibles et arbitres, les arbitres comptent avec leur téléphone (simple lien, sans compte) et une page tableau s\'affiche sur la télé.'}</p>`}</section>
     <section><h2 class="sec-title">Mes tournois</h2>${l.length?`<div class="plist">${l.map(t=>{const s=tStatus(t),done=t.matches.filter(m=>m.done&&!m.bye).length,tot=t.matches.filter(m=>!m.bye).length;
       return `<button class="prow-card" data-act="topen" data-v="${t.id}"><span class="t-ico">${t.format==='ko'?'⟩':t.format==='groups'?'⊞':'≡'}</span><span class="pc-name">${esc(t.name)}</span><span class="pc-sub">${tLabel(t)} · ${t.players.length} joueurs · ${s.done?'Vainqueur : '+esc(pName(t,s.champ)):done+' / '+tot+' matchs'}</span>${I.next}</button>`}).join('')}</div>`:'<p class="note">Aucun tournoi pour l\'instant.</p>'}</section>
   </div>`);
@@ -1791,7 +1838,7 @@ function renderTournaments(){
 function optsHTML(type,opts,act){return GAMES[type].opts.map(o=>optRowHTML(o,opts[o.k],act)).join('')}
 function renderTNew(){
   const d=tdraft;const P=profilesByRecent();
-  frame('Nouveau tournoi',`<div class="col">
+  frame(d.online?'Nouveau tournoi en ligne':'Nouveau tournoi',`<div class="col">
     <section><h2 class="sec-title">Nom</h2><input class="tin" id="tName" value="${esc(d.name)}" maxlength="40" aria-label="Nom du tournoi"></section>
     <section class="card"><div class="opt-row"><span class="lbl">Formule</span>
       <div class="seg"><button data-act="tformat" data-v="ko" aria-pressed="${d.format==='ko'}">Élimination</button><button data-act="tformat" data-v="groups" aria-pressed="${d.format==='groups'}">Poules</button><button data-act="tformat" data-v="league" aria-pressed="${d.format==='league'}">Championnat</button></div>
@@ -1805,7 +1852,8 @@ function renderTNew(){
       <div class="chips">${P.map(p=>`<button class="chip pchip" data-act="tpick" data-v="${p.id}" aria-pressed="${d.pids.includes(p.id)}">${esc(p.name)}</button>`).join('')}</div>
       <form class="addp" data-form="taddp" style="margin-top:10px"><input id="tNewP" placeholder="Ajouter un joueur" maxlength="24" autocomplete="off" aria-label="Ajouter un participant"><button class="btn btn-ghost" type="submit">Ajouter</button></form>
       <p class="note" style="margin-top:8px">Pas de limite de participants. Les matchs peuvent se jouer dans n'importe quel ordre, y compris sur plusieurs cibles en même temps.</p></section>
-    <button class="btn btn-primary" data-act="tcreate" ${d.pids.length<(d.format==='groups'?4:2)?'disabled':''}>Créer le tournoi (${d.pids.length} joueurs)</button>
+    ${d.online?onlineDraftHTML(d):''}
+    <button class="btn btn-primary" data-act="tcreate" ${d.pids.length<(d.format==='groups'?4:2)||(d.online&&!d.refs.length)?'disabled':''}>Créer le tournoi${d.online?' en ligne':''} (${d.pids.length} joueurs)</button>${d.online&&!d.refs.length?'<p class="note center">Ajoutez au moins un arbitre.</p>':''}
   </div>`);
 }
 function matchRow(t,m){const A=m.a?esc(pName(t,m.a)):'<i>à venir</i>',B=m.b?esc(pName(t,m.b)):'<i>à venir</i>';
@@ -1843,14 +1891,14 @@ function playMatch(mid){const t=tById(curTid);const m=t.matches.find(x=>x.id===m
   game=Object.assign({id:uid(),created:Date.now(),amb:Object.fromEntries(pls.map(p=>[p.id,amb[p.name]&&AMBIANCES[amb[p.name]]?amb[p.name]:'standard'])),players:pls,darts:[],validated:0,tournament:{tid:t.id,mid:m.id}},asGame(d));
   if(GAMES[game.type].setup)GAMES[game.type].setup(game);saveGame();Sound.unlock();Voice.warm();go('game');announceStart()})}
 /* Fin d'une partie de tournoi : on inscrit le résultat */
-function recordTournament(g,S){if(!g.tournament)return;const t=tById(g.tournament.tid);if(!t)return;const m=t.matches.find(x=>x.id===g.tournament.mid);if(!m)return;
+function recordTournament(g,S){if(g.remote){Ref.result(g,S);return}if(!g.tournament)return;const t=tById(g.tournament.tid);if(!t)return;const m=t.matches.find(x=>x.id===g.tournament.mid);if(!m)return;
   const w=S.winner!=null?g.players[S.winner].id:null;
   const ko=t.format==='ko'||m.stage==='k';
   if(ko&&w==null)return; // égalité en élimination directe : le match reste à rejouer
   m.done=true;m.winner=w;m.gameId=g.id;if(ko)koAdvance(koMatches(t));
   if(t.format==='groups'&&m.stage==='g'&&!koMatches(t).length&&t.matches.every(x=>x.stage!=='g'||x.done))buildFinals(t);
   saveT(t)}
-function unrecordTournament(g){if(!g.tournament)return;const t=tById(g.tournament.tid);if(!t)return;const m=t.matches.find(x=>x.id===g.tournament.mid);if(!m||m.gameId!==g.id)return;
+function unrecordTournament(g){if(g.remote){Ref.retract(g);return}if(!g.tournament)return;const t=tById(g.tournament.tid);if(!t)return;const m=t.matches.find(x=>x.id===g.tournament.mid);if(!m||m.gameId!==g.id)return;
   if(m.stage==='g'&&koMatches(t).some(x=>x.done&&!x.bye))return; // phase finale déjà commencée
   if(m.stage==='g')t.matches=t.matches.filter(x=>x.stage!=='k');
   if(t.format==='ko'||m.stage==='k'){const nx=koMatches(t).find(x=>x.r===m.r+1&&x.i===Math.floor(m.i/2));if(nx&&nx.done)return;if(nx)nx[m.i%2?'b':'a']=null}
@@ -3302,7 +3350,365 @@ function woodKnock(){if(!prefs.sounds||prefs.muted)return;Sound.unlock();if(!Sou
 window.addEventListener('resize',()=>{clearTimeout(window._scT);window._scT=setTimeout(()=>{if(screen!=='mplay')return;
   if(document.getElementById('mkCv'))MK3.mount();if(document.getElementById('chCv'))CH3.mount();if(document.getElementById('plCv'))PL3.mount()},200)});
 
-const VERSION='3.5 · 14 novembre 2026';
+/* =========================================================
+   Tournoi en ligne (fléchettes, plusieurs cibles)
+   ---------------------------------------------------------
+   Trois rôles, trois écrans :
+   - l'organisateur (compte premium, écran « otour ») crée le tournoi, inscrit lui-même les joueurs,
+     déclare les cibles et les arbitres, puis lance chaque manche d'un bouton : l'appli tire au sort
+     la cible et l'arbitre de chaque match. Il peut tout corriger à la main (cible, arbitre, résultat,
+     forfait, départage des poules).
+   - l'arbitre (lien temporaire « #arbitre=… », sans compte, écran « ref ») voit ses matchs et les
+     compte avec l'écran de partie habituel ; le score part en direct, le résultat à la fin.
+   - la page tableau (lien « #tableau=… », écran « tv ») affiche tout en lecture seule, pour une télé.
+   L'état du tournoi (objet t, mêmes champs que le tournoi local de community.js, plus boards, refs,
+   round, out, tie) est gardé sur le serveur ; seul l'organisateur l'écrit. Les arbitres écrivent
+   le direct et les résultats à part ; l'appli de l'organisateur les reporte dans le tournoi.
+   ========================================================= */
+
+const ONLINE_POLL=4000;            /* rafraîchissement des écrans (ms) */
+const KO_START=1000;               /* les manches de phase finale sont numérotées à partir de 1000 */
+const appLink=h=>location.origin+location.pathname+'#'+h;
+const stripTags=s=>String(s==null?'':s).replace(/<[^>]*>/g,'');
+
+/* ---------- Manches ---------- */
+const isKO=(t,m)=>t.format==='ko'||m.stage==='k';
+const roundKey=m=>m.stage==='k'?KO_START+m.r:m.r;
+const roundMatches=(t,key)=>t.matches.filter(m=>roundKey(m)===key&&!m.bye);
+const roundKeys=t=>[...new Set(t.matches.filter(m=>!m.bye).map(roundKey))].sort((a,b)=>a-b);
+function roundName(t,key){
+  if(key<0)return 'Pas encore commencé';
+  if(t.format==='league')return 'Journée '+(key+1);
+  if(t.format==='groups'&&key<KO_START)return 'Poules · tour '+(key+1);
+  const K=koMatches(t),R=Math.max(...K.map(m=>m.r)),r=key>=KO_START?key-KO_START:key;
+  return ['Finale','Demi-finales','Quarts de finale','Huitièmes de finale','Seizièmes de finale'][R-r]||'Tour '+(r+1)}
+const roundDone=(t,key)=>roundMatches(t,key).every(m=>m.done);
+/* Manche suivante : null si le tournoi est fini ; 'finals' si la phase finale reste à créer */
+function nextRound(t){const ks=roundKeys(t).filter(k=>k>t.round);
+  if(ks.length)return ks[0];
+  if(t.format==='groups'&&!koMatches(t).length)return 'finals';
+  return null}
+
+/* ---------- Classement avec départage ----------
+   Points (victoire 2, nul 1), puis confrontation directe entre les ex aequo, puis l'ordre choisi
+   par l'organisateur (t.tie[clé]) si l'égalité reste parfaite. */
+function oRank(t,ids,ms,key){
+  const rows=standings(t,ids,ms),out=[],dec=(t.tie||{})[key];let need=null;
+  for(let i=0;i<rows.length;){let j=i;while(j<rows.length&&rows[j].pts===rows[i].pts)j++;
+    let grp=rows.slice(i,j);
+    if(grp.length>1){const set=new Set(grp.map(r=>r.id)),mini={};grp.forEach(r=>mini[r.id]=0);
+      ms.forEach(m=>{if(!m.done||!set.has(m.a)||!set.has(m.b))return;if(m.winner===m.a)mini[m.a]+=2;else if(m.winner===m.b)mini[m.b]+=2;else{mini[m.a]++;mini[m.b]++}});
+      grp.sort((x,y)=>mini[y.id]-mini[x.id]);
+      if(dec&&grp.every(r=>dec.includes(r.id)))grp.sort((x,y)=>dec.indexOf(x.id)-dec.indexOf(y.id));
+      else for(let k=0;k<grp.length;){let l=k;while(l<grp.length&&mini[grp[l].id]===mini[grp[k].id])l++;
+        if(l-k>1)grp.forEach((r,n)=>{if(n>=k&&n<l)r.tied=true}),need=need||{from:i+k,to:i+l,ids:grp.slice(k,l).map(r=>r.id)};k=l}}
+    out.push(...grp);i=j}
+  return {rows:out,need}}
+/* Égalité qui compte : qualification en poule (entre la 2e et la 3e place), ou titre au championnat */
+function tieToSettle(t){
+  if(t.format==='groups'&&!koMatches(t).length&&t.matches.every(m=>m.stage!=='g'||m.done)){
+    for(let gi=0;gi<t.groups.length;gi++){const ms=t.matches.filter(m=>m.stage==='g'&&m.grp===gi),R=oRank(t,t.groups[gi],ms,'g'+gi);
+      if(R.need&&R.need.from<2&&R.need.to>2)return {key:'g'+gi,label:'Poule '+GROUP_L[gi],ids:R.need.ids,why:'deux qualifiés par poule'}}}
+  if(t.format==='league'&&t.matches.every(m=>m.done)){const R=oRank(t,null,t.matches,'L');
+    if(R.need&&R.need.from===0)return {key:'L',label:'Championnat',ids:R.need.ids,why:'le titre'}}
+  return null}
+function oChampion(t){
+  if(t.format==='league'){if(!t.matches.every(m=>m.done)||tieToSettle(t))return null;return oRank(t,null,t.matches,'L').rows[0].id}
+  const K=koMatches(t);if(!K.length)return null;const fin=K.find(m=>m.r===Math.max(...K.map(x=>x.r)));return fin&&fin.winner||null}
+
+/* ---------- Forfaits ---------- */
+/* Un joueur retiré (t.out) perd tous ses matchs pas encore joués des manches lancées */
+function applyForfeits(t){const out=new Set(t.out||[]);let ch=false;
+  for(const m of t.matches){if(m.done||m.bye||!m.launched||!m.a||!m.b)continue;const A=out.has(m.a),B=out.has(m.b);if(!A&&!B)continue;
+    m.done=true;m.ff=A&&B?'both':A?'a':'b';m.winner=A&&B?(isKO(t,m)?m.a:null):A?m.b:m.a;ch=true}
+  if(ch)koAdvance(koMatches(t));return ch}
+
+/* ---------- Tirage des cibles et des arbitres ----------
+   Chaque arbitre reçoit une cible au hasard (les moins sollicités d'abord) ; les matchs de la manche
+   sont mélangés et répartis à tour de rôle sur ces cibles, dans l'ordre où ils se joueront.
+   Un arbitre n'arbitre pas son propre match quand un échange est possible. */
+function drawRound(t,ms){
+  const R=Math.random,shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+  const load={};t.refs.forEach(r=>load[r.id]=0);t.matches.forEach(m=>{if(m.ref&&load[m.ref]!=null&&m.done)load[m.ref]++});
+  const refs=shuffle(t.refs).sort((a,b)=>load[a.id]-load[b.id]),n=Math.max(1,Math.min(t.boards.length,refs.length));
+  const boards=shuffle(t.boards).slice(0,n),pairs=boards.map((b,i)=>({board:b.id,ref:(refs[i]||refs[0]).id}));
+  const list=shuffle(ms);list.forEach((m,i)=>{const p=pairs[i%pairs.length];m.board=p.board;m.ref=p.ref;m.ord=Math.floor(i/pairs.length)});
+  const refName=id=>(t.refs.find(r=>r.id===id)||{}).name||'',plays=(m,id)=>[m.a,m.b].some(p=>p&&pName(t,p).toLowerCase()===refName(id).toLowerCase());
+  list.forEach(m=>{if(!plays(m,m.ref))return;const o=list.find(x=>x!==m&&x.ref!==m.ref&&!plays(x,m.ref)&&!plays(m,x.ref));
+    if(o){[m.board,o.board]=[o.board,m.board];[m.ref,o.ref]=[o.ref,m.ref];[m.ord,o.ord]=[o.ord,m.ord]}})}
+/* Lance une manche : phase finale créée si besoin, forfaits appliqués, tirage, matchs ouverts aux arbitres */
+function launchRound(t,key){
+  if(key==='finals'){buildFinals(t,(t,gr,ms)=>oRank(t,gr,ms,'g'+t.groups.indexOf(gr)).rows);key=KO_START}
+  koAdvance(koMatches(t));
+  const ms=roundMatches(t,key).filter(m=>!m.done&&m.a&&m.b);ms.forEach(m=>m.launched=true);
+  t.round=key;applyForfeits(t);
+  drawRound(t,ms.filter(m=>!m.done));t.drawnAt=Date.now()}
+/* Joueurs exemptés de la manche (championnat ou poules en nombre impair, tableau incomplet) */
+function roundExempts(t,key){
+  if(key>=KO_START||t.format==='ko'){return t.matches.filter(m=>m.bye&&roundKey(m)===key).map(m=>m.a||m.b).filter(Boolean)}
+  const inRound=new Set();roundMatches(t,key).forEach(m=>{inRound.add(m.a);inRound.add(m.b)});
+  return t.players.map(p=>p.id).filter(id=>!inRound.has(id)&&!(t.out||[]).includes(id))}
+
+/* ---------- Résultats envoyés par les arbitres ---------- */
+const liveMap=rows=>Object.fromEntries((rows||[]).map(r=>[r.match_id,r]));
+function setResult(t,m,w,res,src){
+  m.done=true;m.winner=w==='a'?m.a:w==='b'?m.b:null;m.res=res||null;m.src=src;delete m.ff;
+  if(isKO(t,m))koAdvance(koMatches(t))}
+/* Reporte dans le tournoi les résultats arrivés des arbitres ; renvoie true si quelque chose a changé */
+function absorbLive(t,live){let ch=false;
+  for(const m of t.matches){const L=live[m.id];if(!L||!L.result||m.done||!m.launched)continue;
+    if(isKO(t,m)&&L.result.w==='n'){if(!m.tieNote){m.tieNote=true;ch=true}continue}
+    setResult(t,m,L.result.w,L.result,'ref');delete m.tieNote;ch=true}
+  return ch}
+/* Un résultat peut-il encore être annulé ? (pas si la suite du tableau a commencé) */
+function canUndo(t,m){if(!m.done||m.bye)return false;
+  if(isKO(t,m)){const nx=koMatches(t).find(x=>x.r===m.r+1&&x.i===Math.floor(m.i/2));if(nx&&(nx.done||nx.launched))return false}
+  if(m.stage==='g'&&koMatches(t).length)return false;
+  return true}
+function undoResult(t,m){
+  if(isKO(t,m)){const nx=koMatches(t).find(x=>x.r===m.r+1&&x.i===Math.floor(m.i/2));if(nx)nx[m.i%2?'b':'a']=null}
+  m.done=false;m.winner=null;m.res=null;delete m.ff;delete m.src}
+
+/* ---------- Échanges avec le serveur ---------- */
+const Online={
+  id:null,T:null,ver:0,code:'',live:{},timer:0,sig:'',list:null,links:store.get('oLinks',{}),busy:false,
+  async refreshList(){try{const j=await Cloud.call('t_list');this.list=j.items||[]}catch(e){this.list=this.list||[];this.listErr=niceCloud(e)}if(screen==='tournaments')render()},
+  async create(t){const j=await Cloud.call('t_create',{state:t});this.id=j.id;this.T=t;this.ver=j.version;this.code=j.code;this.live={};
+    store.set('oLast',j.id);return j.id},
+  async open(id){this.id=id;this.T=null;this.live={};go('otour');await this.load()},
+  async load(){if(!this.id)return;try{const j=await Cloud.call('t_get',{id:this.id});this.T=j.state;this.ver=j.version;this.code=j.code;this.live=liveMap(j.live);this.err='';
+      if(absorbLive(this.T,this.live)||this.finishCheck())await this.save();}
+    catch(e){this.err=niceCloud(e)}
+    const sig=JSON.stringify([this.T,this.live,this.err]);if(sig!==this.sig){this.sig=sig;if(screen==='otour'&&!document.querySelector('.sheet-bg'))renderOTour()}},
+  finishCheck(){const t=this.T;if(!t||t.finished||nextRound(t)!==null||t.round<0||!roundDone(t,t.round))return false;
+    const c=oChampion(t);if(!c)return false;t.finished=Date.now();t.champ=c;t.champName=pName(t,c);return true},
+  /* Enregistre ; en cas de modification ailleurs entretemps, on recharge et on prévient */
+  async save(clear=[]){const t=this.T;this.finishCheck();
+    try{const j=await Cloud.call('t_save',{id:this.id,state:t,version:this.ver,clear});this.ver=j.version;this.err='';return true}
+    catch(e){if(e.code==='t_conflict'){toastMsg('Le tournoi a changé sur un autre téléphone : il vient d\'être rechargé');await this.load()}else toastMsg(niceCloud(e));return false}},
+  /* Modification par l'organisateur : on applique, on enregistre, on réaffiche */
+  async edit(fn,clear){if(this.busy||!this.T)return;this.busy=true;try{fn(this.T);await this.save(clear)}finally{this.busy=false;closeSheet();this.sig='';renderOTour()}},
+  poll(){clearInterval(this.timer);this.timer=setInterval(()=>{
+    if(document.hidden)return;
+    if(screen==='otour')this.load();else if(screen==='ref')Ref.load();else if(screen==='tv')Tv.load();
+    else{clearInterval(this.timer);this.timer=0}},ONLINE_POLL)},
+  async refLinks(rids,fresh){const need=rids.filter(r=>fresh||!(this.links[this.id]||{})[r]);
+    if(need.length){const j=await Cloud.call('t_refs',{id:this.id,refs:need});this.links[this.id]=Object.assign(this.links[this.id]||{},j.tokens);store.set('oLinks',this.links)}
+    return rids.map(r=>({rid:r,url:appLink('arbitre='+this.links[this.id][r])}))}
+};
+
+/* ---------- Affichage commun (organisateur, arbitre, télé) ---------- */
+const boardName=(t,id)=>(t.boards.find(b=>b.id===id)||{}).name||'—';
+const refNameOf=(t,id)=>(t.refs.find(r=>r.id===id)||{}).name||'—';
+/* État d'un match pour l'affichage : terminé, résultat reçu (pas encore reporté), en cours, à jouer */
+function matchState(t,m,live){const L=live[m.id];
+  if(m.done)return {k:'done',chips:m.res&&m.res.chips};
+  if(L&&L.result)return {k:'sent',chips:L.result.chips,w:L.result.w};
+  if(L&&L.live)return {k:'live',chips:L.live.chips,turn:L.live.turn};
+  return {k:m.launched?'todo':'wait'}}
+function matchLine(t,m,live,{act=null,big=false}={}){
+  const s=matchState(t,m,live),A=m.a?esc(pName(t,m.a)):'<i>à venir</i>',B=m.b?esc(pName(t,m.b)):'<i>à venir</i>';
+  const wa=s.k==='done'?m.winner&&m.winner===m.a:s.k==='sent'&&s.w==='a',wb=s.k==='done'?m.winner&&m.winner===m.b:s.k==='sent'&&s.w==='b';
+  const sc=i=>s.chips?`<b class="om-sc">${esc(stripTags(s.chips[i]))}</b>`:'';
+  const tag={done:m.ff?(m.ff==='both'?'forfaits':'forfait'):'terminé',sent:'résultat reçu',live:'en cours',todo:'à jouer',wait:''}[s.k];
+  const turn=i=>s.k==='live'&&s.turn===i?' turn':'';
+  return `<${act?'button':'div'} class="omatch ${s.k}${big?' big':''}" ${act?`data-act="${act}" data-v="${m.id}"`:''}>
+    <span class="om-p${wa?' mw':''}${turn(0)}"><span class="om-n">${A}</span>${sc(0)}</span><span class="om-p${wb?' mw':''}${turn(1)}"><span class="om-n">${B}</span>${sc(1)}</span>
+    <span class="om-tag">${m.tieNote&&!m.done?'égalité : à rejouer':tag}</span></${act?'button':'div'}>`}
+/* Matchs de la manche, rangés par cible (dans l'ordre de passage) */
+function boardsHTML(t,live,act,onlyRef){const key=t.round;if(key<0)return '';
+  const ms=roundMatches(t,key).filter(m=>m.launched&&(!onlyRef||m.ref===onlyRef));
+  const byB={};ms.forEach(m=>{(byB[m.board]=byB[m.board]||[]).push(m)});
+  const ids=t.boards.map(b=>b.id).filter(id=>byB[id]);
+  const forf=ms.filter(m=>!m.board);
+  return ids.map(id=>{const L=byB[id].sort((a,b)=>a.ord-b.ord),refs=[...new Set(L.map(m=>m.ref))].map(r=>esc(refNameOf(t,r))).join(', ');
+    return `<div class="oboard"><div class="ob-head"><b>${esc(boardName(t,id))}</b><span>arbitre : ${refs}</span></div>${L.map(m=>matchLine(t,m,live,{act})).join('')}</div>`}).join('')
+    +(forf.length?`<div class="oboard"><div class="ob-head"><b>Forfaits</b></div>${forf.map(m=>matchLine(t,m,live,{act})).join('')}</div>`:'')}
+function exemptsHTML(t){const ex=roundExempts(t,t.round);return ex.length?`<p class="note">Exempt${ex.length>1?'s':''} cette manche : ${ex.map(id=>esc(pName(t,id))).join(', ')}</p>`:''}
+function bracketHTML(t,live){const K=koMatches(t);if(!K.length)return '';const R=Math.max(...K.map(m=>m.r));
+  const names=['Finale','Demi-finales','Quarts','Huitièmes','Seizièmes'];
+  return `<div class="bracket">${[...Array(R+1)].map((_,r)=>`<div class="bcol"><h3>${names[R-r]||'Tour '+(r+1)}</h3>${K.filter(m=>m.r===r).map(m=>{const s=matchState(t,m,live);
+    const w=s.k==='done'?m.winner:s.k==='sent'?(s.w==='a'?m.a:s.w==='b'?m.b:null):null;
+    return `<div class="bm ${m.done?'done':''} ${s.k==='live'?'live':''}"><span class="${w&&w===m.a?'mw':''}">${m.a?esc(pName(t,m.a)):(m.bye&&r===0?'—':'…')}</span><span class="${w&&w===m.b?'mw':''}">${m.b?esc(pName(t,m.b)):(r===0?'exempté':'…')}</span></div>`}).join('')}</div>`).join('')}</div>`}
+function tableHTML(t,ids,ms,key,qual){const R=oRank(t,ids,ms,key),out=new Set(t.out||[]),over=ms.every(m=>m.done);
+  return `<div class="stats-wrap"><table class="stats ostats"><thead><tr><th>#</th><th>Joueur</th><th>Pts</th><th>J</th><th>G</th><th>N</th><th>P</th></tr></thead><tbody>${R.rows.map((r,k)=>`<tr class="${k<qual?'w':''}"><td>${k+1}${r.tied&&over?'=':''}</td><td>${esc(pName(t,r.id))}${out.has(r.id)?' <small class="note">(retiré)</small>':''}</td><td>${r.pts}</td><td>${r.pl}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td></tr>`).join('')}</tbody></table></div>`}
+function standingsHTML(t,live){
+  if(t.format==='league')return `<section><h2 class="sec-title">Classement</h2>${tableHTML(t,null,t.matches,'L',t.finished?1:0)}</section>`;
+  if(t.format==='groups')return (koMatches(t).length?`<section><h2 class="sec-title">Phase finale</h2>${bracketHTML(t,live)}</section>`:'')
+    +t.groups.map((gr,gi)=>{const ms=t.matches.filter(m=>m.stage==='g'&&m.grp===gi);return `<section><h2 class="sec-title">Poule ${GROUP_L[gi]}</h2>${tableHTML(t,gr,ms,'g'+gi,ms.every(m=>m.done)?2:0)}</section>`}).join('');
+  return `<section><h2 class="sec-title">Tableau</h2>${bracketHTML(t,live)}</section>`}
+
+/* ---------- Écran de l'organisateur ---------- */
+function renderOTour(){
+  const O=Online,t=O.T;
+  if(!t){frame('Tournoi en ligne',`<div class="col"><p class="note center">${O.err?esc(O.err):'Chargement du tournoi…'}</p>${O.err?'<button class="btn btn-primary" data-act="oreload">Réessayer</button>':''}</div>`);if(!O.timer)O.poll();return}
+  const live=O.live,key=t.round,nx=nextRound(t),tie=tieToSettle(t),done=key>=0&&roundDone(t,key);
+  const pending=key>=0?roundMatches(t,key).filter(m=>!m.done).length:0;
+  let main='';
+  if(t.finished)main='';
+  else if(tie&&(key<0||done))main=`<div class="card"><p><b>Égalité parfaite · ${esc(tie.label)}</b> (${tie.why}).<br>Touchez les joueurs dans l'ordre du classement :</p>
+    <div class="chips" style="margin-top:10px">${tie.ids.map(id=>{const k=(O.tieSel||[]).indexOf(id);return `<button class="chip pchip" data-act="otiepick" data-v="${id}" aria-pressed="${k>=0}">${k>=0?(k+1)+'. ':''}${esc(pName(t,id))}</button>`}).join('')}</div>
+    <div class="row2" style="margin-top:10px"><button class="btn btn-primary" data-act="otieok" ${(O.tieSel||[]).length===tie.ids.length?'':'disabled'}>Valider ce classement</button><button class="btn btn-ghost" data-act="otiereset">Recommencer</button></div></div>`;
+  else if(key<0)main=`<button class="btn btn-primary" data-act="olaunch">Lancer la 1re manche · ${esc(roundName(t,roundKeys(t)[0]))}</button><p class="note center">L'appli tire au sort la cible et l'arbitre de chaque match.</p>`;
+  else if(done&&nx!==null)main=`<button class="btn btn-primary" data-act="olaunch">Valider et lancer : ${esc(nx==='finals'?'phase finale':roundName(t,nx))}</button>`;
+  else if(!done)main=`<p class="note center">${pending} match${pending>1?'s':''} à terminer avant la manche suivante.</p>`;
+  const links=O.links[O.id]||{};
+  frame(esc(t.name),`<div class="col">
+    <div class="win">${t.finished?`<span class="crown">Vainqueur du tournoi</span><h1>${esc(t.champName||'')}</h1>`:`<span class="crown">${tLabel(t)} · en ligne</span><h1 style="font-size:26px">${esc(roundName(t,key))}</h1>`}
+      <p>${t.game.type==='x01'?t.game.opts.start+' · '+OUT_LABEL[t.game.opts.outRule]:esc(GAMES[t.game.type].name)} · ${t.players.length} joueurs · ${t.boards.length} cible${t.boards.length>1?'s':''} · ${t.refs.length} arbitre${t.refs.length>1?'s':''}</p></div>
+    ${O.err?`<p class="note center" style="color:var(--danger)">${esc(O.err)}</p>`:''}
+    ${main}
+    ${key>=0?`<section><h2 class="sec-title">${esc(roundName(t,key))} · par cible</h2><div class="oboards">${boardsHTML(t,live,'omatch')}</div>${exemptsHTML(t)}
+      ${!done&&!roundMatches(t,key).some(m=>(m.done&&!m.ff)||live[m.id])?'<button class="btn btn-ghost" data-act="oredraw" style="margin-top:8px">Refaire le tirage des cibles</button>':''}
+      <p class="note" style="margin-top:6px">Touchez un match pour changer sa cible ou son arbitre, entrer ou corriger un résultat, ou déclarer un forfait.</p></section>`:''}
+    <section class="card"><h2 class="sec-title">Liens à partager</h2>
+      <div class="olink"><span><b>Page tableau</b><small>À ouvrir sur la télé (lecture seule)</small></span><button class="btn btn-silver sm" data-act="otvshare">Partager</button><button class="btn btn-ghost sm" data-act="otvopen">Ouvrir</button></div>
+      ${t.refs.map(r=>`<div class="olink"><span><b>${esc(r.name)}</b><small>Arbitre${links[r.id]?' · lien déjà créé':''}</small></span><button class="btn btn-silver sm" data-act="orefshare" data-v="${r.id}">Envoyer le lien</button><button class="btn btn-ghost sm" data-act="orefnew" data-v="${r.id}" aria-label="Nouveau lien pour ${esc(r.name)}">Nouveau</button></div>`).join('')}
+      <p class="note">Un arbitre n'a pas besoin de compte. « Nouveau » remplace son lien (l'ancien ne marche plus). Les liens durent 3 jours.</p></section>
+    ${standingsHTML(t,live)}
+    <section><h2 class="sec-title">Joueurs · ${t.players.length}</h2><div class="chips">${t.players.map(p=>{const o=(t.out||[]).includes(p.id);return `<button class="chip pchip" data-act="oplayer" data-v="${p.id}" ${o?'aria-pressed="false" style="text-decoration:line-through;opacity:.6"':''}>${esc(p.name)}</button>`}).join('')}</div>
+      <p class="note" style="margin-top:6px">Touchez un joueur pour le retirer du tournoi (forfait pour ses matchs restants).</p></section>
+    <div id="tDelBox"><button class="btn btn-danger" data-act="odelask">Supprimer le tournoi</button></div>
+  </div>`);
+  if(!O.timer)O.poll()}
+
+/* Fenêtre d'un match : résultat, forfait, cible, arbitre */
+function openOMatch(mid){const t=Online.T,m=t.matches.find(x=>x.id===mid);if(!m)return;const ko=isKO(t,m),A=esc(pName(t,m.a)),B=esc(pName(t,m.b));
+  const L=Online.live[m.id],s=matchState(t,m,Online.live);
+  openSheet(`<div class="sheet-head"><h2>${A} contre ${B}</h2><button class="icon-btn" data-act="closesheet" aria-label="Fermer">${I.x}</button></div>
+    <p class="note">${esc(boardName(t,m.board))} · arbitre ${esc(refNameOf(t,m.ref))} · ${{done:'terminé',sent:'résultat reçu',live:'en cours',todo:'pas commencé',wait:''}[s.k]}${s.chips?' · '+s.chips.map(stripTags).map(esc).join(' – '):''}</p>
+    ${m.done?(canUndo(t,m)?`<button class="btn btn-ghost" data-act="oundo" data-v="${m.id}">Annuler ce résultat</button>`:'<p class="note">Résultat validé : la suite du tournoi a commencé, il ne peut plus être annulé.</p>')
+    :`<h3 class="cat-lbl">Résultat</h3><div class="row2"><button class="btn btn-primary" data-act="ores" data-v="${m.id}|a">${A} gagne</button><button class="btn btn-primary" data-act="ores" data-v="${m.id}|b">${B} gagne</button></div>
+      ${ko?'':`<button class="btn btn-silver" data-act="ores" data-v="${m.id}|n" style="margin-top:8px;width:100%">Match nul</button>`}
+      <h3 class="cat-lbl">Forfait</h3><div class="row2"><button class="btn btn-ghost" data-act="off" data-v="${m.id}|a">Forfait de ${A}</button><button class="btn btn-ghost" data-act="off" data-v="${m.id}|b">Forfait de ${B}</button></div>
+      ${L&&L.live?'<p class="note" style="margin-top:6px">Le match est en cours chez l\'arbitre : un résultat entré ici passe avant le sien.</p>':''}
+      <h3 class="cat-lbl">Cible</h3><div class="chips">${t.boards.map(b=>`<button class="chip pchip" data-act="oboard" data-v="${m.id}|${b.id}" aria-pressed="${m.board===b.id}">${esc(b.name)}</button>`).join('')}</div>
+      <h3 class="cat-lbl">Arbitre</h3><div class="chips">${t.refs.map(r=>`<button class="chip pchip" data-act="oref" data-v="${m.id}|${r.id}" aria-pressed="${m.ref===r.id}">${esc(r.name)}</button>`).join('')}</div>`}`,'Match')}
+
+/* Partage d'un lien : feuille de partage du téléphone, sinon copie */
+function shareLink(title,text,url){
+  if(navigator.share){navigator.share({title,text,url}).catch(()=>{});return}
+  openSheet(`<div class="sheet-head"><h2>${esc(title)}</h2><button class="icon-btn" data-act="closesheet" aria-label="Fermer">${I.x}</button></div>
+    <p>${esc(text)}</p><div class="linkbox">${esc(url)}</div><button class="btn btn-primary" data-act="copylink">Copier le lien</button>`,title);window._oLink=url}
+
+/* Actions de l'organisateur (appelées depuis le gestionnaire de clics d'app.js) */
+const ONLINE_ACTS=['oopen','oreload','olaunch','oredraw','omatch','ores','off','oundo','oboard','oref','otiepick','otiereset','otieok','oplayer','oout','oback','otvshare','otvopen','orefshare','orefnew','odelask','odelno','odelyes'];
+async function onlineAct(act,v){const O=Online,t=O.T;
+  switch(act){
+    case 'oopen':O.open(v);return true;
+    case 'oreload':O.load();return true;
+    case 'olaunch':{const nx=t.round<0?roundKeys(t)[0]:nextRound(t);if(nx==null)return true;
+      O.edit(t=>launchRound(t,nx));return true}
+    case 'oredraw':O.edit(t=>drawRound(t,roundMatches(t,t.round).filter(m=>m.launched&&!m.done)));return true;
+    case 'omatch':openOMatch(v);return true;
+    case 'ores':{const [mid,w]=v.split('|');O.edit(t=>{const m=t.matches.find(x=>x.id===mid);if(m&&!m.done)setResult(t,m,w,null,'admin')});return true}
+    case 'off':{const [mid,w]=v.split('|');O.edit(t=>{const m=t.matches.find(x=>x.id===mid);if(m&&!m.done){setResult(t,m,w==='a'?'b':'a',null,'admin');m.ff=w}});return true}
+    case 'oundo':O.edit(t=>{const m=t.matches.find(x=>x.id===v);if(m&&canUndo(t,m))undoResult(t,m)},[v]);return true;
+    case 'oboard':{const [mid,b]=v.split('|');O.edit(t=>{const m=t.matches.find(x=>x.id===mid);if(m){m.board=b;m.ord=Math.max(-1,...roundMatches(t,t.round).filter(x=>x.board===b&&x!==m).map(x=>x.ord))+1}});return true}
+    case 'oref':{const [mid,r]=v.split('|');O.edit(t=>{const m=t.matches.find(x=>x.id===mid);if(m)m.ref=r});return true}
+    case 'otiepick':{O.tieSel=O.tieSel||[];if(!O.tieSel.includes(v))O.tieSel.push(v);renderOTour();return true}
+    case 'otiereset':O.tieSel=[];renderOTour();return true;
+    case 'otieok':{const tie=tieToSettle(t);if(!tie)return true;const order=O.tieSel.slice();O.tieSel=[];O.edit(t=>{t.tie=t.tie||{};t.tie[tie.key]=order});return true}
+    case 'oplayer':{const p=t.players.find(x=>x.id===v);if(!p)return true;const out=(t.out||[]).includes(v);
+      openSheet(`<div class="sheet-head"><h2>${esc(p.name)}</h2><button class="icon-btn" data-act="closesheet" aria-label="Fermer">${I.x}</button></div>
+        ${out?`<p>${esc(p.name)} est retiré du tournoi. Les matchs déjà perdus par forfait le restent.</p><button class="btn btn-primary" data-act="oback" data-v="${v}">Le remettre dans le tournoi</button>`
+        :`<p>Retirer ${esc(p.name)} du tournoi ? Il perd par forfait tous ses matchs pas encore joués (manche en cours et suivantes).</p><button class="btn btn-danger" data-act="oout" data-v="${v}">Retirer (forfait)</button>`}`,'Joueur');return true}
+    case 'oout':O.edit(t=>{t.out=[...new Set([...(t.out||[]),v])];applyForfeits(t)});return true;
+    case 'oback':O.edit(t=>{t.out=(t.out||[]).filter(x=>x!==v)});return true;
+    case 'otvshare':shareLink('Tableau du tournoi','Tableau du tournoi « '+t.name+' » en direct :',appLink('tableau='+O.code));return true;
+    case 'otvopen':window.open(appLink('tableau='+O.code),'_blank');return true;
+    case 'orefshare':case 'orefnew':{const r=t.refs.find(x=>x.id===v);if(!r)return true;
+      try{const [l]=await O.refLinks([v],act==='orefnew');if(act==='orefnew')toastMsg('Nouveau lien créé pour '+r.name);
+        shareLink('Lien d\'arbitre',`${r.name}, voici ton lien d'arbitre pour le tournoi « ${t.name} » (ARROW) :`,l.url);renderOTour()}
+      catch(e){toastMsg(niceCloud(e))}return true}
+    case 'copylink':{try{navigator.clipboard.writeText(window._oLink).then(()=>{toastMsg('Lien copié');closeSheet()},()=>toastMsg('Copie impossible : sélectionnez le lien'))}catch(e){}return true}
+    case 'odelask':document.getElementById('tDelBox').innerHTML='<p class="note" style="margin-bottom:8px">Le tournoi, ses liens d\'arbitres et sa page tableau seront supprimés.</p><div class="row2"><button class="btn btn-danger" data-act="odelyes">Confirmer la suppression</button><button class="btn btn-ghost" data-act="odelno">Annuler</button></div>';return true;
+    case 'odelno':renderOTour();return true;
+    case 'odelyes':try{await Cloud.call('t_delete',{id:O.id});O.id=null;O.T=null;O.list=null;go('tournaments');O.refreshList()}catch(e){toastMsg(niceCloud(e))}return true;
+  }
+  return false}
+
+/* Création : même brouillon que le tournoi local, plus les cibles et les arbitres */
+async function createOnline(d){
+  const ids=shuffleSeeded(d.pids,Date.now()|0);
+  const t={v:1,online:true,name:(d.name||'Tournoi').trim(),format:d.format,legs:d.legs,game:{type:d.type,opts:d.opts},
+    players:ids.map(id=>{const p=profById(id);return {id,name:p.name,color:p.color}}),created:Date.now(),matches:[],
+    boards:[...Array(d.boards)].map((_,i)=>({id:'b'+(i+1),name:'Cible '+(i+1)})),refs:d.refs.map((n,i)=>({id:'r'+(i+1)+uid().slice(0,4),name:n})),round:-1,out:[],tie:{}};
+  if(d.format==='ko')t.matches=buildKO(ids);else if(d.format==='league')t.matches=buildLeague(ids,d.legs);else{const G2=buildGroups(ids,d.gsize);t.groups=G2.groups;t.matches=G2.ms}
+  try{await Online.create(t);Online.list=null;go('otour')}catch(e){toastMsg(niceCloud(e))}}
+/* Parties du brouillon propres au tournoi en ligne (cibles, arbitres) */
+function onlineDraftHTML(d){return `<section class="card"><h2 class="sec-title">Cibles</h2>
+    <div class="opt-row"><span class="lbl">Nombre de cibles</span><div class="stepper"><button data-act="tboards" data-v="-1" aria-label="Une cible de moins">−</button><output>${d.boards}</output><button data-act="tboards" data-v="1" aria-label="Une cible de plus">+</button></div></div>
+    <p class="note">Les cibles s'appellent « Cible 1 », « Cible 2 »… Chaque match est placé au hasard sur une cible.</p></section>
+  <section class="card"><h2 class="sec-title">Arbitres · ${d.refs.length}</h2>
+    ${d.refs.length?`<div class="chips">${d.refs.map((n,i)=>`<button class="chip pchip" data-act="trefdel" data-v="${i}" aria-label="Retirer ${esc(n)}">${esc(n)} ✕</button>`).join('')}</div>`:''}
+    <form class="addp" data-form="taddref" style="margin-top:10px"><input id="tNewRef" placeholder="Nom de l'arbitre" maxlength="24" autocomplete="off" aria-label="Ajouter un arbitre"><button class="btn btn-ghost" type="submit">Ajouter</button></form>
+    <p class="note" style="margin-top:8px">Chaque arbitre reçoit un lien (sans compte) pour compter les matchs de sa cible. Un arbitre par cible au maximum est utilisé à chaque manche.</p></section>`}
+
+/* ---------- Écran de l'arbitre ---------- */
+const Ref={token:store.get('refToken',null),id:null,T:null,live:{},err:'',sig:'',outbox:store.get('refOut',[]),
+  async load(){if(!this.token)return;await this.flush();
+    try{const j=await Cloud.call('ref_get',{token:this.token},false);this.id=j.ref;this.T=j.state;this.live=liveMap(j.live);this.err=''}
+    catch(e){this.err=e.code==='ref_expired'?'Ce lien d\'arbitre n\'est plus valable. Demandez un nouveau lien à l\'organisateur.':niceCloud(e)}
+    const sig=JSON.stringify([this.T,this.live,this.err,this.outbox.length]);if(sig!==this.sig){this.sig=sig;if(screen==='ref')renderRef()}},
+  /* Envois en attente (pas de réseau au moment de la fin du match) */
+  async flush(){while(this.outbox.length){const o=this.outbox[0];
+      try{await Cloud.call(o.a,Object.assign({token:this.token},o.b),false)}catch(e){if(e.code==='offline')return;
+        if(e.code==='ref_match'&&o.a==='ref_result')toastMsg(o.b.result?'Ce match n\'est plus à vous ou il est déjà validé : voyez avec l\'organisateur':'Résultat déjà validé par l\'organisateur : demandez-lui de le corriger')}
+      this.outbox.shift();store.set('refOut',this.outbox)}},
+  send(a,b){this.outbox=this.outbox.filter(o=>!(o.b.mid===b.mid&&(a==='ref_result'||o.a==='ref_live')));this.outbox.push({a,b});store.set('refOut',this.outbox);this.flush()},
+  liveT:0,lastLive:0,
+  /* Après chaque volée : score en direct (au plus une fois par seconde et demie) */
+  pushLive(){if(!game||!game.remote)return;const now=Date.now(),wait=Math.max(0,1500-(now-this.lastLive));clearTimeout(this.liveT);
+    this.liveT=setTimeout(()=>{if(!game||!game.remote||game.finishedAt)return;this.lastLive=Date.now();const m=GAMES[game.type],S=m.run(game);
+      Cloud.call('ref_live',{token:game.remote.token,mid:game.remote.mid,live:{chips:[0,1].map(i=>stripTags(m.chip(S,i))),turn:S.over?null:(S.cur&&S.cur.darts.length?S.cur.p:S.turns.length?(S.turns[S.turns.length-1].p+1)%game.players.length:0),n:S.turns.length}},false).catch(()=>{})},wait)},
+  result(g,S){const m=GAMES[g.type],w=S.winner!=null?(S.winner===0?'a':'b'):'n';
+    if(w==='n'&&g.remote.ko){toastMsg('Égalité : en élimination directe, le match est à rejouer');return}
+    const chips=[0,1].map(i=>stripTags(m.chip(S,i)));
+    this.send('ref_result',{mid:g.remote.mid,result:{w,chips,game:g.type,at:Date.now()},live:{chips}})},
+  retract(g){this.send('ref_result',{mid:g.remote.mid,result:null})}
+};
+function refPlay(mid){const t=Ref.T,m=t&&t.matches.find(x=>x.id===mid);if(!m||m.done)return;
+  if(game&&!game.finishedAt&&game.remote&&game.remote.mid===mid){go('game');return}
+  const pls=[m.a,m.b].map(id=>{const p=t.players.find(x=>x.id===id);return {id,name:p.name,color:p.color}});
+  game=Object.assign({id:uid(),created:Date.now(),amb:Object.fromEntries(pls.map(p=>[p.id,'standard'])),players:pls,darts:[],validated:0,
+    remote:{token:Ref.token,mid,ko:isKO(t,m),tname:t.name,board:boardName(t,m.board)}},asGame({type:t.game.type,opts:Object.assign({},t.game.opts)}));
+  if(GAMES[game.type].setup)GAMES[game.type].setup(game);saveGame();Sound.unlock();Voice.warm();go('game');announceStart();Ref.pushLive()}
+function renderRef(){const R=Ref,t=R.T;
+  if(!t){frame('Arbitre',`<div class="col"><p class="note center">${R.err?esc(R.err):'Chargement…'}</p>${R.err?'<button class="btn btn-primary" data-act="refreload">Réessayer</button>':''}</div>`);if(!Online.timer)Online.poll();return}
+  const me=t.refs.find(r=>r.id===R.id),mine=t.round>=0?roundMatches(t,t.round).filter(m=>m.launched&&m.ref===R.id).sort((a,b)=>a.ord-b.ord):[];
+  const cur=game&&!game.finishedAt&&game.remote?game.remote.mid:null,next=mine.find(m=>!m.done&&!(R.live[m.id]&&R.live[m.id].result));
+  const boards=[...new Set(mine.map(m=>m.board))].map(b=>esc(boardName(t,b))).join(', ');
+  frame('Arbitre',`<div class="col">
+    <div class="win"><span class="crown">${esc(t.name)}</span><h1 style="font-size:26px">${esc(me?me.name:'Arbitre')}</h1><p>${t.finished?'Tournoi terminé · vainqueur : '+esc(t.champName||''):esc(roundName(t,t.round))+(boards?' · '+boards:'')}</p></div>
+    ${R.err?`<p class="note center" style="color:var(--danger)">${esc(R.err)}</p>`:''}
+    ${R.outbox.length?'<p class="note center">Envoi en attente : le résultat partira dès que le réseau revient.</p>':''}
+    ${t.finished?'':!mine.length?'<p class="note center">Pas de match pour vous dans cette manche. L\'écran se met à jour tout seul quand l\'organisateur lance la suivante.</p>'
+      :`<section><h2 class="sec-title">Vos matchs, dans l'ordre</h2><div class="mlist">${mine.map(m=>matchLine(t,m,R.live)).join('')}</div></section>
+      ${cur&&mine.some(m=>m.id===cur)?'<button class="btn btn-primary" data-act="resume">Reprendre le match en cours</button>'
+        :next?`<button class="btn btn-primary" data-act="refplay" data-v="${next.id}">Commencer : ${esc(pName(t,next.a))} contre ${esc(pName(t,next.b))}</button>`
+        :'<p class="note center">Tous vos matchs de la manche sont terminés. Merci !</p>'}`}
+    <p class="note center">Le score part en direct vers l'organisateur et la page tableau.</p>
+  </div>`);
+  if(!Online.timer)Online.poll()}
+
+/* ---------- Page tableau (télé) ---------- */
+const Tv={code:null,T:null,live:{},err:'',sig:'',
+  async load(){try{const j=await Cloud.call('tv_get',{code:this.code},false);this.T=j.state;this.live=liveMap(j.live);this.err=''}
+    catch(e){this.err=e.code==='t_unknown'?'Ce tournoi n\'existe plus.':niceCloud(e)}
+    const sig=JSON.stringify([this.T,this.live,this.err]);if(sig!==this.sig){this.sig=sig;if(screen==='tv')renderTv()}}};
+function renderTv(){const t=Tv.T;
+  const body=!t?`<p class="note center" style="margin-top:30vh">${Tv.err?esc(Tv.err):'Chargement du tableau…'}</p>`
+    :`<header class="tv-head">${logoSVG('t',false)}<div><h1>${esc(t.name)}</h1><p>${t.finished?'Vainqueur : <b>'+esc(t.champName||'')+'</b>':esc(roundName(t,t.round))}</p></div>
+        <button class="btn btn-ghost sm tv-fs" data-act="tvfull">Plein écran</button></header>
+      <div class="tv-grid"><section class="tv-col"><h2 class="sec-title">${t.round>=0?'Sur les cibles':'Le tournoi va commencer'}</h2>
+        <div class="oboards">${boardsHTML(t,Tv.live,null)}</div>${t.round>=0?exemptsHTML(t):''}</section>
+        <section class="tv-col">${standingsHTML(t,Tv.live)}</section></div>
+      ${Tv.err?`<p class="note center">${esc(Tv.err)}</p>`:''}`;
+  frame('Tableau',`<div class="tv">${body}</div>`);
+  if(!Online.timer)Online.poll();requestWake()}
+
+const VERSION='3.6 · 14 novembre 2026';
 function sendButtons(g){const o=owner();const l=g.players.map(pl=>profById(pl.id)).filter(pr=>pr&&pr.code&&(!o||pr.code!==o.code)&&pendingFor(pr.code));
   return l.length?`<section class="card"><h2 class="sec-title">Envoyer les statistiques</h2><div class="stack">${l.map(pr=>`<button class="btn btn-ghost" data-act="sendstats" data-v="${pr.code}">${I.share} Envoyer à ${esc(pr.name)} (${pendingFor(pr.code)} partie${pendingFor(pr.code)>1?'s':''})</button>`).join('')}</div></section>`:''}
 /* =========================================================
@@ -3486,7 +3892,7 @@ const TAGS={c180:'Cent quatre-vingts',checkout:'Partie gagnée',huge:'Très gros
    ========================================================= */
 const ROOTS=['home','players','history','settings'];
 const GAME_SCREENS=['game','mplay'];
-const PARENT={fam:'home',contact:'settings',setup:'fam',ambiance:'setup',end:'home',player:'players',tournaments:'fam',tnew:'tournaments',tournament:'tournaments',import:'home',more:'home',mset:'fam',account:'settings',auth:'home',forgot:'auth',reset:'home',welcome:'auth'};
+const PARENT={fam:'home',contact:'settings',setup:'fam',ambiance:'setup',end:'home',player:'players',tournaments:'fam',tnew:'tournaments',tournament:'tournaments',otour:'tournaments',ref:'ref',tv:'tv',import:'home',more:'home',mset:'fam',account:'settings',auth:'home',forgot:'auth',reset:'home',welcome:'auth'};
 let lastFrame=null;
 const NAV=[['home','Jouer','<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>'],['players','Joueurs','<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.3-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18.5 14.8c1.6.8 2.6 2.5 3 5.2"/>'],
   ['new','Partie',''],['history','Historique','<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'],['settings','Réglages','<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>']];
@@ -3494,7 +3900,7 @@ function accountBtn(){const o=owner(),s=typeof Cloud!=='undefined'&&Cloud.sessio
   return `<button class="acc-btn" data-act="account" aria-label="${s?'Mon compte':'Se connecter'}">${o?avatar(o,0):`<span class="av ghost">${I.user}</span>`}${s?'<i class="acc-dot" aria-hidden="true"></i>':''}</button>`}
 function frame(title,body,{fixed=false,right=null}={}){
   const old=document.getElementById('view');const keep=old&&lastFrame===screen?old.scrollTop:0;lastFrame=screen;
-  const root=ROOTS.includes(screen),inGame=GAME_SCREENS.includes(screen),bare=['auth','forgot','reset','welcome'].includes(screen);
+  const root=ROOTS.includes(screen),inGame=GAME_SCREENS.includes(screen),bare=['auth','forgot','reset','welcome','tv'].includes(screen),noDock=screen==='ref';
   const left=root?`<button class="brand-btn" data-act="home" aria-label="Accueil">${logoSVG('t',false)}<span class="wm">ARROW</span></button>`
     :`<button class="back-btn" data-act="back" aria-label="Retour">${I.back}</button>`;
   const vol=bare?'':`<button class="bar-vol" data-act="mute" aria-pressed="${prefs.muted}" aria-label="${prefs.muted?'Remettre le son':'Couper le son'}">${prefs.muted?I.mute:I.snd}</button>`;
@@ -3505,15 +3911,17 @@ function frame(title,body,{fixed=false,right=null}={}){
     <div class="sig">${STUDIO}<span>Elmagination</span></div>`;
   app.innerHTML=`${bare?'':`<header class="appbar ${root?'root':''}">${left}<div class="bar-title">${root&&screen==='home'?'':title}</div>${rightBtn}</header>`}
     <main class="view${fixed?' fixed':''}${bare?' bare':''}" id="view">${body}</main>
-    ${inGame?`<footer class="brandbar">${STUDIO}<span class="brand-name">Elmagination</span></footer>`:bare?'':`<footer class="dock">${tabs}</footer>`}`;
+    ${inGame||noDock?`<footer class="brandbar">${STUDIO}<span class="brand-name">Elmagination</span></footer>`:bare?'':`<footer class="dock">${tabs}</footer>`}`;
   if(keep){const v=document.getElementById('view');if(v)v.scrollTop=keep}
 }
 /* Sans compte connecté, seuls les écrans de connexion sont accessibles */
 const OPEN_SCREENS=['auth','forgot','reset'];
-function go(s){if(!Cloud.session()&&!OPEN_SCREENS.includes(s))s='auth';screen=s;lastFrame=null;closeSheet();render()}
+/* Sans compte aussi : l'écran d'arbitre, la page tableau, et la partie que compte un arbitre */
+const openScreen=s=>OPEN_SCREENS.includes(s)||s==='ref'||s==='tv'||((s==='game'||s==='end')&&game&&game.remote);
+function go(s){if(!Cloud.session()&&!openScreen(s))s='auth';screen=s;lastFrame=null;closeSheet();render()}
 function render(){
   if(screen!=='game')releaseWake();
-  ({home:renderHome,fam:renderFam,contact:renderContact,setup:renderSetup,ambiance:renderAmbiance,game:renderGameShell,end:renderEnd,settings:renderSettings,players:renderPlayers,player:renderPlayer,history:renderHistory,tournaments:renderTournaments,tnew:renderTNew,tournament:renderTournament,welcome:renderWelcome,import:renderImport,mset:renderOSetup,mplay:renderOPlay,auth:renderAuth,forgot:renderForgot,reset:renderReset,account:renderAccount}[screen]||renderHome)();
+  ({home:renderHome,fam:renderFam,contact:renderContact,setup:renderSetup,ambiance:renderAmbiance,game:renderGameShell,end:renderEnd,settings:renderSettings,players:renderPlayers,player:renderPlayer,history:renderHistory,tournaments:renderTournaments,tnew:renderTNew,tournament:renderTournament,otour:renderOTour,ref:renderRef,tv:renderTv,welcome:renderWelcome,import:renderImport,mset:renderOSetup,mplay:renderOPlay,auth:renderAuth,forgot:renderForgot,reset:renderReset,account:renderAccount}[screen]||renderHome)();
 }
 /* Retour : ferme d'abord une fenêtre ouverte, sinon remonte d'un écran */
 function back(){
@@ -3521,6 +3929,8 @@ function back(){
   if(screen==='home')return false;
   if(screen==='game'&&game&&!game.finishedAt&&game.darts.length){openQuit('darts');return true}
   if(screen==='auth'&&!Cloud.session())return false;
+  if((screen==='ref'||screen==='tv')&&!Cloud.session())return false;
+  if(screen==='end'&&game&&game.remote){go('ref');return true}
   go(PARENT[screen]||'home');return true;
 }
 /* Geste retour du téléphone : une entrée d'historique « piège » est rejouée à chaque retour */
@@ -3949,7 +4359,7 @@ function validate(){
     let guard=0;while(S.turns.length<=game.validated&&guard++<3){game.darts.push({seg:0,mult:0});S=m.run(game)}
   }
   while(game.validated<S.turns.length){react(S.turns[game.validated],S);game.validated++}
-  saveGame();updateGame();
+  saveGame();updateGame();if(game.remote)Ref.pushLive();
   if(S.over){clearTimeout(endT);endT=setTimeout(()=>{if(game&&GAMES[game.type||'x01'].run(game).over)finishGame()},2400)}
 }
 /* Fin de volée : signal sonore puis réaction de l'ambiance */
@@ -4025,7 +4435,7 @@ function renderEnd(){
     ${m.table?m.table(S,game):''}
     <p class="note">${m.statNote}</p>
     ${sendButtons(game)}
-    <div class="stack">${game.tournament?`<button class="btn btn-primary" data-act="topen" data-v="${game.tournament.tid}">Retour au tournoi</button>`:`<button class="btn btn-primary" data-act="rematch">Revanche</button><button class="btn btn-silver" data-act="new">Nouvelle partie</button>`}
+    <div class="stack">${game.remote?`<button class="btn btn-primary" data-act="refhome">Retour à l'arbitrage</button>`:game.tournament?`<button class="btn btn-primary" data-act="topen" data-v="${game.tournament.tid}">Retour au tournoi</button>`:`<button class="btn btn-primary" data-act="rematch">Revanche</button><button class="btn btn-silver" data-act="new">Nouvelle partie</button>`}
       <button class="btn btn-ghost" data-act="endundo">Annuler la dernière fléchette</button></div>
   </div>`);
 }
@@ -4072,6 +4482,7 @@ document.addEventListener('click',e=>{
   if(b.classList.contains('sheet-bg')&&e.target!==b)return;
   const a=b.dataset.act,v=b.dataset.v;
   if(a==='listen')e.stopPropagation();
+  if(ONLINE_ACTS.includes(a)){onlineAct(a,v);return}
   switch(a){
     case 'home':go('home');break;
     case 'more':go('home');break;
@@ -4153,7 +4564,7 @@ document.addEventListener('click',e=>{
     case 'tlegs':tdraft.legs=+v;renderTNew();break;
     case 'topt':tdraft.opts[b.dataset.k]=JSON.parse(v);renderTNew();break;
     case 'tpick':{const i=tdraft.pids.indexOf(v);if(i>=0)tdraft.pids.splice(i,1);else tdraft.pids.push(v);renderTNew();break}
-    case 'tcreate':{const d=tdraft;const ids=shuffleSeeded(d.pids,Date.now()|0);const players=ids.map(id=>{const p=profById(id);return {id,name:p.name,color:p.color}});
+    case 'tcreate':{const d=tdraft;if(d.online){b.disabled=true;createOnline(d);break}const ids=shuffleSeeded(d.pids,Date.now()|0);const players=ids.map(id=>{const p=profById(id);return {id,name:p.name,color:p.color}});
       const t={id:uid(),name:(d.name||'Tournoi').trim(),format:d.format,legs:d.legs,game:{type:d.type,opts:d.opts},players,created:Date.now(),
         matches:[]};if(d.format==='ko')t.matches=buildKO(ids);else if(d.format==='league')t.matches=buildLeague(ids,d.legs);else{const G2=buildGroups(ids,d.gsize);t.groups=G2.groups;t.matches=G2.ms}
       saveT(t);curTid=t.id;go('tournament');break}
@@ -4166,13 +4577,20 @@ document.addEventListener('click',e=>{
     case 'quit':
       if(screen==='game'&&game&&!game.finishedAt&&game.darts.length)openQuit('darts');
       else if(screen==='mplay'&&g2&&!g2.finishedAt&&g2.events.length)openQuit('other');
-      else go('home');break;
+      else go(game&&game.remote&&(screen==='game'||screen==='end')?'ref':'home');break;
     case 'delask':openDelete(v);break;
     case 'gatego':b.disabled=true;gateGo();break;
-    case 'pause':closeSheet();go('home');break;
-    case 'abandon':if(v==='other'){g2=null;saveG2();resetOtherDraft()}else{game=null;saveGame()}closeSheet();go('home');break;
+    case 'pause':closeSheet();go(game&&game.remote?'ref':'home');break;
+    case 'abandon':{const rem=v!=='other'&&game&&game.remote;if(v==='other'){g2=null;saveG2();resetOtherDraft()}else{game=null;saveGame()}closeSheet();go(rem?'ref':'home');break}
     case 'new':draft=newDraft();go('setup');break;
     case 'resume':go('game');break;
+    case 'refplay':refPlay(v);break;
+    case 'refreload':case 'refhome':Ref.sig='';go('ref');Ref.load();break;
+    case 'tvfull':try{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()}catch(e){}break;
+    case 'copylink':onlineAct('copylink');break;
+    case 'tnewonline':tdraft=Object.assign(newTDraft(),{online:true,boards:2,refs:[]});go('tnew');break;
+    case 'tboards':tdraft.boards=Math.max(1,Math.min(16,tdraft.boards+(+v)));renderTNew();break;
+    case 'trefdel':tdraft.refs.splice(+v,1);renderTNew();break;
     case 'gtype':draft.type=v;draft.opts=Object.assign(defaultOpts(v),(store.get('lastSetup',{}).opts||{})[v]||{});closeSheet();renderSetup();break;
     case 'opt':draft.opts[b.dataset.k]=JSON.parse(v);renderSetup();break;
     case 'teamsize':draft.teamSize=+v;renderSetup();break;
@@ -4264,7 +4682,13 @@ document.addEventListener('change',e=>{
 /* Démarrage : lien de mot de passe, compte, puis reprise d'une partie interrompue */
 let recovery=false;
 {const m=/^#reset=([a-f0-9]{20,})$/.exec(location.hash||'');if(m){resetToken=m[1];recovery=true}}
+/* Liens du tournoi en ligne : arbitre (#arbitre=jeton) et page tableau (#tableau=code) */
+{const r=/^#arbitre=([a-f0-9]{32,})$/.exec(location.hash||''),v=/^#tableau=([A-Za-z0-9]{8})$/.exec(location.hash||'');
+  if(r){if(Ref.token!==r[1]){Ref.token=r[1];store.set('refToken',r[1]);Ref.T=null}try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}screen='ref';Ref.load()}
+  else if(v){Tv.code=v[1].toUpperCase();screen='tv';Tv.load()}}
 if(recovery)screen='reset';
+else if(screen==='ref'||screen==='tv'){}
+else if(game&&!game.finishedAt&&game.remote&&game.darts&&game.darts.length)screen='game';
 else if(!Cloud.session())screen='auth';
 else if(!owner())screen='welcome';
 else if(game&&!game.finishedAt&&game.darts&&game.darts.length)screen='game';
@@ -4272,7 +4696,7 @@ else if(game&&!game.finishedAt&&game.darts&&game.darts.length)screen='game';
   if(m){
     readImport(m[1]).then(()=>{screen='import';render()});screen='import'}}
 armBack();render();splash();
-if(!recovery)setTimeout(()=>Account.resume(),1200);
+if(!recovery&&Cloud.session())setTimeout(()=>Account.resume(),1200);
 /* Lien de statistiques ouvert alors que l'appli est déjà ouverte */
 window.addEventListener('hashchange',()=>{const m=/^#imp=(.+)$/.exec(location.hash||'');if(!m)return;
   try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}readImport(m[1]).then(()=>go('import'))});
@@ -4284,6 +4708,7 @@ document.addEventListener('submit',e=>{const f=e.target.dataset&&e.target.datase
     if(code&&code.length!==6){toastMsg('Le code utilisateur fait 6 caractères');return}
     const other=code&&profByCode(code);if(other&&other.name.toLowerCase()!==v.toLowerCase()){toastMsg('Ce code est déjà celui de '+other.name);return}
     const pr=ensureProfile(v);if(code)pr.code=code;saveProfiles();renderPlayers()}
+  if(f==='taddref'){const i=document.getElementById('tNewRef'),v=i.value.trim();if(!v)return;if(!tdraft.refs.some(n=>n.toLowerCase()===v.toLowerCase()))tdraft.refs.push(v);renderTNew();setTimeout(()=>{const j=document.getElementById('tNewRef');if(j)j.focus()},0);return}
   if(f==='taddp'){const v=document.getElementById('tNewP').value.trim();if(!v)return;const pr=ensureProfile(v);if(!tdraft.pids.includes(pr.id))tdraft.pids.push(pr.id);renderTNew()}
 });</script>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}</script>
