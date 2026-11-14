@@ -2379,11 +2379,11 @@ function histOther(D,S){const ev=g2.events;if(!ev.length)return '<p class="empty
   return `<ul class="hist-list">${rows.slice(-12).reverse().join('')}</ul>`}
 
 /* Réaction après une saisie : son, étincelles, et annonce du vainqueur */
-/* Voix des autres jeux : phrase enregistrée (voix-jeux.mp3) si elle existe, sinon voix du téléphone */
+/* Voix des autres jeux : phrase enregistrée (pack « jeuxf » ou « jeux » selon la voix choisie) si elle existe, sinon voix du téléphone */
 function sayGame(cat,delay=450){const L=GAME_LINES[cat];if(!L||!L.length)return '';
-  const rec=Pack.has('jeux')?L.map((_,i)=>i).filter(i=>Pack.files.jeux.has(`jeux_${cat}_${i+1}`)):[];
+  const pk=voicePack('jeux'),rec=Pack.has(pk)?L.map((_,i)=>i).filter(i=>Pack.files[pk].has(`${pk}_${cat}_${i+1}`)):[];
   const pool=rec.length?rec:L.map((_,i)=>i),i=pool[Math.floor(Math.random()*pool.length)],txt=untag(L[i]);
-  if(prefs.voice&&!prefs.muted&&prefs.voiceMode!=='scores')setTimeout(()=>{if(rec.length)Pack.play(`jeux_${cat}_${i+1}`,ok=>{if(!ok)Voice.say(txt,'standard')});else Voice.say(txt,'standard')},delay);
+  if(prefs.voice&&!prefs.muted&&prefs.voiceMode!=='scores')setTimeout(()=>{if(rec.length)Pack.play(`${pk}_${cat}_${i+1}`,ok=>{if(!ok)Voice.say(txt,'standard')});else Voice.say(txt,'standard')},delay);
   return txt}
 function o2react(pts,max,teamIdx){const S=run2(g2),D=OTHER[g2.kind];
   /* score de la mène (ou du lancer au Mölkky) en haut de l'écran */
@@ -3302,13 +3302,13 @@ function woodKnock(){if(!prefs.sounds||prefs.muted)return;Sound.unlock();if(!Sou
 window.addEventListener('resize',()=>{clearTimeout(window._scT);window._scT=setTimeout(()=>{if(screen!=='mplay')return;
   if(document.getElementById('mkCv'))MK3.mount();if(document.getElementById('chCv'))CH3.mount();if(document.getElementById('plCv'))PL3.mount()},200)});
 
-const VERSION='3.4 · 14 novembre 2026';
+const VERSION='3.5 · 14 novembre 2026';
 function sendButtons(g){const o=owner();const l=g.players.map(pl=>profById(pl.id)).filter(pr=>pr&&pr.code&&(!o||pr.code!==o.code)&&pendingFor(pr.code));
   return l.length?`<section class="card"><h2 class="sec-title">Envoyer les statistiques</h2><div class="stack">${l.map(pr=>`<button class="btn btn-ghost" data-act="sendstats" data-v="${pr.code}">${I.share} Envoyer à ${esc(pr.name)} (${pendingFor(pr.code)} partie${pendingFor(pr.code)>1?'s':''})</button>`).join('')}</div></section>`:''}
 /* =========================================================
    Réglages et état
    ========================================================= */
-const DEF_PREFS={input:'board',ambiance:'standard',volume:.8,sounds:true,voice:true,voiceMode:'full',scoreVoice:'h',muted:false,view3d:true,setOpen:{},rate:1,voiceURI:'',confirmBoard:false,skin:'classic',decor:'none',fx:true,announce:true,adaptive:false,thr:{x01:{big:100,low:30}}};
+const DEF_PREFS={input:'board',ambiance:'standard',volume:.8,sounds:true,voice:true,voiceMode:'full',voiceSex:'f',muted:false,view3d:true,setOpen:{},rate:1,voiceURI:'',confirmBoard:false,skin:'classic',decor:'none',fx:true,announce:true,adaptive:false,thr:{x01:{big:100,low:30}}};
 const prefs=(()=>{const p=Object.assign({},DEF_PREFS,store.get('prefs',{}));p.thr=Object.assign({},DEF_PREFS.thr,p.thr||{});p.thr.x01=Object.assign({},DEF_PREFS.thr.x01,p.thr.x01||{});return p})();
 let game=store.get('current',null);if(game&&!game.type)game.type='x01';
 let screen='home';
@@ -3418,6 +3418,10 @@ const Pack={files:{},clips:{},src:{},buf:{},ready:false,
       const st=Math.max(0,cl[0]-.04);s.start(0,st,cl[1]+.1);cb&&cb(true)}).catch(()=>cb&&cb(false));return true}
 };
 Pack.load();
+/* Voix enregistrées en deux versions : femme (packs « <ambiance>f », voix par défaut) et homme
+   (packs « <ambiance> »). voicePack donne le pack à utiliser selon le réglage prefs.voiceSex ;
+   si la version voulue n'existe pas, on prend l'autre. Vaut aussi pour « jeux » et « scores ». */
+function voicePack(amb){const f=amb+'f';if(prefs.voiceSex==='h')return Pack.has(amb)||!Pack.has(f)?amb:f;return Pack.has(f)?f:amb}
 const Voice={ok:'speechSynthesis' in window,list:[],
   load(){if(!this.ok)return;try{this.list=speechSynthesis.getVoices().filter(v=>/^fr([-_]|$)/i.test(v.lang)).sort((a,b)=>voiceQuality(b)-voiceQuality(a))}catch(e){this.list=[]}},
   pick(){if(!this.list.length)this.load();const L=this.list;if(!L.length)return null;return (prefs.voiceURI&&L.find(v=>v.voiceURI===prefs.voiceURI))||L[0]},
@@ -3432,7 +3436,8 @@ const Voice={ok:'speechSynthesis' in window,list:[],
       setTimeout(()=>{try{speechSynthesis.speak(u);if(speechSynthesis.paused)speechSynthesis.resume()}catch(e){}},speechSynthesis.speaking?120:0);return true}catch(e){cb&&cb(false);return false}},
   /* Réaction : voix enregistrée si disponible, sinon voix de l'appareil */
   react(choice,prefix,amb){if(!prefs.voice||prefs.muted||prefs.voiceMode==='scores')return;
-    if(choice.id&&Pack.has(amb)&&Pack.files[amb].has(choice.id)){Pack.play(choice.id,ok=>{if(!ok)this.say(prefix+choice.text,amb)});return}
+    const pk=choice.id?choice.id.split('_')[0]:'';
+    if(pk&&Pack.has(pk)&&Pack.files[pk].has(choice.id)){Pack.play(choice.id,ok=>{if(!ok)this.say(prefix+choice.text,amb)});return}
     this.say(prefix+choice.text,amb)},
   warm(){if(!this.ok)return;try{const u=new SpeechSynthesisUtterance(' ');u.lang='fr-FR';u.volume=0;speechSynthesis.speak(u)}catch(e){}},
   tested:null,
@@ -3465,12 +3470,12 @@ const recentPick={};
 /* Choisit une phrase sans répéter les dernières. Avec des voix enregistrées, on évite les phrases
    qui contiennent le prénom ou le score (elles ne peuvent pas être enregistrées à l'avance). */
 function choosePhrase(amb,cat,vars){
-  const A=AMBIANCES[amb]||AMBIANCES.standard,list=A[cat]||A.mid,key=amb+cat;
-  let pool=list.map((_,i)=>i);if(Pack.has(amb)){const np=pool.filter(i=>Pack.files[amb].has(`${amb}_${cat}_${i+1}`));if(np.length)pool=np}
+  const A=AMBIANCES[amb]||AMBIANCES.standard,list=A[cat]||A.mid,key=amb+cat,pk=voicePack(amb);
+  let pool=list.map((_,i)=>i);if(Pack.has(pk)){const np=pool.filter(i=>Pack.files[pk].has(`${pk}_${cat}_${i+1}`));if(np.length)pool=np}
   const used=recentPick[key]||[],free=pool.filter(i=>!used.includes(i));const from=free.length?free:pool;
   const i=from[Math.floor(Math.random()*from.length)];
   recentPick[key]=[...used,i].slice(-Math.floor(pool.length/2));
-  return {text:untag(list[i]).replace(/\{n\}/g,vars.n).replace(/\{r\}/g,vars.r),id:`${amb}_${cat}_${i+1}`};
+  return {text:untag(list[i]).replace(/\{n\}/g,vars.n).replace(/\{r\}/g,vars.r),id:`${pk}_${cat}_${i+1}`};
 }
 function pickPhrase(amb,cat,vars){return choosePhrase(amb,cat,vars).text}
 const TAGS={c180:'Cent quatre-vingts',checkout:'Partie gagnée',huge:'Très grosse volée',big:'Belle volée',bust:'Bust'};
@@ -3695,10 +3700,10 @@ function openGameSheet(){const cur=draft.type;
 function audioControls(){
   return `<div class="set-row"><div class="txt"><b>Sons et jingles</b><span>Un signal après la 3<sup>e</sup> fléchette</span></div><button class="switch" data-act="tog" data-v="sounds" aria-pressed="${prefs.sounds}" aria-label="Sons"></button></div>
     <div class="set-row"><div class="txt"><b>Voix</b><span>Le commentaire est lu à voix haute</span></div><button class="switch" data-act="tog" data-v="voice" aria-pressed="${prefs.voice}" aria-label="Voix"></button></div>
+    ${Pack.has('standardf')||Pack.has('scoresf')?`<div class="set-row" style="display:block"><div class="txt" style="margin-bottom:6px"><b>Voix enregistrée</b><span>Touchez pour écouter un exemple</span></div>
+      <div class="seg"><button data-act="vsex" data-v="f" aria-pressed="${prefs.voiceSex!=='h'}">Voix femme</button><button data-act="vsex" data-v="h" aria-pressed="${prefs.voiceSex==='h'}">Voix homme</button></div></div>`:''}
     <div class="set-row" style="display:block"><div class="txt" style="margin-bottom:6px"><b>La voix dit</b><span>${prefs.voiceMode==='scores'?'Uniquement le score, sans commentaire':'Les commentaires de l\'ambiance choisie'}</span></div>
       <div class="seg"><button data-act="vmode" data-v="full" aria-pressed="${prefs.voiceMode!=='scores'}">Commentaires</button><button data-act="vmode" data-v="scores" aria-pressed="${prefs.voiceMode==='scores'}">Scores seuls</button></div></div>
-    ${prefs.voiceMode==='scores'&&Pack.has('scores')&&Pack.has('scoresf')?`<div class="set-row" style="display:block"><div class="txt" style="margin-bottom:6px"><b>Voix des scores</b><span>Touchez pour écouter un exemple</span></div>
-      <div class="seg"><button data-act="svoice" data-v="h" aria-pressed="${prefs.scoreVoice!=='f'}">Voix homme</button><button data-act="svoice" data-v="f" aria-pressed="${prefs.scoreVoice==='f'}">Voix femme</button></div></div>`:''}
     <div class="set-row"><div class="txt"><b>Annoncer le score</b><span>Ex. « Cent ! Belle volée ! »</span></div><button class="switch" data-act="tog" data-v="announce" aria-pressed="${prefs.announce}" aria-label="Annoncer le score"></button></div>
     <div class="set-row" style="display:block"><div class="txt" style="margin-bottom:4px"><b>Volume</b></div><input type="range" id="vol" min="0" max="1" step="0.05" value="${prefs.volume}" aria-label="Volume"></div>
     <div id="voiceBox">${voiceBoxHTML()}</div>`;
@@ -3958,13 +3963,13 @@ function react(t,S){
   const wait=Math.round(dur*550)+60;
   if(prefs.voiceMode==='scores'){const txt=m.say(t).replace(/[ !.]+$/,'')||(t.bust?'Dépassé':t.total===0?'Zéro':t.total!=null?String(t.total):'');
     if(txt)setTimeout(()=>sayScore(txt),wait);return}
-  const prefix=prefs.announce&&!Pack.has(amb)?m.say(t):'';
+  const prefix=prefs.announce&&!Pack.has(voicePack(amb))?m.say(t):'';
   setTimeout(()=>Voice.react(choice,prefix,amb),wait);
 }
 /* Mode « scores seuls » : la voix dit seulement le score. Un nombre seul est lu depuis le pack
-   enregistré s'il est installé — « scores » (voix homme) ou « scoresf » (voix femme) selon
-   prefs.scoreVoice, clips <pack>_n_<nombre> — sinon par la voix du téléphone. */
-function scorePack(){const want=prefs.scoreVoice==='f'?'scoresf':'scores';return Pack.has(want)?want:Pack.has('scores')?'scores':Pack.has('scoresf')?'scoresf':null}
+   enregistré s'il est installé — « scoresf » (voix femme) ou « scores » (voix homme) selon
+   prefs.voiceSex, clips <pack>_n_<nombre> — sinon par la voix du téléphone. */
+function scorePack(){const pk=voicePack('scores');return Pack.has(pk)?pk:null}
 function sayScore(txt){if(!prefs.voice||prefs.muted)return;const pk=scorePack(),id=pk+'_n_'+txt;
   if(pk&&/^\d+$/.test(txt)&&Pack.files[pk].has(id))Pack.play(id,ok=>{if(!ok)Voice.say(txt,'standard')});else Voice.say(txt,'standard')}
 /* Score d'une volée ou d'une mène, affiché dans la barre du haut à la place du titre pendant 2,6 s
@@ -4003,7 +4008,7 @@ function finishGame(){
   setTimeout(()=>Inbox.flush().catch(()=>{}),1500);
 }
 /* Début de partie : phrase de lancement dans l'ambiance du premier joueur */
-function announceStart(){if(!game||!game.players||!game.players.length)return;Pack.preload(game.players.map((_,k)=>ambOf(k)));if(prefs.voiceMode==='scores'&&scorePack())Pack.preload([scorePack()]);const amb=ambOf(0);const c=choosePhrase(amb,'start',{n:game.players[0].name,r:''});
+function announceStart(){if(!game||!game.players||!game.players.length)return;Pack.preload(game.players.map((_,k)=>voicePack(ambOf(k))));if(prefs.voiceMode==='scores'&&scorePack())Pack.preload([scorePack()]);const amb=ambOf(0);const c=choosePhrase(amb,'start',{n:game.players[0].name,r:''});
   setTimeout(()=>{if(screen==='game')Voice.react(c,'',amb)},700)}
 function announceEnd(){const e=game.endPhrase;if(!e)return;const d=Sound.play('checkout');setTimeout(()=>Voice.react(e,'',e.amb),Math.round(d*500)+100)}
 
@@ -4092,7 +4097,7 @@ document.addEventListener('click',e=>{
       d.teams.forEach((t,i)=>{t.name=(t.name||'').trim()||(D.kind==='molkky'?'Joueur '+(i+1):'Équipe '+(i+1));if(D.kind==='molkky')ensureProfile(t.name)});
       gate(d.kind,D.name,()=>{
       g2={id:uid(),kind:d.kind,opts:Object.assign({},d.opts),teams:JSON.parse(JSON.stringify(d.teams)),events:[],created:Date.now()};
-      const lo=store.get('lastOther',{});lo[d.kind]={opts:d.opts};store.set('lastOther',lo);resetOtherDraft();saveG2();Sound.unlock();Voice.warm();go('mplay');sayGame('start',600);Pack.preload(['jeux'])});break}
+      const lo=store.get('lastOther',{});lo[d.kind]={opts:d.opts};store.set('lastOther',lo);resetOtherDraft();saveG2();Sound.unlock();Voice.warm();go('mplay');sayGame('start',600);Pack.preload([voicePack('jeux')])});break}
     case 'mpt':{if(g2.finishedAt)break;const [t,pts]=v.split('|').map(Number);g2.events.push({t,pts});saveG2();renderOPlay();o2react(pts,OTHER[g2.kind].max(g2.opts),t);break}
     case 'chs':{CH3.hist.push(chSnap());const [k,j,d]=v.split('|');const a=chDraft[k];const nv=Math.max(0,Math.min(4,a[+j]+(+d)));if(nv+a[1-(+j)]<=4)a[+j]=nv;chEnsureBags();CH3.draw();chUpdate();break}
     case 'chval':{if(g2.finishedAt)break;const e={a:chDraft.a.slice(),b:chDraft.b.slice()};g2.events.push(e);resetOtherDraft();saveG2();renderOPlay();
@@ -4192,7 +4197,8 @@ document.addEventListener('click',e=>{
     case 'listen':Sound.unlock();Voice.warm();demo(v);break;
     case 'vtest':Sound.unlock();Voice._testing=true;Voice.runTest();break;
     case 'vmode':prefs.voiceMode=v;savePrefs();render();break;
-    case 'svoice':prefs.scoreVoice=v;savePrefs();render();Sound.unlock();sayScore('180');break;
+    case 'vsex':{prefs.voiceSex=v;savePrefs();render();Sound.unlock();   /* exemple : un score, ou une phrase de l'ambiance */
+      if(prefs.voiceMode==='scores')sayScore('180');else{const a=ambSafe(prefs.ambiance),c=choosePhrase(a,'big',{n:'',r:''});Voice.react(c,'',a)}break}
     case 'tog':prefs[v]=!prefs[v];savePrefs();b.setAttribute('aria-pressed',prefs[v]);if(v==='sounds'&&prefs.sounds)Sound.play('mid');break;
     case 'thr':{const [k,dv]=v.split(':');const t=prefs.thr.x01;t[k]=Math.max(k==='big'?40:0,Math.min(k==='big'?170:90,t[k]+ +dv));if(t.low>=t.big)t.low=t.big-10;savePrefs();renderSettings();break}
     case 'launch':{
